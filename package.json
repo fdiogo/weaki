@@ -1,0 +1,34 @@
+{
+  "name": "weaki",
+  "version": "1.0.0",
+  "description": "An electron based tool for agile software documentation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fdiogo/weaki.git"
+  },
+  "keywords": [
+    "weaki",
+    "electron",
+    "agile",
+    "documentation"
+  ],
+  "author": "Diogo Ferreira",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fdiogo/weaki/issues"
+  },
+  "homepage": "https://github.com/fdiogo/weaki#readme",
+  "devDependencies": {
+    "ghooks": "^1.3.2",
+    "gulp": "^3.9.1"
+  },
+  "config": {
+    "ghooks": {
+      "pre-commit": "npm test"
+    }
+  }
+}
