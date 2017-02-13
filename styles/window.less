@@ -1,0 +1,42 @@
+html {
+    height: 100%;
+}
+
+body {
+    display: flex;
+    flex-flow: column nowrap;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    background-color: lightgray;
+}
+
+#workspace {
+    flex-grow: 1;
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+
+    > div {
+        flex-grow: 1;
+    }
+}
+
+#left-sidebar {
+    width: 20%;
+}
+
+#main-panel {
+    width: 70%;
+}
+
+#right-sidebar {
+    width: 10%;
+}
+
+#bottom-bar {
+    width: 100%;
+    height: 20px;
+}
