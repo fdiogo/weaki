@@ -2,16 +2,13 @@ const {app, BrowserWindow, globalShortcut} = require('electron');
 const path = require('path');
 const url = require('url');
 
-const templatesDirectory = path.join(__dirname, 'templates');
-const mainWindowPath = path.join(templatesDirectory, 'window.jade');
-
 app.on('ready', () => {
     const mainWindow = new BrowserWindow({
         title: 'Weaki'
     });
 
     mainWindow.loadURL(url.format({
-        pathname: mainWindowPath,
+        pathname: path.join(__dirname, 'src', 'window.html'),
         protocol: 'file',
         slashes: true
     }));

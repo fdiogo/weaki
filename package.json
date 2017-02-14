@@ -2,10 +2,11 @@
   "name": "weaki",
   "version": "1.0.0",
   "description": "An electron based tool for agile software documentation",
-  "main": "app.js",
+  "main": "build/app.js",
   "scripts": {
-    "package": "electron-packager-compile . weaki --platform linux",
-    "start": "electron app.js"
+    "package": "electron-packager-compile . weaki --platform win32",
+    "build": "gulp build",
+    "start": "npm run build && electron build/app.js"
   },
   "repository": {
     "type": "git",
@@ -28,11 +29,13 @@
     "chai": "^3.5.0",
     "electron": "^1.4.15",
     "electron-packager": "^8.1.0",
-    "electron-prebuilt-compile": "^1.4.15",
     "eslint": "^3.15.0",
     "eslint-config-standard": "^6.2.1",
     "eslint-plugin-promise": "^3.4.1",
     "eslint-plugin-standard": "^2.0.1",
+    "gulp": "^3.9.1",
+    "gulp-pug": "^3.2.0",
+    "gulp-sass": "^3.1.0",
     "mocha": "^3.1.2"
   },
   "dependencies": {
