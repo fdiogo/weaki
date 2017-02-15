@@ -6,7 +6,8 @@
   "scripts": {
     "package": "electron-packager-compile . weaki --platform win32",
     "build": "gulp build",
-    "start": "npm run build && electron build/app.js"
+    "start": "electron build/app.js",
+    "watch": "gulp watch"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     "gulp": "^3.9.1",
     "gulp-pug": "^3.2.0",
     "gulp-sass": "^3.1.0",
+    "gulp-watch": "^4.3.11",
     "mocha": "^3.1.2"
   },
   "dependencies": {

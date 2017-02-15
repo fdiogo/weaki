@@ -1,5 +1,7 @@
 /* eslint-disable */
 var gulp = require('gulp');
+var watch = require('gulp-watch');
+var spawn = require('child_process').spawn;
 var sass = require('gulp-sass');
 var pug = require('gulp-pug');
 
@@ -26,3 +28,7 @@ gulp.task('build-templates', function() {
 });
 
 gulp.task('build', ['build-javascript', 'build-styles', 'build-templates']);
+gulp.task('watch', ['build'], function() {
+  spawn('npm', ['start']);
+  return gulp.watch(['src/**/*.pug', 'app.js'], ['build']);
+});
