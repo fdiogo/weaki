@@ -29,6 +29,5 @@ gulp.task('build-templates', function() {
 
 gulp.task('build', ['build-javascript', 'build-styles', 'build-templates']);
 gulp.task('watch', ['build'], function() {
-  spawn('npm', ['start']);
   return gulp.watch(['src/**/*.pug', 'app.js'], ['build']);
 });
