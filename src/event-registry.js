@@ -4,13 +4,13 @@ class EventRegistry {
         this.actions = {};
     }
 
-    register (eventType, action) {
+    on (eventType, action) {
         let registeredActions = this.actions[eventType];
 
         if (!registeredActions)
             this.actions[eventType] = registeredActions = [];
 
-        registeredActions.push[action];
+        registeredActions.push(action);
     }
 
     fire (eventType, payload) {

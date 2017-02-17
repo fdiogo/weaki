@@ -4,7 +4,7 @@ class CommandRegistry {
         this.registeredCommands = {};
     }
 
-    on (selector, action) {
+    register (selector, action) {
         this.registeredCommands[selector] = action;
     }
 
