@@ -13,7 +13,7 @@ class Editor extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            content: props.content
+            content: props.content || ''
         };
     }
 
@@ -21,10 +21,19 @@ class Editor extends React.Component {
         this.setState(nextProps);
     }
 
-    render () {
-        return <textarea value={this.state.content}></textarea>;
+    handleOnChange (event) {
+        this.setState({
+            content: event.target.value
+        });
     }
 
+    render () {
+        return <textarea
+            id="editor-content"
+            value={this.state.content}
+            onChange={this.handleOnChange}>
+        </textarea>;
+    }
 }
 
 export default Editor;

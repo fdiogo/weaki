@@ -19,7 +19,17 @@ function openFile () {
             return;
 
         const filePath = files[0];
-        return fs.readFile(filePath, 'utf8', console.log);
+        return fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) {
+                console.log(err);
+                return;
+            }
+
+            global.mainWindow.webContents.send('editor:file-loaded', {
+                filePath: filePath,
+                contents: data
+            });
+        });
     });
 }
 

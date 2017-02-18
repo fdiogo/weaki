@@ -9,11 +9,10 @@ import OpenFileCommand from './src/commands/open-file-command';
 const commandRegistry = new CommandRegistry();
 const eventRegistry = new EventRegistry();
 
-let mainWindow;
 app.on('ready', () => {
-    mainWindow = new BrowserWindow({title: 'Weaki'});
+    global.mainWindow = new BrowserWindow({title: 'Weaki'});
 
-    mainWindow.loadURL(url.format({
+    global.mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'src', 'window.html'),
         protocol: 'file',
         slashes: true
@@ -30,6 +29,10 @@ function registerCommands () {
 
 function registerShortcuts () {
     globalShortcut.register('Control+O', () => triggerCommand('editor:open-file', null));
+    globalShortcut.register('Control+H', () => global.mainWindow.webContents.send('editor:file-loaded', {
+        filePath: '/usr/diogo/desktop/file.txt',
+        contents: 'hmm'
+    }));
 }
 
 function registerEvents () {
