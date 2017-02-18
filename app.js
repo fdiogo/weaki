@@ -9,8 +9,9 @@ import OpenFileCommand from './src/commands/open-file-command';
 const commandRegistry = new CommandRegistry();
 const eventRegistry = new EventRegistry();
 
+let mainWindow;
 app.on('ready', () => {
-    const mainWindow = new BrowserWindow({title: 'Weaki'});
+    mainWindow = new BrowserWindow({title: 'Weaki'});
 
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'src', 'window.html'),
@@ -19,12 +20,16 @@ app.on('ready', () => {
     }));
 
     registerCommands();
-    registerEvents();
     registerShortcuts();
+    registerEvents();
 });
 
 function registerCommands () {
     commandRegistry.register('editor:open-file', new OpenFileCommand());
+}
+
+function registerShortcuts () {
+    globalShortcut.register('Control+O', () => triggerCommand('editor:open-file', null));
 }
 
 function registerEvents () {
@@ -33,10 +38,6 @@ function registerEvents () {
         if (command)
             command.execute(descriptor.arguments);
     });
-}
-
-function registerShortcuts () {
-    globalShortcut.register('Control+O', () => triggerCommand('editor:open-file', null));
 }
 
 function triggerCommand (selector, args) {

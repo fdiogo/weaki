@@ -1,21 +1,30 @@
-const fs = require('fs');
-const remote = require('electron').remote;
+import React from 'react';
 
-const saveButton = document.getElementById('save');
-const pageContent = document.getElementById('page-content');
+const PropTypes = {
+    content: React.PropTypes.string
+};
 
-function save () {
-    console.log('someone pressed Save!');
+class Editor extends React.Component {
 
-    remote.dialog.showOpenDialog({
-        title: 'Save..',
-        multiSelections: false,
-        defaultPath: remote.app.getPath('desktop')
-    }, (files) => {
-        if (files === undefined || files.length !== 1)
-            return;
+    static get propTypes () {
+        return PropTypes;
+    }
 
-        let savePath = files[0];
-        fs.writeFileSync(savePath, pageContent.value);
-    });
+    constructor (props) {
+        super(props);
+        this.state = {
+            content: props.content
+        };
+    }
+
+    componentWillReceiveProps (nextProps) {
+        this.setState(nextProps);
+    }
+
+    render () {
+        return <textarea value={this.state.content}></textarea>;
+    }
+
 }
+
+export default Editor;

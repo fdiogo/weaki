@@ -2,10 +2,12 @@ extends: standard
 plugins:
   - standard
   - promise
+  - react
 parserOptions:
   ecmaVersion: 6
   sourceType: module
 rules:
+  react/jsx-uses-vars: [2]
   semi: ['error', 'always']
   no-undef: 'error'
   no-var: 'error'

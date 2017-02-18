@@ -1,9 +1,17 @@
 import React from 'react';
 
+const PropTypes = {
+    name: React.PropTypes.string
+};
+
 class Explorer extends React.Component {
 
+    static get propTypes () {
+        return PropTypes;
+    }
+
     render () {
-        return <div>Hello {this.props.name}</div>;
+        return <h1>{this.props.name}</h1>;
     }
 }
 

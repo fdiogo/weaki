@@ -9,6 +9,8 @@ class OpenFileCommand extends Command {
 }
 
 function openFile () {
+    console.log('heyo ' + app.mainWindow);
+
     dialog.showOpenDialog({
         title: 'Open File',
         defaultPath: app.getPath('desktop')
