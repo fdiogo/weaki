@@ -8,11 +8,15 @@ addons:
 install:
 - export DISPLAY=':99.0'
 - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+- npm i
+before_deploy: "npm run build && npm run package"
 deploy:
+  skip_cleanup: true
   provider: releases
   api_key:
     secure: Nhcihk1AgsxAVW7Wm1U8G4pxCd55UYAeraYjPBv6CtR67wtLBe8VKHnG3AEwokcdNN+CmSoAAeC4Mq/Q6KIlZdzXTK+j7O1UuTm+tauycSOT6HX7tOjd+FdfJMVVL3IF3LWIwKfP8k7I4MxHyGNQtH981B9aoEMuJ+mRe1EKUh+8b9vXcedzM2Y/aYVcSbJdXD48dLxU/hnNAGAtVekvBIBPqYbagKpAiOQr80Ccx4+elHYh38UvJkiANW/CDmi+f82gjiWZK15qy0XEnhqZFPndX1Rlb53EB+EQ4sgU9OdzGEjEjnO3naiD2xd5m2JvEa/zFa9CTkhs83McwsPlep/wEq3v+Fd0C4HpHW2hz8Alwt2wnF7SZI2Oa+F86DcyqEUjbJ/luUYAtFaIbL3wDE0z5gA/qdk/8Vkjm8Ne1PD46RJSCjxuHLtER1Zl4gZQGmkfElMS2KZMelXx44LKE8eA/z1+XM7VF0VcCmQi4HnEW6H5/Ubcge7S6AAxv7BRCLb3pbhFax9k/oLMiMDI9V8xMSDjTpGZKjDXuAq5VICFqg71keNdHAa2KIaYlmqDNGpOA6CLvQCFDeSG8Jw7BkvvIcBfh7zt6D67LdVxJPhMQsGvRk2K9f0HhVqTI54LhT6EBA8dgWvOJHWsB7H+juS5CYroR2JVAhqcfD2Ley8=
-  file: "*.rar"
+  file: dist/*.zip
+  file_glob: true
   on:
     tags: true
     repo: fdiogo/weaki

@@ -4,8 +4,9 @@
   "description": "An electron based tool for agile software documentation",
   "main": "build/app.js",
   "scripts": {
-    "package": "electron-packager . weaki --platform win32,mas",
+    "package": "mkdir dist -p && electron-packager . --out=dist --platform linux,mas --arch=all --osx-sign && for i in dist/*/; do zip -rq \"${i%/}.zip\" \"$i\"; done ",
     "build": "gulp build",
+    "clean": "rm -rf dist build",
     "start": "electron build/app.js",
     "watch": "gulp watch"
   },
@@ -38,6 +39,7 @@
     "eslint-plugin-promise": "^3.4.1",
     "eslint-plugin-react": "^6.10.0",
     "eslint-plugin-standard": "^2.0.1",
+    "github": "^9.0.0",
     "gulp": "^3.9.1",
     "gulp-add-src": "^0.2.0",
     "gulp-babel": "^6.1.2",
