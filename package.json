@@ -4,7 +4,7 @@
   "description": "An electron based tool for agile software documentation",
   "main": "build/app.js",
   "scripts": {
-    "package": "electron-packager-compile . weaki --platform win32",
+    "package": "electron-packager . weaki --platform win32,mas",
     "build": "gulp build",
     "start": "electron build/app.js",
     "watch": "gulp watch"

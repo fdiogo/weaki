@@ -11,7 +11,7 @@ class Explorer extends React.Component {
     }
 
     render () {
-        return <h1>{this.props.name}</h1>;
+        return <ul>{this.props.name}</ul>;
     }
 }
 

@@ -1,10 +1,12 @@
-import {app, BrowserWindow, globalShortcut} from 'electron';
+import {app, BrowserWindow, globalShortcut, Menu} from 'electron';
 import path from 'path';
 import url from 'url';
 
 import CommandRegistry from './src/command-registry';
 import EventRegistry from './src/event-registry';
 import OpenFileCommand from './src/commands/open-file-command';
+import KeyMaps from './src/keymaps';
+import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
 const eventRegistry = new EventRegistry();
@@ -20,6 +22,7 @@ app.on('ready', () => {
 
     registerCommands();
     registerShortcuts();
+    createMenu();
     registerEvents();
 });
 
@@ -28,11 +31,12 @@ function registerCommands () {
 }
 
 function registerShortcuts () {
-    globalShortcut.register('Control+O', () => triggerCommand('editor:open-file', null));
-    globalShortcut.register('Control+H', () => global.mainWindow.webContents.send('editor:file-loaded', {
-        filePath: '/usr/diogo/desktop/file.txt',
-        contents: 'hmm'
-    }));
+    globalShortcut.register(KeyMaps['editor:open-file'], triggerCommand.bind(null, 'editor:open-file', null));
+}
+
+function createMenu () {
+    const menu = Menu.buildFromTemplate(MenuTemplate);
+    Menu.setApplicationMenu(menu);
 }
 
 function registerEvents () {
@@ -49,3 +53,7 @@ function triggerCommand (selector, args) {
         arguments: args
     });
 }
+
+export default {
+    triggerCommand: triggerCommand
+};

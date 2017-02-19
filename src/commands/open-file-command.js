@@ -4,13 +4,11 @@ import Command from './command';
 
 class OpenFileCommand extends Command {
     constructor () {
-        super(openFile, openFile);
+        super(openFile, null);
     }
 }
 
 function openFile () {
-    console.log('heyo ' + app.mainWindow);
-
     dialog.showOpenDialog({
         title: 'Open File',
         defaultPath: app.getPath('desktop')

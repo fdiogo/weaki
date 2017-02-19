@@ -15,8 +15,9 @@ class Window extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            file: '',
-            filePath: ''
+            openFiles: {},
+            currentFile: null,
+            workspace: null
         };
 
         ipcRenderer.on('editor:file-loaded', this.onFileLoaded.bind(this));
@@ -29,8 +30,10 @@ class Window extends React.Component {
      */
     onFileLoaded (event, payload) {
         this.setState({
-            file: payload.contents,
-            filePath: payload.filePath
+            currentFile: {
+                contents: payload.contents,
+                path: payload.filePath
+            }
         });
     }
 
@@ -38,16 +41,16 @@ class Window extends React.Component {
         return <div id="viewport">
             <div id="workspace">
                 <div id="left-sidebar">
-                    <Explorer name='hey'></Explorer>
+                    <Explorer></Explorer>
                 </div>
                 <div id="main-panel">
-                    <Editor content={this.state.file}></Editor>
+                    <Editor content={this.state.currentFile ? this.state.currentFile.contents : ''}></Editor>
                 </div>
                 <div id="right-sidebar">
                 </div>
             </div>
-            <div id="status-bar">
-                <StatusBar filePath={this.state.filePath}></StatusBar>
+            <div id="bottom-bar">
+                <StatusBar filePath={this.state.currentFile ? this.state.currentFile.path : null}></StatusBar>
             </div>
         </div>;
     }
