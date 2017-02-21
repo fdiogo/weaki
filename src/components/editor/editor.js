@@ -1,7 +1,8 @@
 import React from 'react';
 
 const PropTypes = {
-    content: React.PropTypes.string
+    content: React.PropTypes.string.isRequired,
+    onUpdate: React.PropTypes.func
 };
 
 class Editor extends React.Component {
@@ -25,13 +26,16 @@ class Editor extends React.Component {
         this.setState({
             content: event.target.value
         });
+
+        if (this.props.onUpdate)
+            this.props.onUpdate(event.target.value);
     }
 
     render () {
         return <textarea
             id="editor-content"
             value={this.state.content}
-            onChange={this.handleOnChange}>
+            onChange={this.handleOnChange.bind(this)}>
         </textarea>;
     }
 }

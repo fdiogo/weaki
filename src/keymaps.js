@@ -1,3 +1,4 @@
 export default {
-    'editor:open-file': 'CmdOrCtrl+O'
+    'editor:open-file': 'CmdOrCtrl+O',
+    'editor:save-file': 'CmdOrCtrl+S'
 };

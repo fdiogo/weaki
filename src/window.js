@@ -16,25 +16,11 @@ class Window extends React.Component {
         super(props);
         this.state = {
             openFiles: {},
-            currentFile: null,
-            workspace: null
+            currentFilePath: null
         };
 
         ipcRenderer.on('editor:file-loaded', this.onFileLoaded.bind(this));
-    }
-
-    /**
-     * The handler of the channel 'editor:file-loaded'.
-     * @param {Object} event - The event descriptor
-     * @param {Object} payload - A descriptor of the file {filePath, contents}
-     */
-    onFileLoaded (event, payload) {
-        this.setState({
-            currentFile: {
-                contents: payload.contents,
-                path: payload.filePath
-            }
-        });
+        ipcRenderer.on('editor:current-file-request', this.onCurrentFileRequest.bind(this));
     }
 
     render () {
@@ -44,15 +30,51 @@ class Window extends React.Component {
                     <Explorer></Explorer>
                 </div>
                 <div id="main-panel">
-                    <Editor content={this.state.currentFile ? this.state.currentFile.contents : ''}></Editor>
+                    <Editor content={this.state.currentFilePath ? this.state.openFiles[this.state.currentFilePath] : ''}
+                            onUpdate={this.onCurrentFileUpdate.bind(this)}>
+                    </Editor>
                 </div>
                 <div id="right-sidebar">
                 </div>
             </div>
             <div id="bottom-bar">
-                <StatusBar filePath={this.state.currentFile ? this.state.currentFile.path : null}></StatusBar>
+                <StatusBar filePath={this.state.currentFilePath}></StatusBar>
             </div>
         </div>;
+    }
+
+    /**
+     * The handler of the channel 'editor:file-loaded'.
+     * @param {Object} event - The event descriptor
+     * @param {Object} payload - A descriptor of the file {filePath, contents}
+     */
+    onFileLoaded (event, payload) {
+        this.setState({
+            openFiles: {
+                [payload.filePath]: payload.contents
+            },
+            currentFilePath: payload.filePath
+        });
+    }
+
+    /**
+     * This a callback registered on the Editor component as to always have the most up-to-date contents of the current
+     * file. It doesn't call 'this.setState' as to not trigger a new render on the Editor component.
+     */
+    onCurrentFileUpdate (contents) {
+        this.state.openFiles[this.state.currentFilePath] = contents;
+    }
+
+    /**
+     * The handler of the channel 'editor:current-file-request'.
+     * @param {Object} event - The event descriptor
+     * @param {String} responseChannel - The channel to respond to with the file descriptor
+     */
+    onCurrentFileRequest (event, responseChannel) {
+        event.sender.send(responseChannel, {
+            path: this.state.currentFilePath,
+            contents: this.state.openFiles[this.state.currentFilePath]
+        });
     }
 };
 

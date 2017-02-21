@@ -1,59 +1,50 @@
-import {app, BrowserWindow, globalShortcut, Menu} from 'electron';
+import {app, BrowserWindow, Menu} from 'electron';
 import path from 'path';
 import url from 'url';
 
 import CommandRegistry from './src/command-registry';
-import EventRegistry from './src/event-registry';
 import OpenFileCommand from './src/commands/open-file-command';
-import KeyMaps from './src/keymaps';
+import SaveFileCommand from './src/commands/save-file-command';
 import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
-const eventRegistry = new EventRegistry();
+const commandStack = [];
 
 app.on('ready', () => {
-    global.mainWindow = new BrowserWindow({title: 'Weaki'});
+    const mainWindow = new BrowserWindow({title: 'Weaki'});
 
-    global.mainWindow.loadURL(url.format({
+    mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'src', 'window.html'),
         protocol: 'file',
         slashes: true
     }));
 
+    Object.defineProperty(global, 'mainWindow', { get: () => mainWindow });
     registerCommands();
-    registerShortcuts();
     createMenu();
-    registerEvents();
 });
 
 function registerCommands () {
     commandRegistry.register('editor:open-file', new OpenFileCommand());
-}
-
-function registerShortcuts () {
-    globalShortcut.register(KeyMaps['editor:open-file'], triggerCommand.bind(null, 'editor:open-file', null));
+    commandRegistry.register('editor:save-file', new SaveFileCommand());
 }
 
 function createMenu () {
-    const menu = Menu.buildFromTemplate(MenuTemplate);
+    const template = new MenuTemplate();
+    const menu = Menu.buildFromTemplate(template.value);
     Menu.setApplicationMenu(menu);
 }
 
-function registerEvents () {
-    eventRegistry.on('command-triggered', (descriptor) => {
-        const command = commandRegistry.get(descriptor.selector);
-        if (command)
-            command.execute(descriptor.arguments);
-    });
-}
-
-function triggerCommand (selector, args) {
-    eventRegistry.fire('command-triggered', {
-        selector: selector,
-        arguments: args
-    });
+function executeCommand (selector) {
+    const command = commandRegistry.get(selector);
+    try {
+        command.execute();
+        commandStack.push(command);
+    } catch (error) {
+        console.log(`Could not execute '${selector}'! Detailed error: ${error}`);
+    }
 }
 
 export default {
-    triggerCommand: triggerCommand
+    executeCommand: executeCommand
 };
