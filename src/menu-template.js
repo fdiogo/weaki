@@ -10,14 +10,19 @@ class MenuTemplate {
                 label: 'File',
                 submenu: [
                     {
+                        label: 'Open File...',
+                        accelerator: keys['editor:open-file'],
+                        click: weaki.executeCommand.bind(null, 'editor:open-file')
+                    },
+                    {
                         label: 'Save',
                         accelerator: keys['editor:save-file'],
                         click: weaki.executeCommand.bind(null, 'editor:save-file')
                     },
                     {
-                        label: 'Open File...',
-                        accelerator: keys['editor:open-file'],
-                        click: weaki.executeCommand.bind(null, 'editor:open-file')
+                        label: 'Close',
+                        accelerator: keys['editor:close-file'],
+                        click: weaki.executeCommand.bind(null, 'editor:close-file')
                     },
                     {
                         role: 'quit'

@@ -5,6 +5,7 @@ import url from 'url';
 import CommandRegistry from './src/command-registry';
 import OpenFileCommand from './src/commands/open-file-command';
 import SaveFileCommand from './src/commands/save-file-command';
+import CloseFileCommand from './src/commands/close-file-command';
 import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
@@ -27,6 +28,7 @@ app.on('ready', () => {
 function registerCommands () {
     commandRegistry.register('editor:open-file', new OpenFileCommand());
     commandRegistry.register('editor:save-file', new SaveFileCommand());
+    commandRegistry.register('editor:close-file', new CloseFileCommand());
 }
 
 function createMenu () {

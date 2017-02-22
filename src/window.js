@@ -21,6 +21,7 @@ class Window extends React.Component {
 
         ipcRenderer.on('editor:file-loaded', this.onFileLoaded.bind(this));
         ipcRenderer.on('editor:current-file-request', this.onCurrentFileRequest.bind(this));
+        ipcRenderer.on('editor:close-file', this.onCloseFile.bind(this));
     }
 
     render () {
@@ -44,6 +45,15 @@ class Window extends React.Component {
     }
 
     /**
+     * This a callback registered on the Editor component as to always have the most up-to-date contents of the current
+     * file. It doesn't call 'this.setState' as to not trigger a new render on the Editor component.
+     * @param {String} contents - The updated contents of the file
+     */
+    onCurrentFileUpdate (contents) {
+        this.state.openFiles[this.state.currentFilePath] = contents;
+    }
+
+    /**
      * The handler of the channel 'editor:file-loaded'.
      * @param {Object} event - The event descriptor
      * @param {Object} payload - A descriptor of the file {filePath, contents}
@@ -58,14 +68,6 @@ class Window extends React.Component {
     }
 
     /**
-     * This a callback registered on the Editor component as to always have the most up-to-date contents of the current
-     * file. It doesn't call 'this.setState' as to not trigger a new render on the Editor component.
-     */
-    onCurrentFileUpdate (contents) {
-        this.state.openFiles[this.state.currentFilePath] = contents;
-    }
-
-    /**
      * The handler of the channel 'editor:current-file-request'.
      * @param {Object} event - The event descriptor
      * @param {String} responseChannel - The channel to respond to with the file descriptor
@@ -75,6 +77,25 @@ class Window extends React.Component {
             path: this.state.currentFilePath,
             contents: this.state.openFiles[this.state.currentFilePath]
         });
+    }
+
+    /**
+     * The handler of the channel 'editor:close-file'. If no filePath is specified, the current file being edited is
+     * closed.
+     * @param {Object} event - The event descriptor
+     * @param {String} filePath - The path of the file to be closed
+     */
+    onCloseFile (event, filePath) {
+        if (!filePath)
+            filePath = this.state.currentFilePath;
+
+        delete this.state.openFiles[filePath];
+        const openFilePaths = Object.keys(this.state.openFiles);
+        let nextCurrentFile = null;
+        if (openFilePaths.length > 0)
+            nextCurrentFile = openFilePaths[0];
+
+        this.setState({ currentFilePath: nextCurrentFile });
     }
 };
 
