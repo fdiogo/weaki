@@ -50,6 +50,8 @@ function getFileDescriptor () {
  * @return {Promise} - A promise to the write operation
  */
 function writeFile (fileDescriptor) {
+    console.log(`Writing to file '${fileDescriptor.path}': '${fileDescriptor.contents}'`);
+
     return new Promise(function (resolve, reject) {
         fs.writeFile(fileDescriptor.path, fileDescriptor.contents, error => {
             if (error) reject(error);

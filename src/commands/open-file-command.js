@@ -3,31 +3,51 @@ import fs from 'fs';
 import Command from './command';
 
 class OpenFileCommand extends Command {
-    constructor () {
-        super(openFile, null);
+    constructor (filePath) {
+        super(openFile.bind(null, filePath), null);
     }
 }
 
-function openFile () {
-    dialog.showOpenDialog({
-        title: 'Open File',
-        defaultPath: app.getPath('desktop')
-    }, files => {
-        if (files === undefined || files.length !== 1)
-            return;
+function openFile (filePath) {
+    if (!filePath) {
+        return getFilePath()
+                .then(readFile)
+                .then(send);
+    } else {
+        return readFile(filePath)
+                .then(send);
+    }
+}
 
-        const filePath = files[0];
-        return fs.readFile(filePath, 'utf8', (err, data) => {
-            if (err) {
-                console.log(err);
-                return;
-            }
-
-            global.mainWindow.webContents.send('editor:file-loaded', {
-                filePath: filePath,
-                contents: data
-            });
+function getFilePath () {
+    return new Promise(function (resolve, reject) {
+        dialog.showOpenDialog({
+            title: 'Open File',
+            defaultPath: app.getPath('desktop')
+        }, files => {
+            if (files === undefined)
+                reject('No file was selected!');
+            else if (files.length !== 1)
+                reject('You can only select one file!');
+            else
+                resolve(files[0]);
         });
+    });
+}
+
+function readFile (filePath) {
+    return new Promise(function (resolve, reject) {
+        fs.readFile(filePath, 'utf8', (err, data) => {
+            if (err) reject(err);
+            else resolve({filePath: filePath, contents: data});
+        });
+    });
+}
+
+function send (file) {
+    return new Promise(resolve => {
+        global.mainWindow.webContents.send('editor:file-loaded', file);
+        resolve();
     });
 }
 

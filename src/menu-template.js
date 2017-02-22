@@ -1,5 +1,5 @@
 import { app } from 'electron';
-import keys from './keymaps';
+import keymap from './keymaps';
 import weaki from '../app.js';
 
 class MenuTemplate {
@@ -11,18 +11,18 @@ class MenuTemplate {
                 submenu: [
                     {
                         label: 'Open File...',
-                        accelerator: keys['editor:open-file'],
-                        click: weaki.executeCommand.bind(null, 'editor:open-file')
+                        accelerator: keymap['editor:open-file'],
+                        click: weaki.executeCommand.bind(null, 'editor:open-file', null)
                     },
                     {
                         label: 'Save',
-                        accelerator: keys['editor:save-file'],
-                        click: weaki.executeCommand.bind(null, 'editor:save-file')
+                        accelerator: keymap['editor:save-file'],
+                        click: weaki.executeCommand.bind(null, 'editor:save-file', null)
                     },
                     {
                         label: 'Close',
-                        accelerator: keys['editor:close-file'],
-                        click: weaki.executeCommand.bind(null, 'editor:close-file')
+                        accelerator: keymap['editor:close-file'],
+                        click: weaki.executeCommand.bind(null, 'editor:close-file', null)
                     },
                     {
                         role: 'quit'

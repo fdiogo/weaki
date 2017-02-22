@@ -28,7 +28,7 @@ class Window extends React.Component {
         return <div id="viewport">
             <div id="workspace">
                 <div id="left-sidebar">
-                    <Explorer></Explorer>
+                    <Explorer openFiles={Object.keys(this.state.openFiles)}></Explorer>
                 </div>
                 <div id="main-panel">
                     <Editor content={this.state.currentFilePath ? this.state.openFiles[this.state.currentFilePath] : ''}
@@ -59,10 +59,8 @@ class Window extends React.Component {
      * @param {Object} payload - A descriptor of the file {filePath, contents}
      */
     onFileLoaded (event, payload) {
+        this.state.openFiles[payload.filePath] = payload.contents;
         this.setState({
-            openFiles: {
-                [payload.filePath]: payload.contents
-            },
             currentFilePath: payload.filePath
         });
     }

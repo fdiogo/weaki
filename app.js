@@ -1,4 +1,4 @@
-import {app, BrowserWindow, Menu} from 'electron';
+import {app, BrowserWindow, Menu, ipcMain} from 'electron';
 import path from 'path';
 import url from 'url';
 
@@ -13,6 +13,7 @@ const commandStack = [];
 
 app.on('ready', () => {
     const mainWindow = new BrowserWindow({title: 'Weaki'});
+    ipcMain.on('execute-command', (event, selector, commandArgs) => executeCommand(selector, commandArgs));
 
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'src', 'window.html'),
@@ -26,9 +27,9 @@ app.on('ready', () => {
 });
 
 function registerCommands () {
-    commandRegistry.register('editor:open-file', new OpenFileCommand());
-    commandRegistry.register('editor:save-file', new SaveFileCommand());
-    commandRegistry.register('editor:close-file', new CloseFileCommand());
+    commandRegistry.register('editor:open-file', OpenFileCommand);
+    commandRegistry.register('editor:save-file', SaveFileCommand);
+    commandRegistry.register('editor:close-file', CloseFileCommand);
 }
 
 function createMenu () {
@@ -37,10 +38,17 @@ function createMenu () {
     Menu.setApplicationMenu(menu);
 }
 
-function executeCommand (selector) {
-    const command = commandRegistry.get(selector);
+function executeCommand (selector, commandArguments) {
+    const CommandClass = commandRegistry.get(selector);
+    if (!CommandClass) {
+        console.log(`The command '${selector}' does not exist!`);
+        return;
+    }
+
     try {
+        const command = new CommandClass(commandArguments);
         command.execute();
+        console.log(`Executed '${selector}' with arguments '${commandArguments}'`);
         commandStack.push(command);
     } catch (error) {
         console.log(`Could not execute '${selector}'! Detailed error: ${error}`);
