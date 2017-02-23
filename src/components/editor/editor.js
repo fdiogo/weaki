@@ -32,11 +32,23 @@ class Editor extends React.Component {
     }
 
     render () {
-        return <textarea
-            id="editor-content"
-            value={this.state.content}
-            onChange={this.handleOnChange.bind(this)}>
-        </textarea>;
+        return <div id="editor">
+            <div id="editor-buttons">
+                <span className="editor-button"><img src="../assets/glyphicons-103-bold.png"/></span>
+                <span className="editor-button"><img src="../assets/glyphicons-102-italic.png"/></span>
+                <span className="editor-button"><img src="../assets/glyphicons-104-text-underline.png"/></span>
+                <span className="editor-button"><img src="../assets/glyphicons-105-text-strike.png"/></span>
+                <span className="editor-button"><img src="../assets/glyphicons-51-link.png"/></span>
+                <span className="editor-button"><img src="../assets/glyphicons-460-header.png"/></span>
+                <span className="editor-button"><img src="../assets/glyphicons-115-list.png"/></span>
+                <span className="editor-button"><img src="../assets/glyphicons-710-list-numbered.png"/></span>
+            </div>
+            <textarea
+                id="editor-content"
+                value={this.state.content}
+                onChange={this.handleOnChange.bind(this)}>
+            </textarea>
+        </div>;
     }
 }
 

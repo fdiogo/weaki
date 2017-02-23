@@ -4,7 +4,7 @@
   "description": "An electron based tool for agile software documentation",
   "main": "build/app.js",
   "scripts": {
-    "package": "mkdir dist -p && electron-packager . --out=dist --platform win32,linux,mas --arch=all --osx-sign && for i in dist/*/; do zip -rq \"${i%/}.zip\" \"$i\"; done ",
+    "package": "mkdir dist -p && electron-packager . --out=dist --platform win32,linux,mas,darwin --arch=all --osx-sign && for i in dist/*/; do zip -rq \"${i%/}.zip\" \"$i\"; done ",
     "build": "gulp build",
     "clean": "rm -rf dist build",
     "start": "electron build/app.js",

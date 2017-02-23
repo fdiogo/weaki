@@ -30,7 +30,12 @@ gulp.task('build-templates', function () {
         .pipe(gulp.dest('build/src'));
 });
 
-gulp.task('build', ['build-javascript', 'build-styles', 'build-templates']);
+gulp.task('copy-assets', function () {
+    gulp.src('assets/*')
+        .pipe(gulp.dest('build/assets'));
+});
+
+gulp.task('build', ['build-javascript', 'build-styles', 'build-templates', 'copy-assets']);
 gulp.task('watch', ['build'], function () {
     return gulp.watch(['src/**/*', 'app.js'], ['build']);
 });
