@@ -5,9 +5,13 @@ addons:
   apt:
     packages:
     - xvfb
+sudo: required
 install:
 - export DISPLAY=':99.0'
 - Xvfb :99 -screen 0 1024x768x24 > /dev/null 2>&1 &
+- sudo add-apt-repository ppa:ubuntu-wine/ppa -y
+- sudo apt-get update
+- sudo apt-get install -y wine1.7
 - npm i
 before_deploy: "npm run build && npm run package"
 deploy:

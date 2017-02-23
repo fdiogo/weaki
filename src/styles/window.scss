@@ -6,6 +6,7 @@ html, body, #root {
     padding: 0px;
     margin: 0px;
     overflow: hidden;
+    font-family: sans-serif;
 }
 
 #viewport {
@@ -25,17 +26,15 @@ html, body, #root {
         }
 
         #left-sidebar {
-            width: 20%;
             background-color: lightcyan;
         }
 
         #main-panel {
-            width: 60%;
+            width: 100%;
             background-color: lightblue;
         }
 
         #right-sidebar {
-            width: 10%;
             background-color: #f9d068;
         }
     }

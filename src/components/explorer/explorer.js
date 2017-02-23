@@ -33,7 +33,7 @@ class Explorer extends React.Component {
             entries.push(<li key={filePath} onClick={onClickHandler}>{fileName}</li>);
         }
 
-        return <ul>{entries}</ul>;
+        return <ul id='explorer-tree'>{entries}</ul>;
     }
 
 }

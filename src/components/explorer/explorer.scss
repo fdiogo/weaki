@@ -1,11 +1,23 @@
 #explorer-tree {
-    background-color: black;
+    height: 100%;
+    width: 200px;
+    margin: 0px;
+    padding: 0px;
+    background-color: #090b0d;
+    color: white;
 
-    .explorer-tree-folder {
+    li {
+        display: flex;
         height: 30px;
+        align-items: center;
+        justify-content: center;
+        background-color: rgb(31, 37, 39);
+        margin-bottom: 1px;
+        font-size: 14px;
     }
 
-    .explorer-tree-file {
-        height: 30px;
+    li:hover {
+        cursor: pointer;
+        background-color: #286161;
     }
 }
