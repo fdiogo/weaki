@@ -11,7 +11,9 @@ let fileRequests = 0;
 class SaveFileCommand extends Command {
 
     /**
-     * @param {Object} fileDescriptor - A descriptor of the file {path, contents}
+     * @param {Object} fileDescriptor - A descriptor of the file.
+     * @param {string} fileDescriptor.path - The path of the file.
+     * @param {string} fileDescriptor.contents - The contents of the file.
      */
     constructor (fileDescriptor) {
         super(saveFile.bind(null, fileDescriptor), null);
@@ -20,8 +22,10 @@ class SaveFileCommand extends Command {
 }
 
 /**
- * @param {Object} fileDescriptor - A descriptor of the file {path, contents}
- * @return {Promise} - A promise to the save operation
+ * @param {Object} fileDescriptor - A descriptor of the file.
+ * @param {string} fileDescriptor.path - The path of the file.
+ * @param {string} fileDescriptor.contents - The contents of the file.
+ * @return {Promise} - A promise to the save operation.
  */
 function saveFile (fileDescriptor) {
     if (!fileDescriptor)
@@ -32,22 +36,24 @@ function saveFile (fileDescriptor) {
 
 /**
  * Asks for the file currently being edited in the main window by sending a message on the channel
- * 'editor:current-file-request' and waiting for the response on single-use channel.
- * @return {Promise} - A promise to the file descriptor
+ * 'application:current-file' and waiting for the response on single-use channel.
+ * @return {Promise} - A promise to the file descriptor.
  */
 function getFileDescriptor () {
     return new Promise(function (resolve, reject) {
         const requestNumber = fileRequests++;
-        const responseChannel = `editor:current-file-request@${requestNumber}`;
+        const responseChannel = `application:current-file@${requestNumber}`;
         ipcMain.once(responseChannel, (event, fileDescriptor) => resolve(fileDescriptor));
-        global.mainWindow.webContents.send('editor:current-file-request', responseChannel);
+        global.mainWindow.webContents.send('application:current-file', responseChannel);
     });
 }
 
 /**
  * Uses the module 'fs' to write a file asynchronously.
- * @param {Object} fileDescriptor - The arguments for fs.writeFile
- * @return {Promise} - A promise to the write operation
+ * @param {Object} fileDescriptor - The arguments for fs.writeFile.
+ * @param {string} fileDescriptor.path - The path of the file.
+ * @param {string} fileDescriptor.contents - The contents of the file.
+ * @return {Promise} - A promise to the write operation.
  */
 function writeFile (fileDescriptor) {
     console.log(`Writing to file '${fileDescriptor.path}': '${fileDescriptor.contents}'`);

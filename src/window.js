@@ -19,9 +19,20 @@ class Window extends React.Component {
             currentFilePath: null
         };
 
-        ipcRenderer.on('editor:file-loaded', this.onFileLoaded.bind(this));
-        ipcRenderer.on('editor:current-file-request', this.onCurrentFileRequest.bind(this));
-        ipcRenderer.on('editor:close-file', this.onCloseFile.bind(this));
+        // Events
+        ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
+        ipcRenderer.on('application:current-file', this.onCurrentFileRequest.bind(this));
+
+        // Commands
+        ipcRenderer.on('application:close-file', this.onCloseFile.bind(this));
+        ipcRenderer.on('editor:bold', () => this.editor.bold());
+        ipcRenderer.on('editor:italic', () => this.editor.italic());
+        ipcRenderer.on('editor:underline', () => this.editor.underline());
+        ipcRenderer.on('editor:strike-yhrough', () => this.editor.strikeThrough());
+        ipcRenderer.on('editor:link', () => this.editor.link());
+        ipcRenderer.on('editor:header', level => this.editor.header(level));
+        ipcRenderer.on('editor:unordered-list', () => this.editor.unorderedList());
+        ipcRenderer.on('editor:ordered-list', () => this.editor.orderedList());
     }
 
     render () {
@@ -31,7 +42,8 @@ class Window extends React.Component {
                     <Explorer openFiles={Object.keys(this.state.openFiles)}></Explorer>
                 </div>
                 <div id="main-panel">
-                    <Editor content={this.state.currentFilePath ? this.state.openFiles[this.state.currentFilePath] : ''}
+                    <Editor ref={editor => this.editor = editor}
+                            content={this.state.currentFilePath ? this.state.openFiles[this.state.currentFilePath] : ''}
                             onUpdate={this.onCurrentFileUpdate.bind(this)}>
                     </Editor>
                 </div>
@@ -54,9 +66,11 @@ class Window extends React.Component {
     }
 
     /**
-     * The handler of the channel 'editor:file-loaded'.
-     * @param {Object} event - The event descriptor
-     * @param {Object} payload - A descriptor of the file {filePath, contents}
+     * The handler of the channel 'application:file-loaded'.
+     * @param {Object} event - The event descriptor.
+     * @param {Object} payload - A descriptor of the file.
+     * @param {string} payload.filePath - The path of the file.
+     * @param {string} payload.contents - The contents of the file.
      */
     onFileLoaded (event, payload) {
         this.state.openFiles[payload.filePath] = payload.contents;
@@ -66,14 +80,17 @@ class Window extends React.Component {
     }
 
     /**
-     * The handler of the channel 'editor:current-file-request'.
+     * The handler of the channel 'application:current-file'.
      * @param {Object} event - The event descriptor
-     * @param {String} responseChannel - The channel to respond to with the file descriptor
+     * @param {string} responseChannel - The channel to respond to with the file descriptor
      */
     onCurrentFileRequest (event, responseChannel) {
+        const currentContent = this.editor.getCurrentText();
+        this.state.openFiles[this.state.currentFilePath] = currentContent;
+
         event.sender.send(responseChannel, {
             path: this.state.currentFilePath,
-            contents: this.state.openFiles[this.state.currentFilePath]
+            contents: currentContent
         });
     }
 
@@ -81,7 +98,7 @@ class Window extends React.Component {
      * The handler of the channel 'editor:close-file'. If no filePath is specified, the current file being edited is
      * closed.
      * @param {Object} event - The event descriptor
-     * @param {String} filePath - The path of the file to be closed
+     * @param {string} filePath - The path of the file to be closed
      */
     onCloseFile (event, filePath) {
         if (!filePath)

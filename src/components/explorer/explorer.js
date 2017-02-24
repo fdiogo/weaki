@@ -39,7 +39,7 @@ class Explorer extends React.Component {
 }
 
 function initiateOpenFileCommand (filePath) {
-    ipcRenderer.send('execute-command', 'editor:open-file', filePath);
+    ipcRenderer.send('execute-command', 'application:open-file', filePath);
 }
 
 export default Explorer;

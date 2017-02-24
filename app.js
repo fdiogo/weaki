@@ -6,6 +6,13 @@ import CommandRegistry from './src/command-registry';
 import OpenFileCommand from './src/commands/open-file-command';
 import SaveFileCommand from './src/commands/save-file-command';
 import CloseFileCommand from './src/commands/close-file-command';
+import BoldCommand from './src/commands/bold-command';
+import ItalicCommand from './src/commands/italic-command';
+import UnderlineCommand from './src/commands/underline-command';
+import HeaderCommand from './src/commands/header-command';
+import LinkCommand from './src/commands/link-command';
+import UnorderedListCommand from './src/commands/unordered-list-command';
+import OrderedListCommand from './src/commands/ordered-list-command';
 import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
@@ -27,9 +34,16 @@ app.on('ready', () => {
 });
 
 function registerCommands () {
-    commandRegistry.register('editor:open-file', OpenFileCommand);
-    commandRegistry.register('editor:save-file', SaveFileCommand);
-    commandRegistry.register('editor:close-file', CloseFileCommand);
+    commandRegistry.register('application:open-file', OpenFileCommand);
+    commandRegistry.register('application:save-file', SaveFileCommand);
+    commandRegistry.register('application:close-file', CloseFileCommand);
+    commandRegistry.register('editor:bold', BoldCommand);
+    commandRegistry.register('editor:italic', ItalicCommand);
+    commandRegistry.register('editor:underline', UnderlineCommand);
+    commandRegistry.register('editor:header', HeaderCommand);
+    commandRegistry.register('editor:link', LinkCommand);
+    commandRegistry.register('editor:unordered-list', UnorderedListCommand);
+    commandRegistry.register('editor:ordered-list', OrderedListCommand);
 }
 
 function createMenu () {

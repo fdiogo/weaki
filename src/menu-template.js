@@ -11,21 +11,22 @@ class MenuTemplate {
                 submenu: [
                     {
                         label: 'Open File...',
-                        accelerator: keymap['editor:open-file'],
-                        click: weaki.executeCommand.bind(null, 'editor:open-file', null)
+                        accelerator: keymap['application:open-file'],
+                        click: weaki.executeCommand.bind(null, 'application:open-file', null)
                     },
                     {
                         label: 'Save',
-                        accelerator: keymap['editor:save-file'],
-                        click: weaki.executeCommand.bind(null, 'editor:save-file', null)
+                        accelerator: keymap['application:save-file'],
+                        click: weaki.executeCommand.bind(null, 'application:save-file', null)
                     },
                     {
                         label: 'Close',
-                        accelerator: keymap['editor:close-file'],
-                        click: weaki.executeCommand.bind(null, 'editor:close-file', null)
+                        accelerator: keymap['application:close-file'],
+                        click: weaki.executeCommand.bind(null, 'application:close-file', null)
                     },
                     {
-                        role: 'quit'
+                        role: 'quit',
+                        accelerator: keymap['application:close-file']
                     }
                 ]
             },
@@ -37,6 +38,49 @@ class MenuTemplate {
                     },
                     {
                         role: 'redo'
+                    },
+                    {
+                        type: 'separator'
+                    },
+                    {
+                        label: 'Bold',
+                        accelerator: keymap['editor:bold'],
+                        click: weaki.executeCommand.bind(null, 'editor:bold', null)
+                    },
+                    {
+                        label: 'Italic',
+                        accelerator: keymap['editor:italic'],
+                        click: weaki.executeCommand.bind(null, 'editor:italic', null)
+                    },
+                    {
+                        label: 'Underline',
+                        accelerator: keymap['editor:underline'],
+                        click: weaki.executeCommand.bind(null, 'editor:underline', null)
+                    },
+                    {
+                        label: 'Strike Through',
+                        accelerator: keymap['editor:strike-through'],
+                        click: weaki.executeCommand.bind(null, 'editor:strike-through', null)
+                    },
+                    {
+                        label: 'Link',
+                        accelerator: keymap['editor:link'],
+                        click: weaki.executeCommand.bind(null, 'editor:link', null)
+                    },
+                    {
+                        label: 'Header 1',
+                        accelerator: keymap['editor:header'],
+                        click: weaki.executeCommand.bind(null, 'editor:header', 1)
+                    },
+                    {
+                        label: 'Unordered List',
+                        accelerator: keymap['editor:unordered-list'],
+                        click: weaki.executeCommand.bind(null, 'editor:unordered-list', null)
+                    },
+                    {
+                        label: 'Ordered List',
+                        accelerator: keymap['editor:ordered-list'],
+                        click: weaki.executeCommand.bind(null, 'editor:ordered-list', null)
                     },
                     {
                         type: 'separator'

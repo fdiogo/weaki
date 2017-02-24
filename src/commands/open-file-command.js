@@ -46,7 +46,7 @@ function readFile (filePath) {
 
 function send (file) {
     return new Promise(resolve => {
-        global.mainWindow.webContents.send('editor:file-loaded', file);
+        global.mainWindow.webContents.send('application:file-loaded', file);
         resolve();
     });
 }

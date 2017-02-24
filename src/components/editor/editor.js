@@ -1,8 +1,7 @@
 import React from 'react';
 
 const PropTypes = {
-    content: React.PropTypes.string.isRequired,
-    onUpdate: React.PropTypes.func
+    content: React.PropTypes.string.isRequired
 };
 
 const MAXIMUM_HEADER_LEVEL = 1;
@@ -29,9 +28,6 @@ class Editor extends React.Component {
         this.setState({
             content: event.target.value
         });
-
-        if (this.props.onUpdate)
-            this.props.onUpdate(event.target.value);
     }
 
     /**
@@ -120,6 +116,14 @@ class Editor extends React.Component {
             return this.state.content.substring(this.textarea.selectionStart, this.textarea.selectionEnd);
         else
             return this.state.content.substring(this.textarea.selectionEnd, this.textarea.selectionStart);
+    }
+
+    /**
+     * Fetches the editor's current content.
+     * @returns {string} - The current content.
+     */
+    getCurrentText () {
+        return this.state.content;
     }
 
     /**
