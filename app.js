@@ -58,3 +58,8 @@ function executeCommand (selector, commandArguments) {
 export default {
     executeCommand: executeCommand
 };
+
+/**
+ * A function with no parameters and no return value expected.
+ * @callback action
+ */

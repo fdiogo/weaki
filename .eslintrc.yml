@@ -13,3 +13,4 @@ rules:
   no-var: 'error'
   indent: ['error', 4]
   curly: ['error', 'multi-or-nest']
+  no-return-assign: 'off'
