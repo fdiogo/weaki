@@ -7,6 +7,7 @@ let fileRequests = 0;
 /**
  * The command which saves a file. If no argument is provided the command communicates with the main window in
  * order to detect which file is currently being edited.
+ * @extends Command
  */
 class SaveFileCommand extends Command {
 
@@ -16,54 +17,54 @@ class SaveFileCommand extends Command {
      * @param {string} fileDescriptor.contents - The contents of the file.
      */
     constructor (fileDescriptor) {
-        super(saveFile.bind(null, fileDescriptor), null);
+        super(SaveFileCommand.saveFile.bind(null, fileDescriptor), null);
     }
 
-}
+    /**
+     * @param {Object} fileDescriptor - A descriptor of the file.
+     * @param {string} fileDescriptor.path - The path of the file.
+     * @param {string} fileDescriptor.contents - The contents of the file.
+     * @return {Promise} - A promise to the save operation.
+     */
+    static saveFile (fileDescriptor) {
+        if (!fileDescriptor)
+            return SaveFileCommand.getFileDescriptor().then(SaveFileCommand.writeFile);
 
-/**
- * @param {Object} fileDescriptor - A descriptor of the file.
- * @param {string} fileDescriptor.path - The path of the file.
- * @param {string} fileDescriptor.contents - The contents of the file.
- * @return {Promise} - A promise to the save operation.
- */
-function saveFile (fileDescriptor) {
-    if (!fileDescriptor)
-        return getFileDescriptor().then(writeFile);
+        return SaveFileCommand.writeFile(fileDescriptor);
+    }
 
-    return writeFile(fileDescriptor);
-}
-
-/**
- * Asks for the file currently being edited in the main window by sending a message on the channel
- * 'application:current-file' and waiting for the response on single-use channel.
- * @return {Promise} - A promise to the file descriptor.
- */
-function getFileDescriptor () {
-    return new Promise(function (resolve, reject) {
-        const requestNumber = fileRequests++;
-        const responseChannel = `application:current-file@${requestNumber}`;
-        ipcMain.once(responseChannel, (event, fileDescriptor) => resolve(fileDescriptor));
-        global.mainWindow.webContents.send('application:current-file', responseChannel);
-    });
-}
-
-/**
- * Uses the module 'fs' to write a file asynchronously.
- * @param {Object} fileDescriptor - The arguments for fs.writeFile.
- * @param {string} fileDescriptor.path - The path of the file.
- * @param {string} fileDescriptor.contents - The contents of the file.
- * @return {Promise} - A promise to the write operation.
- */
-function writeFile (fileDescriptor) {
-    console.log(`Writing to file '${fileDescriptor.path}': '${fileDescriptor.contents}'`);
-
-    return new Promise(function (resolve, reject) {
-        fs.writeFile(fileDescriptor.path, fileDescriptor.contents, error => {
-            if (error) reject(error);
-            else resolve();
+    /**
+     * Asks for the file currently being edited in the main window by sending a message on the channel
+     * 'application:current-file' and waiting for the response on single-use channel.
+     * @return {Promise} - A promise to the file descriptor.
+     */
+    static getFileDescriptor () {
+        return new Promise(function (resolve, reject) {
+            const requestNumber = fileRequests++;
+            const responseChannel = `application:current-file@${requestNumber}`;
+            ipcMain.once(responseChannel, (event, fileDescriptor) => resolve(fileDescriptor));
+            global.mainWindow.webContents.send('application:current-file', responseChannel);
         });
-    });
+    }
+
+    /**
+     * Uses the module 'fs' to write a file asynchronously.
+     * @param {Object} fileDescriptor - The arguments for fs.writeFile.
+     * @param {string} fileDescriptor.path - The path of the file.
+     * @param {string} fileDescriptor.contents - The contents of the file.
+     * @return {Promise} - A promise to the write operation.
+     */
+    static writeFile (fileDescriptor) {
+        console.log(`Writing to file '${fileDescriptor.path}': '${fileDescriptor.contents}'`);
+
+        return new Promise(function (resolve, reject) {
+            fs.writeFile(fileDescriptor.path, fileDescriptor.contents, error => {
+                if (error) reject(error);
+                else resolve();
+            });
+        });
+    }
+
 }
 
 export default SaveFileCommand;

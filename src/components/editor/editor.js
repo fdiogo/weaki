@@ -7,6 +7,9 @@ const PropTypes = {
 const MAXIMUM_HEADER_LEVEL = 1;
 const MINIMUM_HEADER_LEVEL = 5;
 
+/**
+ * The React component that represents the application's editor.
+ */
 class Editor extends React.Component {
 
     static get propTypes () {
@@ -109,7 +112,7 @@ class Editor extends React.Component {
 
     /**
      * Fetches the currently selected text.
-     * @returns {string} - The currently selected text.
+     * @returns {string} The currently selected text.
      */
     getSelectedText () {
         if (this.textarea.selectionStart >= this.textarea.selectionEnd)
@@ -120,7 +123,7 @@ class Editor extends React.Component {
 
     /**
      * Fetches the editor's current content.
-     * @returns {string} - The current content.
+     * @returns {string} The current content.
      */
     getCurrentText () {
         return this.state.content;

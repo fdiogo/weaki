@@ -7,7 +7,7 @@ import Editor from './components/editor/editor';
 import StatusBar from './components/status-bar/status-bar';
 
 /**
- * This component represents the main window of the application
+ * This React component represents the main window of the application
  * which contains all the other components.
  */
 class Window extends React.Component {
@@ -19,7 +19,13 @@ class Window extends React.Component {
             currentFilePath: null
         };
 
-        // Events
+        /**
+         * Event fired when a file has been loaded by the main process.
+         *
+         * @event application:file-loaded
+         * @type {object}
+         * @property {boolean} isPacked - Indicates whether the snowball is tightly packed.
+         */
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
         ipcRenderer.on('application:current-file', this.onCurrentFileRequest.bind(this));
 
@@ -66,11 +72,12 @@ class Window extends React.Component {
     }
 
     /**
-     * The handler of the channel 'application:file-loaded'.
+     * The handler of the event 'application:file-loaded'.
      * @param {Object} event - The event descriptor.
      * @param {Object} payload - A descriptor of the file.
      * @param {string} payload.filePath - The path of the file.
      * @param {string} payload.contents - The contents of the file.
+     * @listens application:file-loaded
      */
     onFileLoaded (event, payload) {
         this.state.openFiles[payload.filePath] = payload.contents;
