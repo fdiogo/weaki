@@ -5,7 +5,7 @@ const PropTypes = {
 };
 
 const MAXIMUM_HEADER_LEVEL = 1;
-const MINIMUM_HEADER_LEVEL = 5;
+const MINIMUM_HEADER_LEVEL = 6;
 
 /**
  * The React component that represents the application's editor.
@@ -44,7 +44,7 @@ class Editor extends React.Component {
      * Turns the text italic.
      */
     italic () {
-        this.insertWrapper('//', '//');
+        this.insertWrapper('_', '_');
     }
 
     /**
@@ -58,7 +58,7 @@ class Editor extends React.Component {
      * Strikes through the text.
      */
     strikeThrough () {
-        this.insertWrapper('<del>', '</del>');
+        this.insertWrapper('~~', '~~');
     }
 
     /**
@@ -69,37 +69,37 @@ class Editor extends React.Component {
             const selectedText = this.getSelectedText();
             const linkRegex = new RegExp('^(https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]$', 'i');
             if (linkRegex.test(selectedText))
-                this.insertWrapper('[[', '|Link Name]]');
+                this.insertWrapper('[Link Name](', ')');
             else
-                this.insertWrapper('[[URI|', ']]');
+                this.insertWrapper('[', '](URI)');
         } else
-            this.insertWrapper('[[URI|', 'Link Name]]');
+            this.insertWrapper('[Link Name]', '(URI)');
     }
 
     /**
      * Creates a header.
-     * @param {number} level - The header level (between 1 and 5).
+     * @param {number} level - The header level (between 1 and 6).
      */
     header (level) {
         if (level < MAXIMUM_HEADER_LEVEL || level > MINIMUM_HEADER_LEVEL)
             return;
 
-        const headerWrapper = '==' + '='.repeat(MINIMUM_HEADER_LEVEL - level);
-        this.insertWrapper(headerWrapper, headerWrapper);
+        const headerWrapper = '#'.repeat(level);
+        this.insertWrapper(`${headerWrapper} `);
     }
 
     /**
      * Creates an unordered list.
      */
     unorderedList () {
-        this.insertWrapper('  * ', '');
+        this.insertWrapper('  * ');
     }
 
     /**
      * Creates an ordered list.
      */
     orderedList () {
-        this.insertWrapper('  - ', '');
+        this.insertWrapper('1. ');
     }
 
     /**
@@ -155,7 +155,7 @@ class Editor extends React.Component {
      * @param {string} [prepend=''] - The text to prepend.
      * @param {string} [append=''] - The text to append.
      */
-    insertWrapper (prepend, append) {
+    insertWrapper (prepend = '', append = '') {
         if (!this.isTextSelected()) {
             const caret = this.textarea.selectionEnd;
             this.appendAtCaret(prepend + append, this.setCaretPosition.bind(this, caret + prepend.length));
