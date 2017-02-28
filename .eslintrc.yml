@@ -3,6 +3,8 @@ plugins:
   - standard
   - promise
   - react
+env:
+  mocha: true
 parserOptions:
   ecmaVersion: 6
   sourceType: module

@@ -4,8 +4,8 @@ const PropTypes = {
     content: React.PropTypes.string.isRequired
 };
 
-const MAXIMUM_HEADER_LEVEL = 1;
-const MINIMUM_HEADER_LEVEL = 6;
+const MAXIMUM_HEADER_LEVEL = 6;
+const MINIMUM_HEADER_LEVEL = 1;
 
 /**
  * The React component that represents the application's editor.
@@ -78,11 +78,11 @@ class Editor extends React.Component {
 
     /**
      * Creates a header.
-     * @param {number} level - The header level (between 1 and 6).
+     * @param {number} [level=1] - The header level (between 1 and 6).
      */
-    header (level) {
-        if (level < MAXIMUM_HEADER_LEVEL || level > MINIMUM_HEADER_LEVEL)
-            return;
+    header (level = MINIMUM_HEADER_LEVEL) {
+        if (level < MINIMUM_HEADER_LEVEL) level = MINIMUM_HEADER_LEVEL;
+        else if (level > MAXIMUM_HEADER_LEVEL) level = MAXIMUM_HEADER_LEVEL;
 
         const headerWrapper = '#'.repeat(level);
         this.insertWrapper(`${headerWrapper} `);
@@ -92,7 +92,7 @@ class Editor extends React.Component {
      * Creates an unordered list.
      */
     unorderedList () {
-        this.insertWrapper('  * ');
+        this.insertWrapper('* ');
     }
 
     /**
@@ -119,6 +119,16 @@ class Editor extends React.Component {
             return this.state.content.substring(this.textarea.selectionStart, this.textarea.selectionEnd);
         else
             return this.state.content.substring(this.textarea.selectionEnd, this.textarea.selectionStart);
+    }
+
+    /**
+     * Selects text in the editor.
+     * @param {number} [start=0] - The starting index of the selection.
+     * @param {number} [end=content.length] - The ending index of the selection.
+     */
+    selectText (start = 0, end = this.state.content.length) {
+        this.textarea.focus();
+        this.textarea.setSelectionRange(start, end);
     }
 
     /**
