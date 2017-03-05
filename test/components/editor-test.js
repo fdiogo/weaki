@@ -9,17 +9,6 @@ describe('Editor', function () {
     jsdom({ skipWindowCheck: true });
 
     describe('.constructor()', function () {
-        it('default "content" in state if none provided', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor />);
-            expect(editor.state.content).to.equal('');
-        });
-
-        it('"content" in state equal to props if provided', function () {
-            const initialContent = 'hello';
-            const editor = TestUtils.renderIntoDocument(<Editor content={initialContent}/>);
-            expect(editor.state.content).to.equal(initialContent);
-        });
-
         it('no text selected', function () {
             const initialContent = 'hello';
             const editor = TestUtils.renderIntoDocument(<Editor content={initialContent}/>);
@@ -27,6 +16,7 @@ describe('Editor', function () {
         });
     });
 
+    /*
     describe('.bold()', function () {
         it('surround text if selected', function () {
             const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
@@ -225,6 +215,16 @@ describe('Editor', function () {
 
             const text = editor.getCurrentText();
             expect(text).to.equal('h1. ello');
+        });
+    });
+    */
+
+    describe('.isTextSelected()', function () {
+        it('return false on start', function () {
+            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
+            const isSelected = editor.isTextSelected();
+
+            expect(isSelected).to.be.false;
         });
     });
 });

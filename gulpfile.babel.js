@@ -6,8 +6,14 @@ import sass from 'gulp-sass';
 import pug from 'gulp-pug';
 import mocha from 'gulp-mocha';
 
-gulp.task('build-javascript', function () {
-    gulp.src(['app.js', 'src/**/*.js'])
+gulp.task('build-entry', function () {
+    gulp.src('app.js')
+        .pipe(babel())
+        .pipe(gulp.dest('build'));
+}); // asd
+
+gulp.task('build-javascript', ['build-entry'], function () {
+    gulp.src(['src/**/*.js', 'src/**/*.jsx'])
         .pipe(babel())
         .pipe(gulp.dest('build/src'));
 });

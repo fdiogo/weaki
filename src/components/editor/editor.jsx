@@ -1,4 +1,5 @@
 import React from 'react';
+import {Editor as DraftEditor, EditorState, Modifier} from 'draft-js';
 
 const PropTypes = {
     content: React.PropTypes.string.isRequired
@@ -18,19 +19,8 @@ class Editor extends React.Component {
 
     constructor (props) {
         super(props);
-        this.state = {
-            content: props.content || ''
-        };
-    }
-
-    componentWillReceiveProps (nextProps) {
-        this.setState(nextProps);
-    }
-
-    handleOnChange (event) {
-        this.setState({
-            content: event.target.value
-        });
+        this.state = {editorState: EditorState.createEmpty()};
+        this.onChange = (editorState) => this.setState({editorState});
     }
 
     /**
@@ -107,7 +97,8 @@ class Editor extends React.Component {
      * @returns {boolean} True if there is a text selection.
      */
     isTextSelected () {
-        return this.textarea.selectionStart !== this.textarea.selectionEnd;
+        const selection = this.state.editorState.getSelection();
+        return !selection.isCollapsed();
     }
 
     /**
@@ -115,16 +106,24 @@ class Editor extends React.Component {
      * @returns {string} The currently selected text.
      */
     getSelectedText () {
-        if (this.textarea.selectionStart >= this.textarea.selectionEnd)
-            return this.state.content.substring(this.textarea.selectionStart, this.textarea.selectionEnd);
-        else
-            return this.state.content.substring(this.textarea.selectionEnd, this.textarea.selectionStart);
+        const selection = this.state.editorState.getSelection();
+
+        if (selection.isCollapsed())
+            return '';
+
+        const content = this.state.editorState.getCurrentContent();
+        const anchorKey = selection.getAnchorKey();
+        const currentContentBlock = content.getBlockForKey(anchorKey);
+        const start = selection.getStartOffset();
+        const end = selection.getEndOffset();
+        return currentContentBlock.getText().slice(start, end);
     }
 
     /**
      * Selects text in the editor.
      * @param {number} [start=0] - The starting index of the selection.
      * @param {number} [end=content.length] - The ending index of the selection.
+     * @deprecated
      */
     selectText (start = 0, end = this.state.content.length) {
         this.textarea.focus();
@@ -134,29 +133,10 @@ class Editor extends React.Component {
     /**
      * Fetches the editor's current content.
      * @returns {string} The current content.
+     * @deprecated
      */
     getCurrentText () {
         return this.state.content;
-    }
-
-    /**
-     * Surrounds the currently selected text, if any.
-     * @param {string} [prepend=''] - The text to prepend to the selection.
-     * @param {string} [append=''] - The text to append to the selection.
-     */
-    surroundSelection (prepend = '', append = '') {
-        if (this.textarea.selectionStart === this.textarea.selectionEnd)
-            return;
-
-        const selectionStart = this.textarea.selectionStart;
-        const selectionEnd = this.textarea.selectionEnd;
-        const start = this.state.content.substring(0, this.textarea.selectionStart);
-        const selection = this.state.content.substring(this.textarea.selectionStart, this.textarea.selectionEnd);
-        const end = this.state.content.substring(this.textarea.selectionEnd, this.state.content.length);
-        const content = start + prepend + selection + append + end;
-        this.setState({content: content}, () => {
-            this.textarea.setSelectionRange(selectionStart + prepend.length, selectionEnd + prepend.length);
-        });
     }
 
     /**
@@ -166,41 +146,25 @@ class Editor extends React.Component {
      * @param {string} [append=''] - The text to append.
      */
     insertWrapper (prepend = '', append = '') {
-        if (!this.isTextSelected()) {
-            const caret = this.textarea.selectionEnd;
-            this.appendAtCaret(prepend + append, this.setCaretPosition.bind(this, caret + prepend.length));
-        } else
-            this.surroundSelection(prepend, append);
-    }
+        const content = this.state.editorState.getCurrentContent();
+        const selection = this.state.editorState.getSelection();
 
-    /**
-     * Moves the caret position with an offset.
-     * @param {number} offset - The value to add to the current position.
-     */
-    moveCaretPosition (offset) {
-        this.setCaretPosition(this.textarea.selectionStart + offset);
-    }
+        let newContent;
+        if (selection.isCollapsed())
+            newContent = Modifier.insertText(content, selection, `${prepend}${append}`);
+        else {
+            const selectedText = this.getSelectedText();
+            newContent = Modifier.replaceText(content, selection, `${prepend}${selectedText}${append}`);
+        }
 
-    /**
-     * Sets the position of the caret removing any existing selection.
-     * @param {number} position - The new caret's position.
-     */
-    setCaretPosition (position) {
-        this.textarea.focus();
-        this.textarea.setSelectionRange(position, position);
-    }
-
-    /**
-     * Appends text at the current caret's position.
-     * @param {string} text - The text to append.
-     * @param {action} [callback] - Optional callback invoked as a second parameter to 'setState'.
-     *                            [See more.]{@link https://facebook.github.io/react/docs/react-component.html#setstate}
-     */
-    appendAtCaret (text, callback) {
-        const start = this.state.content.substring(0, this.textarea.selectionEnd);
-        const end = this.state.content.substring(this.textarea.selectionEnd, this.state.content.length);
-        const content = start + text + end;
-        this.setState({content: content}, callback);
+        const afterInsertState = EditorState.push(this.state.editorState, newContent, 'insert-characters');
+        const withSelectionState = EditorState.forceSelection(afterInsertState, selection.merge({
+            anchorKey: selection.anchorKey,
+            anchorOffset: selection.anchorOffset + prepend.length,
+            focusKey: selection.focusKey,
+            focusOffset: selection.focusOffset + prepend.length
+        }));
+        this.setState({ editorState: withSelectionState });
     }
 
     render () {
@@ -231,12 +195,11 @@ class Editor extends React.Component {
                     <img src="../assets/glyphicons-710-list-numbered.png"/>
                 </span>
             </div>
-            <textarea
-                id="editor-content"
-                ref={textarea => this.textarea = textarea}
-                value={this.state.content}
-                onChange={this.handleOnChange.bind(this)}>
-            </textarea>
+            <div id="editor-content" onClick={() => this.draftEditor.focus()}>
+                <DraftEditor ref={editor => this.draftEditor = editor}
+                    editorState={this.state.editorState}
+                    onChange={this.onChange}/>
+            </div>
         </div>;
     }
 }
