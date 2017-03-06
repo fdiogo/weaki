@@ -36,7 +36,7 @@ class Window extends React.Component {
         ipcRenderer.on('editor:underline', () => this.editor.underline());
         ipcRenderer.on('editor:strike-yhrough', () => this.editor.strikeThrough());
         ipcRenderer.on('editor:link', () => this.editor.link());
-        ipcRenderer.on('editor:header', level => this.editor.header(level));
+        ipcRenderer.on('editor:header', (event, level) => this.editor.header(level));
         ipcRenderer.on('editor:unordered-list', () => this.editor.unorderedList());
         ipcRenderer.on('editor:ordered-list', () => this.editor.orderedList());
     }

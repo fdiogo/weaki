@@ -16,3 +16,4 @@ rules:
   indent: ['error', 4]
   curly: ['error', 'multi-or-nest']
   no-return-assign: 'off'
+  no-trailing-spaces: 'off'

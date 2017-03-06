@@ -53,11 +53,6 @@ class MenuTemplate {
                         click: weaki.executeCommand.bind(null, 'editor:italic', null)
                     },
                     {
-                        label: 'Underline',
-                        accelerator: keymap['editor:underline'],
-                        click: weaki.executeCommand.bind(null, 'editor:underline', null)
-                    },
-                    {
                         label: 'Strike Through',
                         accelerator: keymap['editor:strike-through'],
                         click: weaki.executeCommand.bind(null, 'editor:strike-through', null)

@@ -1,0 +1,29 @@
+.markdown-header,
+.markdown-ordered-list,
+.markdown-unordered-list,
+.markdown-link,
+.md-header,
+.md-ordered-list,
+.md-unordered-list,
+.md-link {
+    color: #cc6666;
+}
+
+.markdown-bold, .md-bold {
+    color: #de935f;
+    font-weight: bold;
+}
+
+.markdown-italic, .md-italic {
+    color: #b294bb;
+    font-style: italic;
+}
+
+.markdown-strike-through, .md-strike-through {
+    color: gray;
+}
+
+.link {
+    color: #81a2be;
+    text-decoration: underline;
+}

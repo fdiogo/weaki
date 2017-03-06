@@ -8,7 +8,6 @@ import SaveFileCommand from './src/commands/save-file-command';
 import CloseFileCommand from './src/commands/close-file-command';
 import BoldCommand from './src/commands/bold-command';
 import ItalicCommand from './src/commands/italic-command';
-import UnderlineCommand from './src/commands/underline-command';
 import HeaderCommand from './src/commands/header-command';
 import LinkCommand from './src/commands/link-command';
 import UnorderedListCommand from './src/commands/unordered-list-command';
@@ -39,7 +38,6 @@ function registerCommands () {
     commandRegistry.register('application:close-file', CloseFileCommand);
     commandRegistry.register('editor:bold', BoldCommand);
     commandRegistry.register('editor:italic', ItalicCommand);
-    commandRegistry.register('editor:underline', UnderlineCommand);
     commandRegistry.register('editor:header', HeaderCommand);
     commandRegistry.register('editor:link', LinkCommand);
     commandRegistry.register('editor:unordered-list', UnorderedListCommand);

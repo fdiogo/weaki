@@ -1,5 +1,6 @@
 import React from 'react';
 import {Editor as DraftEditor, EditorState, Modifier} from 'draft-js';
+import MarkdownDecorator from '../../decorators/markdown-decorator';
 
 const PropTypes = {
     content: React.PropTypes.string.isRequired
@@ -19,7 +20,8 @@ class Editor extends React.Component {
 
     constructor (props) {
         super(props);
-        this.state = {editorState: EditorState.createEmpty()};
+        const decorator = new MarkdownDecorator();
+        this.state = {editorState: EditorState.createEmpty(decorator)};
         this.onChange = (editorState) => this.setState({editorState});
     }
 
@@ -175,9 +177,6 @@ class Editor extends React.Component {
                 </span>
                 <span className="editor-button" onClick={this.italic.bind(this)}>
                     <img src="../assets/glyphicons-102-italic.png"/>
-                </span>
-                <span className="editor-button" onClick={this.underline.bind(this)}>
-                    <img src="../assets/glyphicons-104-text-underline.png"/>
                 </span>
                 <span className="editor-button" onClick={this.strikeThrough.bind(this)}>
                     <img src="../assets/glyphicons-105-text-strike.png"/>

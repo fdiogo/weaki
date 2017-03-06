@@ -5,7 +5,6 @@ export default {
     'application:close-file': 'CmdOrCtrl+W',
     'editor:bold': 'CmdOrCtrl+Shift+B',
     'editor:italic': 'CmdOrCtrl+Shift+I',
-    'editor:underline': 'CmdOrCtrl+Shift+U',
     'editor:strike-through': 'CmdOrCtrl+Shift+T',
     'editor:link': 'CmdOrCtrl+Shift+L',
     'editor:header': 'CmdOrCtrl+Shift+H',
