@@ -33,12 +33,16 @@ class Window extends React.Component {
         ipcRenderer.on('application:close-file', this.onCloseFile.bind(this));
         ipcRenderer.on('editor:bold', () => this.editor.bold());
         ipcRenderer.on('editor:italic', () => this.editor.italic());
-        ipcRenderer.on('editor:underline', () => this.editor.underline());
-        ipcRenderer.on('editor:strike-yhrough', () => this.editor.strikeThrough());
-        ipcRenderer.on('editor:link', () => this.editor.link());
+        ipcRenderer.on('editor:strike-through', () => this.editor.strikeThrough());
         ipcRenderer.on('editor:header', (event, level) => this.editor.header(level));
+        ipcRenderer.on('editor:link', () => this.editor.link());
         ipcRenderer.on('editor:unordered-list', () => this.editor.unorderedList());
         ipcRenderer.on('editor:ordered-list', () => this.editor.orderedList());
+        ipcRenderer.on('editor:blockquote', () => this.editor.blockquote());
+        ipcRenderer.on('editor:table', () => this.editor.table());
+        ipcRenderer.on('editor:code', () => this.editor.code());
+        ipcRenderer.on('editor:horizontal-rule', () => this.editor.horizontalRule());
+        ipcRenderer.on('editor:image', () => this.editor.image());
     }
 
     render () {

@@ -8,10 +8,16 @@ import SaveFileCommand from './src/commands/save-file-command';
 import CloseFileCommand from './src/commands/close-file-command';
 import BoldCommand from './src/commands/bold-command';
 import ItalicCommand from './src/commands/italic-command';
+import StrikeThroughCommand from './src/commands/strike-through-command';
 import HeaderCommand from './src/commands/header-command';
 import LinkCommand from './src/commands/link-command';
 import UnorderedListCommand from './src/commands/unordered-list-command';
 import OrderedListCommand from './src/commands/ordered-list-command';
+import BlockquoteCommand from './src/commands/blockquote-command';
+import TableCommand from './src/commands/table-command';
+import CodeCommand from './src/commands/code-command';
+import HorizontalRuleCommand from './src/commands/horizontal-rule-command';
+import ImageCommand from './src/commands/image-command';
 import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
@@ -38,10 +44,16 @@ function registerCommands () {
     commandRegistry.register('application:close-file', CloseFileCommand);
     commandRegistry.register('editor:bold', BoldCommand);
     commandRegistry.register('editor:italic', ItalicCommand);
+    commandRegistry.register('editor:strike-through', StrikeThroughCommand);
     commandRegistry.register('editor:header', HeaderCommand);
     commandRegistry.register('editor:link', LinkCommand);
     commandRegistry.register('editor:unordered-list', UnorderedListCommand);
     commandRegistry.register('editor:ordered-list', OrderedListCommand);
+    commandRegistry.register('editor:blockquote', BlockquoteCommand);
+    commandRegistry.register('editor:table', TableCommand);
+    commandRegistry.register('editor:code', CodeCommand);
+    commandRegistry.register('editor:horizontal-rule', HorizontalRuleCommand);
+    commandRegistry.register('editor:image', ImageCommand);
 }
 
 function createMenu () {

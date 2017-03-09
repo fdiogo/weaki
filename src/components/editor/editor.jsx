@@ -8,6 +8,17 @@ const PropTypes = {
 
 const MAXIMUM_HEADER_LEVEL = 6;
 const MINIMUM_HEADER_LEVEL = 1;
+const LINK_REGEX = new RegExp('^(https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]$', 'i');
+const TABLE_TEMPLATE = `
+<table>
+    <tr>
+        <th> Column Title </th>
+    </tr>
+    <tr>
+        <td> *DATA* </td>
+    </tr>
+</table>
+`;
 
 /**
  * The React component that represents the application's editor.
@@ -50,7 +61,7 @@ class Editor extends React.Component {
      * Strikes through the text.
      */
     strikeThrough () {
-        this.insertWrapper('~~', '~~');
+        this.insertWrapper('<s>', '</s>');
     }
 
     /**
@@ -59,13 +70,26 @@ class Editor extends React.Component {
     link () {
         if (this.isTextSelected()) {
             const selectedText = this.getSelectedText();
-            const linkRegex = new RegExp('^(https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]$', 'i');
-            if (linkRegex.test(selectedText))
+            if (LINK_REGEX.test(selectedText))
                 this.insertWrapper('[Link Name](', ')');
             else
                 this.insertWrapper('[', '](URI)');
         } else
             this.insertWrapper('[Link Name]', '(URI)');
+    }
+
+    /**
+     * Creats an image.
+     */
+    image () {
+        if (this.isTextSelected()) {
+            const selectedText = this.getSelectedText();
+            if (LINK_REGEX.test(selectedText))
+                this.insertWrapper('![Image Text](', ' "Title")');
+            else
+                this.insertWrapper('![', '](URI "Title")');
+        } else
+            this.insertWrapper('![Image Text]', '(URI "Title")');
     }
 
     /**
@@ -92,6 +116,32 @@ class Editor extends React.Component {
      */
     orderedList () {
         this.insertWrapper('1. ');
+    }
+
+    /**
+     * Creates a blockquote.
+     */
+    blockquote () {
+        this.insertWrapper('> ');
+    }
+
+    /**
+     * Creates a span of code.
+     */
+    code () {
+        this.insertWrapper('`', '`');
+    }
+
+    /**
+     * Creates a horizontal rule.
+     */
+    horizontalRule () {
+        this.insertWrapper('', '\n***\n');
+    }
+
+    table () {
+        const tableParts = TABLE_TEMPLATE.split('*DATA*');
+        this.insertWrapper(tableParts[0], tableParts[1]);
     }
 
     /**
@@ -172,26 +222,57 @@ class Editor extends React.Component {
     render () {
         return <div id="editor">
             <div id="editor-buttons">
-                <span className="editor-button" onClick={this.bold.bind(this)}>
-                    <img src="../assets/glyphicons-103-bold.png"/>
+                <span className="editor-button-group">
+                    <span className="editor-button" onClick={this.header.bind(this, 1)}>
+                        <b>h1</b>
+                    </span>
+                    <span className="editor-button" onClick={this.header.bind(this, 2)}>
+                        <b>h2</b>
+                    </span>
+                    <span className="editor-button" onClick={this.header.bind(this, 3)}>
+                        <b>h3</b>
+                    </span>
                 </span>
-                <span className="editor-button" onClick={this.italic.bind(this)}>
-                    <img src="../assets/glyphicons-102-italic.png"/>
+                <span className="editor-button-group">
+                    <span className="editor-button" onClick={this.link.bind(this)}>
+                        <img src="../assets/octicon-link.svg"/>
+                    </span>
+                    <span className="editor-button" onClick={this.image.bind(this)}>
+                        <img src="../assets/octicon-file-media.svg"/>
+                    </span>
                 </span>
-                <span className="editor-button" onClick={this.strikeThrough.bind(this)}>
-                    <img src="../assets/glyphicons-105-text-strike.png"/>
+                <span className="editor-button-group">
+                    <span className="editor-button" onClick={this.bold.bind(this)}>
+                        <img src="../assets/octicon-bold.svg"/>
+                    </span>
+                    <span className="editor-button" onClick={this.italic.bind(this)}>
+                        <img src="../assets/octicon-italic.svg"/>
+                    </span>
+                    <span className="editor-button" onClick={this.code.bind(this)}>
+                        <img src="../assets/octicon-code.svg"/>
+                    </span>
                 </span>
-                <span className="editor-button" onClick={this.link.bind(this)}>
-                    <img src="../assets/glyphicons-51-link.png"/>
+                <span className="editor-button-group">
+                    <span className="editor-button" onClick={this.unorderedList.bind(this)}>
+                        <img src="../assets/octicon-list-unordered.svg"/>
+                    </span>
+                    <span className="editor-button" onClick={this.orderedList.bind(this)}>
+                        <img src="../assets/octicon-list-ordered.svg"/>
+                    </span>
+                    <span className="editor-button" onClick={this.blockquote.bind(this)}>
+                        <img src="../assets/octicon-quote.svg"/>
+                    </span>
+                    <span className="editor-button" onClick={this.horizontalRule.bind(this)}>
+                        <img src="../assets/octicon-horizontal-rule.svg"/>
+                    </span>
                 </span>
-                <span className="editor-button" onClick={this.header.bind(this, 1)}>
-                    <img src="../assets/glyphicons-460-header.png"/>
-                </span>
-                <span className="editor-button" onClick={this.unorderedList.bind(this)}>
-                    <img src="../assets/glyphicons-115-list.png"/>
-                </span>
-                <span className="editor-button" onClick={this.orderedList.bind(this)}>
-                    <img src="../assets/glyphicons-710-list-numbered.png"/>
+                <span className="editor-button-group">
+                    <span className="editor-button glyphicon" onClick={this.strikeThrough.bind(this)}>
+                        <img src="../assets/glyphicons-text-strike.png"/>
+                    </span>
+                    <span className="editor-button glyphicon" onClick={this.table.bind(this)}>
+                        <img src="../assets/glyphicons-table.png"/>
+                    </span>
                 </span>
             </div>
             <div id="editor-content" onClick={() => this.draftEditor.focus()}>
