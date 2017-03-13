@@ -1,6 +1,7 @@
 export default {
     'application:exit': 'CmdOrCtrl+Q',
     'application:open-file': 'CmdOrCtrl+O',
+    'application:open-repository': 'CmdOrCtrl+R',
     'application:save-file': 'CmdOrCtrl+S',
     'application:close-file': 'CmdOrCtrl+W',
     'editor:bold': 'CmdOrCtrl+B',

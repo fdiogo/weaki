@@ -10,8 +10,11 @@ describe('Editor', function () {
 
     describe('.constructor()', function () {
         it('no text selected', function () {
-            const initialContent = 'hello';
-            const editor = TestUtils.renderIntoDocument(<Editor content={initialContent}/>);
+            const currentFile = {
+                filePath: null,
+                content: 'hello'
+            };
+            const editor = TestUtils.renderIntoDocument(<Editor currentFile={currentFile}/>);
             expect(editor.isTextSelected()).to.be.false;
         });
     });
@@ -221,7 +224,11 @@ describe('Editor', function () {
 
     describe('.isTextSelected()', function () {
         it('return false on start', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
+            const currentFile = {
+                filePath: null,
+                content: 'hello'
+            };
+            const editor = TestUtils.renderIntoDocument(<Editor currentFile={currentFile}/>);
             const isSelected = editor.isTextSelected();
 
             expect(isSelected).to.be.false;

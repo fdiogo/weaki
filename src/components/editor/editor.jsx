@@ -1,9 +1,13 @@
 import React from 'react';
-import {Editor as DraftEditor, EditorState, Modifier} from 'draft-js';
+import {Editor as DraftEditor, EditorState, Modifier, ContentState} from 'draft-js';
 import MarkdownDecorator from '../../decorators/markdown-decorator';
 
 const PropTypes = {
-    content: React.PropTypes.string.isRequired
+    openedFiles: React.PropTypes.array,
+    currentFile: React.PropTypes.shape({
+        filePath: React.PropTypes.string,
+        content: React.PropTypes.string
+    })
 };
 
 const MAXIMUM_HEADER_LEVEL = 6;
@@ -32,8 +36,16 @@ class Editor extends React.Component {
     constructor (props) {
         super(props);
         const decorator = new MarkdownDecorator();
-        this.state = {editorState: EditorState.createEmpty(decorator)};
+        const content = ContentState.createFromText(props.currentFile.content || '');
+        this.state = {editorState: EditorState.createWithContent(content, decorator)};
         this.onChange = (editorState) => this.setState({editorState});
+    }
+
+    componentWillReceiveProps (nextProps) {
+        const decorator = new MarkdownDecorator();
+        const content = ContentState.createFromText(nextProps.currentFile.content || '');
+        const state = EditorState.createWithContent(content, decorator);
+        this.setState({ editorState: state });
     }
 
     /**
@@ -172,23 +184,12 @@ class Editor extends React.Component {
     }
 
     /**
-     * Selects text in the editor.
-     * @param {number} [start=0] - The starting index of the selection.
-     * @param {number} [end=content.length] - The ending index of the selection.
-     * @deprecated
-     */
-    selectText (start = 0, end = this.state.content.length) {
-        this.textarea.focus();
-        this.textarea.setSelectionRange(start, end);
-    }
-
-    /**
      * Fetches the editor's current content.
      * @returns {string} The current content.
-     * @deprecated
      */
     getCurrentText () {
-        return this.state.content;
+        const content = this.state.editorState.getCurrentContent();
+        return content.getPlainText();
     }
 
     /**
@@ -278,7 +279,7 @@ class Editor extends React.Component {
             <div id="editor-content" onClick={() => this.draftEditor.focus()}>
                 <DraftEditor ref={editor => this.draftEditor = editor}
                     editorState={this.state.editorState}
-                    onChange={this.onChange}/>
+                    onChange={this.onChange.bind(this)}/>
             </div>
         </div>;
     }

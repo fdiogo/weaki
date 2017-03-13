@@ -15,6 +15,11 @@ class MenuTemplate {
                         click: weaki.executeCommand.bind(null, 'application:open-file', null)
                     },
                     {
+                        label: 'Open Repository...',
+                        accelerator: keymap['application:open-repository'],
+                        click: weaki.executeCommand.bind(null, 'application:open-repository', null)
+                    },
+                    {
                         label: 'Save',
                         accelerator: keymap['application:save-file'],
                         click: weaki.executeCommand.bind(null, 'application:save-file', null)

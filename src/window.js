@@ -5,6 +5,7 @@ import { render } from 'react-dom';
 import Explorer from './components/explorer/explorer';
 import Editor from './components/editor/editor';
 import StatusBar from './components/status-bar/status-bar';
+import FileTree from './file-tree';
 
 /**
  * This React component represents the main window of the application
@@ -15,18 +16,24 @@ class Window extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            openFiles: {},
-            currentFilePath: null
+            workspaceFileTree: new FileTree(),
+            openedFiles: [],
+            currentFile: {
+                filePath: null,
+                content: null
+            }
         };
 
         /**
-         * Event fired when a file has been loaded by the main process.
+         * Channel used when a file has been loaded by the main process.
          *
          * @event application:file-loaded
          * @type {object}
-         * @property {boolean} isPacked - Indicates whether the snowball is tightly packed.
+         * @property {string} filePath - The path of the file.
+         * @property {string} contents - The contents of the file.
          */
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
+        ipcRenderer.on('application:directory-loaded', this.onDirectoryLoaded.bind(this));
         ipcRenderer.on('application:current-file', this.onCurrentFileRequest.bind(this));
 
         // Commands
@@ -45,38 +52,8 @@ class Window extends React.Component {
         ipcRenderer.on('editor:image', () => this.editor.image());
     }
 
-    render () {
-        return <div id="viewport">
-            <div id="workspace">
-                <div id="left-sidebar">
-                    <Explorer openFiles={Object.keys(this.state.openFiles)}></Explorer>
-                </div>
-                <div id="main-panel">
-                    <Editor ref={editor => this.editor = editor}
-                            content={this.state.currentFilePath ? this.state.openFiles[this.state.currentFilePath] : ''}
-                            onUpdate={this.onCurrentFileUpdate.bind(this)}>
-                    </Editor>
-                </div>
-                <div id="right-sidebar">
-                </div>
-            </div>
-            <div id="bottom-bar">
-                <StatusBar filePath={this.state.currentFilePath}></StatusBar>
-            </div>
-        </div>;
-    }
-
     /**
-     * This a callback registered on the Editor component as to always have the most up-to-date contents of the current
-     * file. It doesn't call 'this.setState' as to not trigger a new render on the Editor component.
-     * @param {String} contents - The updated contents of the file
-     */
-    onCurrentFileUpdate (contents) {
-        this.state.openFiles[this.state.currentFilePath] = contents;
-    }
-
-    /**
-     * The handler of the event 'application:file-loaded'.
+     * Adds the file to the state and sets it as the current.
      * @param {Object} event - The event descriptor.
      * @param {Object} payload - A descriptor of the file.
      * @param {string} payload.filePath - The path of the file.
@@ -84,10 +61,32 @@ class Window extends React.Component {
      * @listens application:file-loaded
      */
     onFileLoaded (event, payload) {
-        this.state.openFiles[payload.filePath] = payload.contents;
+        this.state.workspaceFileTree.addFile(payload.filePath);
+        this.state.openedFiles.push(payload.filePath);
         this.setState({
-            currentFilePath: payload.filePath
+            currentFile: {
+                filePath: payload.filePath,
+                content: payload.contents
+            }
         });
+    }
+
+    /**
+     *
+     * @param {Object} descriptor - A descriptor of the directory.
+     * @param {string} descriptor.directory - The directory.
+     * @param {Object[]} descriptor.files - The descriptor of all the files, including the directory itself.
+     * @listens application:directory-loaded
+     */
+    onDirectoryLoaded (event, descriptor) {
+        for (let file of descriptor.files) {
+            if (file.isDirectory)
+                this.state.workspaceFileTree.addDirectory(file.path);
+            else
+                this.state.workspaceFileTree.addFile(file.path);
+        }
+
+        this.setState();
     }
 
     /**
@@ -96,12 +95,9 @@ class Window extends React.Component {
      * @param {string} responseChannel - The channel to respond to with the file descriptor
      */
     onCurrentFileRequest (event, responseChannel) {
-        const currentContent = this.editor.getCurrentText();
-        this.state.openFiles[this.state.currentFilePath] = currentContent;
-
         event.sender.send(responseChannel, {
-            path: this.state.currentFilePath,
-            contents: currentContent
+            path: this.state.currentFile.filePath,
+            contents: this.editor.getCurrentText()
         });
     }
 
@@ -112,16 +108,27 @@ class Window extends React.Component {
      * @param {string} filePath - The path of the file to be closed
      */
     onCloseFile (event, filePath) {
-        if (!filePath)
-            filePath = this.state.currentFilePath;
+    }
 
-        delete this.state.openFiles[filePath];
-        const openFilePaths = Object.keys(this.state.openFiles);
-        let nextCurrentFile = null;
-        if (openFilePaths.length > 0)
-            nextCurrentFile = openFilePaths[0];
-
-        this.setState({ currentFilePath: nextCurrentFile });
+    render () {
+        return <div id="viewport">
+            <div id="workspace">
+                <div id="left-sidebar">
+                    <Explorer fileTree={this.state.workspaceFileTree}></Explorer>
+                </div>
+                <div id="main-panel">
+                    <Editor ref={editor => this.editor = editor}
+                        openedFiles={this.state.openedFiles}
+                        currentFile={this.state.currentFile}>
+                    </Editor>
+                </div>
+                <div id="right-sidebar">
+                </div>
+            </div>
+            <div id="bottom-bar">
+                <StatusBar filePath={this.state.currentFile.filePath}></StatusBar>
+            </div>
+        </div>;
     }
 };
 

@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>Weaki Global</title>
+	<title>Weaki Class: Explorer</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -79,13 +79,13 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Global</h1>
+	<h1 class="page-title">Class: Explorer</h1>
 <section>
 
 <header>
     
         <h2>
-        
+        Explorer
         </h2>
         
     
@@ -96,73 +96,9 @@
     <div class="container-overview">
     
         
-
-        
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Type Definitions</h3>
-
-        <dl>
-                
 <hr>
 <dt>
-    <h4 class="name" id="action"><span class="type-signature"></span>action()</h4>
+    <h4 class="name" id="Explorer"><span class="type-signature"></span>new Explorer()</h4>
     
     
 </dt>
@@ -170,7 +106,7 @@
 
     
     <div class="description">
-        A function with no parameters and no return value expected.
+        A component which represents a clickable file tree.
     </div>
     
 
@@ -236,45 +172,152 @@
     
 </dd>
 
-            
-                
-<hr>
-<dt class="name" id="ExplorerNode">
-    <h4 id="ExplorerNode">ExplorerNode</h4>
+    
+    </div>
 
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        <dl>
+            
+<hr>
+<dt>
+    <h4 class="name" id=".buildFileTree"><span class="type-signature">&lt;static> </span>buildFileTree()</h4>
+    
     
 </dt>
 <dd>
-    
-    <div class="description">
-        Represents a node in the <a href="Explorer.html">Explorer</a> component.
-    </div>
+
     
 
     
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">Object</span>
 
+    
 
-
-            </li>
-        </ul>
+    
     
 
     
 <dl class="details">
     
 
-    <h5 class="subsection-title">Properties:</h5>
+	
 
-    <dl>
+	
 
-<table class="props table table-striped">
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    - The root of the file tree.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type"><a href="global.html#ExplorerNode">ExplorerNode</a></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".getNode"><span class="type-signature">&lt;static> </span>getNode(file)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Gets the corresponding node of the file or the last node in the path which is on the tree.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
     <thead>
     <tr>
+        
+        <th>Name</th>
         
 
         <th>Type</th>
@@ -292,11 +335,13 @@
 
         <tr>
             
+                <td class="name"><code>file</code></td>
+            
 
             <td class="type">
             
                 
-<span class="param-type"><a href="global.html#ExplorerNodeDescription">ExplorerNodeDescription</a></span>
+<span class="param-type">Object</span>
 
 
 
@@ -307,170 +352,11 @@
 
             
 
-            <td class="description last"></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-</dl>
-
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-</dd>
-
-            
+            <td class="description last">A descriptor of the file.
+                <h6 class="method-params-label method-subparams-label">Properties</h6>
                 
-<hr>
-<dt class="name" id="ExplorerNodeDescription">
-    <h4 id="ExplorerNodeDescription">ExplorerNodeDescription</h4>
 
-    
-</dt>
-<dd>
-    
-    <div class="description">
-        Contains the description of an <a href="global.html#ExplorerNode">ExplorerNode</a>.
-    </div>
-    
-
-    
-        <h5>Type:</h5>
-        <ul>
-            <li>
-                
-<span class="param-type">Object</span>
-
-
-
-            </li>
-        </ul>
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-</dd>
-
-            </dl>
-    
-
-    
-        <h3 class="subsection-title">Events</h3>
-
-        <dl>
-            
-<hr>
-<dt>
-    <h4 class="name" id="event:application:file-loaded">application:file-loaded</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Channel used when a file has been loaded by the main process.
-    </div>
-    
-
-    
-
-    
-        <h5>Type: 
-<span class="param-type">object</span>
-
-
-</h5>
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    <dl>
-
-<table class="props table table-striped">
+<table class="params table table-striped">
     <thead>
     <tr>
         
@@ -509,14 +395,188 @@
 
             
 
-            <td class="description last">The path of the file.</td>
+            <td class="description last">The complete path of the file.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>contents</code></td>
+                <td class="name"><code>isDirectory</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A flag which indicates whether the file is actually a directory.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+            </td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id=".insertToFileTree"><span class="type-signature">&lt;static> </span>insertToFileTree(file, tree)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>file</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A descriptor of the file.
+                <h6 class="method-params-label method-subparams-label">Properties</h6>
+                
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>filePath</code></td>
             
 
             <td class="type">
@@ -533,14 +593,72 @@
 
             
 
-            <td class="description last">The contents of the file.</td>
+            <td class="description last">The complete path of the file.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>isDirectory</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">A flag which indicates whether the file is actually a directory.</td>
         </tr>
 
     
     </tbody>
 </table>
-</dl>
 
+            </td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>tree</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#ExplorerNode">ExplorerNode</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The root node of the file tree.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
     
 
 	
@@ -585,11 +703,6 @@
 
     
 
-    
-    <h5>Listeners of This Event:</h5>
-    <ul>
-        <li><a href="Window.html#onFileLoaded">Window#onFileLoaded</a></li>
-    </ul>
     
 
     
@@ -600,6 +713,10 @@
 </dd>
 
         </dl>
+    
+
+    
+
     
 </article>
 

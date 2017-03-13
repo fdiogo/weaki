@@ -4,6 +4,7 @@ import url from 'url';
 
 import CommandRegistry from './src/command-registry';
 import OpenFileCommand from './src/commands/open-file-command';
+import OpenRepositoryCommand from './src/commands/open-repository-command';
 import SaveFileCommand from './src/commands/save-file-command';
 import CloseFileCommand from './src/commands/close-file-command';
 import BoldCommand from './src/commands/bold-command';
@@ -40,6 +41,7 @@ app.on('ready', () => {
 
 function registerCommands () {
     commandRegistry.register('application:open-file', OpenFileCommand);
+    commandRegistry.register('application:open-repository', OpenRepositoryCommand);
     commandRegistry.register('application:save-file', SaveFileCommand);
     commandRegistry.register('application:close-file', CloseFileCommand);
     commandRegistry.register('editor:bold', BoldCommand);
@@ -87,3 +89,11 @@ export default {
  * A function with no parameters and no return value expected.
  * @callback action
  */
+
+ /**
+  * A type which describes a file.
+  * @typedef FileDescriptor
+  * @type {Object}
+  * @property {string} filePath - The full path of the file.
+  * @property {boolean} isDirectory - The flag indicating if it's a directory.
+  */

@@ -7,7 +7,7 @@
     "package": "mkdir dist -p && electron-packager . --out=dist --platform win32,linux,mas,darwin --arch=all --osx-sign && for i in dist/*/; do zip -rq \"${i%/}.zip\" \"$i\"; done ",
     "build": "gulp build",
     "docs": "jsdoc -c jsdoc.conf.json -d docs -t ./node_modules/ink-docstrap/template -r app.js src",
-    "clean": "rm -rf dist build",
+    "clean": "rm -rf dist build docs",
     "start": "electron build/app.js",
     "watch": "gulp watch",
     "test": "gulp test"

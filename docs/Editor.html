@@ -33,7 +33,7 @@
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Command.html">Command</a></li><li><a href="CommandRegistry.html">CommandRegistry</a></li><li><a href="Editor.html">Editor</a></li><li><a href="SaveFileCommand.html">SaveFileCommand</a></li><li><a href="Window.html">Window</a></li>
+					<li><a href="Command.html">Command</a></li><li><a href="CommandRegistry.html">CommandRegistry</a></li><li><a href="Editor.html">Editor</a></li><li><a href="Explorer.html">Explorer</a></li><li><a href="SaveFileCommand.html">SaveFileCommand</a></li><li><a href="Window.html">Window</a></li>
 				</ul>
 			</li>
 			
@@ -192,7 +192,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="appendAtCaret"><span class="type-signature"></span>appendAtCaret(text [, callback])</h4>
+    <h4 class="name" id="blockquote"><span class="type-signature"></span>blockquote()</h4>
     
     
 </dt>
@@ -200,7 +200,7 @@
 
     
     <div class="description">
-        Appends text at the current caret's position.
+        Creates a blockquote.
     </div>
     
 
@@ -209,100 +209,6 @@
     
 
     
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Argument</th>
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>text</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">The text to append.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>callback</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type"><a href="global.html#action">action</a></span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-
-            <td class="description last">Optional callback invoked as a second parameter to 'setState'.                           <a href="https://facebook.github.io/react/docs/react-component.html#setstate">See more.</a></td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
     
 
     
@@ -373,6 +279,84 @@
     
     <div class="description">
         Turns the text bold.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="code"><span class="type-signature"></span>code()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Creates a span of code.
     </div>
     
 
@@ -516,7 +500,7 @@
     
             
 <div class="param-desc">
-    - The current content.
+    The current content.
 </div>
 
 
@@ -618,7 +602,7 @@
     
             
 <div class="param-desc">
-    - The currently selected text.
+    The currently selected text.
 </div>
 
 
@@ -646,7 +630,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="header"><span class="type-signature"></span>header(level)</h4>
+    <h4 class="name" id="header"><span class="type-signature"></span>header( [level])</h4>
     
     
 </dt>
@@ -677,7 +661,11 @@
         <th>Type</th>
 
         
+        <th>Argument</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -703,16 +691,188 @@
             </td>
 
             
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
 
+                
+
+                
+                </td>
             
 
-            <td class="description last">The header level (between 1 and 5).</td>
+            
+                <td class="default">
+                
+                    1
+                
+                </td>
+            
+
+            <td class="description last">The header level (between 1 and 6).</td>
         </tr>
 
     
     </tbody>
 </table>
 
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="horizontalRule"><span class="type-signature"></span>horizontalRule()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Creates a horizontal rule.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="image"><span class="type-signature"></span>image()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Creats an image.
+    </div>
+    
+
+    
+
+    
+
+    
     
 
     
@@ -782,7 +942,8 @@
 
     
     <div class="description">
-        Inserts a markdown wrapper, e.g **text** for bold, at the current carret's position or wraps the currentlyselected text.
+        Inserts a markdown wrapper, e.g **text** for bold, at the current carret's position or wraps the currently
+selected text.
     </div>
     
 
@@ -1220,134 +1381,6 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="moveCaretPosition"><span class="type-signature"></span>moveCaretPosition(offset)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Moves the caret position with an offset.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>offset</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The value to add to the current position.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
     <h4 class="name" id="orderedList"><span class="type-signature"></span>orderedList()</h4>
     
     
@@ -1426,134 +1459,6 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="setCaretPosition"><span class="type-signature"></span>setCaretPosition(position)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Sets the position of the caret removing any existing selection.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>position</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">number</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The new caret's position.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
     <h4 class="name" id="strikeThrough"><span class="type-signature"></span>strikeThrough()</h4>
     
     
@@ -1571,194 +1476,6 @@
     
 
     
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="surroundSelection"><span class="type-signature"></span>surroundSelection( [prepend] [, append])</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Surrounds the currently selected text, if any.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-        <h5>Parameters:</h5>
-        
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-        <th>Argument</th>
-        
-
-        
-        <th>Default</th>
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>prepend</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    ''
-                
-                </td>
-            
-
-            <td class="description last">The text to prepend to the selection.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>append</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
-
-                
-
-                
-                </td>
-            
-
-            
-                <td class="default">
-                
-                    ''
-                
-                </td>
-            
-
-            <td class="description last">The text to append to the selection.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
     
 
     
@@ -2022,7 +1739,7 @@
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
 	
-		on 2017-02-27T15:27:36+00:00
+		on 2017-03-13T00:06:17+00:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>
