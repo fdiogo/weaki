@@ -11,10 +11,10 @@ class FileTree {
      */
     constructor () {
         /**
-         * The roots of the file tree.
-         * @member {Object.<string, FileTreeNode>}
+         * The root of the file tree.
+         * @member {FileTreeNode}
          */
-        this.roots = {};
+        this.root = new FileTreeNode('', true);
     }
 
     /**
@@ -71,6 +71,39 @@ class FileTree {
     }
 
     /**
+     * Searches for the lowest node in the tree from which is possible to reach the remaining lower nodes.
+     *
+     * For example, if the tree consists of:        Or this:                       Or this:
+     *           / (dir)                                / (dir)                         / (dir)
+     *           |                                      |                               |
+     *         home (dir)                              home (dir)                      home (dir)
+     *           |                                      |                               |
+     *         user (dir)                              user (dir)                      user (dir)
+     *        /    \                                    |
+     *  Documents  Desktop                           file.txt (file)
+     *    (dir)      (dir)
+     *
+     * The returned node is 'user'           The returned node is 'user'        The returned node is 'user'
+     */
+    getWorkspaceNode () {
+        let node = this.root;
+        while (node.hasChildren()) {
+            const childrenNames = Object.keys(node.children);
+            if (childrenNames.length === 0 || childrenNames.length > 1)
+                return node;
+            else {
+                const childNode = node.getChild(childrenNames[0]);
+                if (!childNode.isDirectory)
+                    return node;
+                else
+                    node = childNode;
+            }
+        }
+
+        return node;
+    }
+
+    /**
      * Makes sure the tree includes all parts of the path as directories.
      * @param {string} fullPath - The directory path to create.
      * @returns {FileTreeNode} The last node created.
@@ -80,22 +113,15 @@ class FileTree {
         if (path.isAbsolute(fullPath) === false)
             throw new Error('The directory path must be absolute');
 
-        const parts = path.parse(fullPath);
-        const root = parts.root;
-        const remainingPath = fullPath.substring(root.length);
-        const segments = remainingPath.length > 0 ? remainingPath.split(path.sep) : [];
-
-        if (!this.roots.hasOwnProperty(root))
-            this.roots[root] = new FileTreeNode(root, true);
-
-        let node = this.roots[root];
+        const segments = FileTree.splitPath(fullPath);
+        let node = this.root;
         for (let i = 0; i < segments.length; i++) {
             const segment = segments[i];
 
             if (node.hasChild(segment))
                 node = node.getChild(segment);
             else {
-                const fullPath = path.join(root, ...segments.slice(0, i + 1));
+                const fullPath = path.join(...segments.slice(0, i + 1));
                 const newDirectoryNode = new FileTreeNode(fullPath, true);
                 node.addChild(newDirectoryNode);
                 node = newDirectoryNode;
@@ -103,6 +129,16 @@ class FileTree {
         }
 
         return node;
+    }
+
+    /**
+     *
+     */
+    static splitPath (fullPath) {
+        const parsed = path.parse(fullPath);
+        const exceptRoot = fullPath.substring(parsed.root.length);
+        const segments = [parsed.root].concat(exceptRoot.split(path.sep));
+        return segments;
     }
 }
 
@@ -115,14 +151,16 @@ class FileTreeNode {
     constructor (fullPath, isDirectory) {
         /** @member {string} */
         this.fullPath = fullPath;
-        /** @member {string} */
-        this.name = path.basename(this.fullPath);
         /** @member {boolean} */
         this.isDirectory = isDirectory;
         /** @member {FileTreeNode} */
         this.parent = null;
         /** @member {Object.<string, FileTreeNode>} */
         this.children = {};
+        /** @member {string} */
+        this.name = path.basename(this.fullPath);
+        if (this.name.length === 0)
+            this.name = this.fullPath;
     }
 
     /**
@@ -134,12 +172,19 @@ class FileTreeNode {
         if (!this.isDirectory)
             throw new Error('Can\'t add a child to a non-directory node!');
 
-        const parts = path.parse(node.fullPath);
-        if (parts.dir !== this.fullPath)
-            throw new Error(`The path of the node (${parts.dir}) is not compatible with this directory (${this.fullPath})!`);
+        if (this.parent !== null && path.relative(node.fullPath, this.fullPath) !== '..')
+            throw new Error(`The path '${node.fullPath}' is not compatible with this directory (${this.fullPath})!`);
 
         this.children[node.name] = node;
         node.parent = this;
+    }
+
+    /**
+     * Looks for children in the node.
+     * @returns {boolean} True if the node has children.
+     */
+    hasChildren () {
+        return Object.keys(this.children).length !== 0;
     }
 
     /**

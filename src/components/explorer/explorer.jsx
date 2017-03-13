@@ -29,13 +29,11 @@ class Explorer extends React.Component {
     }
 
     render () {
-        let rootItems = [];
-        for (let rootPath in this.state.fileTree.roots) {
-            const rootNode = this.state.fileTree.roots[rootPath];
-            rootItems.push(<ExplorerItem key={rootPath} {...rootNode}></ExplorerItem>);
-        }
+        const rootNode = this.state.fileTree.getWorkspaceNode();
 
-        return <ul id='explorer-tree'>{rootItems}</ul>;
+        return <ul id='explorer-tree'>
+            {rootNode !== this.state.fileTree.root ? <ExplorerItem key={rootNode.fullPath} {...rootNode}></ExplorerItem> : []}
+        </ul>;
     }
 
 }

@@ -86,7 +86,7 @@ class Window extends React.Component {
                 this.state.workspaceFileTree.addFile(file.path);
         }
 
-        this.setState();
+        this.forceUpdate();
     }
 
     /**
