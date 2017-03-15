@@ -2,6 +2,7 @@ import {app, dialog} from 'electron';
 import path from 'path';
 import fs from 'fs';
 import Command from './command';
+import weaki from '../../app.js';
 
 /**
  * Opens a git repository in the application.
@@ -46,17 +47,14 @@ function getDirectory () {
             properties: ['openDirectory']
         }, function (directories) {
             const directory = directories[0];
-            const gitPath = path.join(directory, '.git');
-            try {
-                fs.accessSync(gitPath);
-                resolve(directory);
-            } catch (err) {
-                if (err.code === 'ENOENT') {
-                    dialog.showErrorBox('Error', 'This directory is not git repository!');
-                    getDirectory().then(resolve, reject);
-                } else
-                    reject(err);
-            }
+            weaki.openRepository(directory)
+                .then(
+                    () => resolve(directory), 
+                    () => {
+                        dialog.showErrorBox('Error', 'This directory is not git repository!');
+                        getDirectory().then(resolve, reject);
+                    }
+                );
         });
     });
 }
@@ -80,7 +78,6 @@ function readDirectory (directory) {
 }
 
 function getFileDescriptor (filePath) {
-    console.log(filePath);
     return new Promise(function (resolve, reject) {
         fs.stat(filePath, function (err, stats) {
             if (err) {

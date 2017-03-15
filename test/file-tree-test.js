@@ -80,7 +80,7 @@ describe('FileTree', function () {
                 expect(workspaceNode.name).to.equal('user');
             });
 
-            it('return the last directory if are no files', function () {
+            it('return the last directory if there are no files', function () {
                 const fileTree = new FileTree();
                 fileTree.addDirectory(path.join(ROOT, 'home', 'user'));
                 const workspaceNode = fileTree.getWorkspaceNode();

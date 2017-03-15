@@ -1,6 +1,7 @@
 import {app, BrowserWindow, Menu, ipcMain} from 'electron';
 import path from 'path';
 import url from 'url';
+import Git from 'simple-git';
 
 import CommandRegistry from './src/command-registry';
 import OpenFileCommand from './src/commands/open-file-command';
@@ -23,6 +24,7 @@ import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
 const commandStack = [];
+let repository = Git();
 
 app.on('ready', () => {
     const mainWindow = new BrowserWindow({title: 'Weaki'});
@@ -81,8 +83,22 @@ function executeCommand (selector, commandArguments) {
     }
 }
 
+function openRepository (repositoryPath) {
+    return new Promise(function (resolve, reject) {
+        console.log(`Opening ${repositoryPath}`);
+        const newRepo = repository.cwd(repositoryPath).status(function (err, data) {
+            if (err) reject(err);
+            else {
+                repository = newRepo;
+                resolve(data);
+            }
+        });
+    });
+}
+
 export default {
-    executeCommand: executeCommand
+    executeCommand: executeCommand,
+    openRepository: openRepository
 };
 
 /**
