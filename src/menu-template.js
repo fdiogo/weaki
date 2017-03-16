@@ -170,6 +170,11 @@ class MenuTemplate {
                         label: 'Fetch',
                         accelerator: keymap['git:fetch'],
                         click: weaki.executeCommand.bind(null, 'git:fetch', null)
+                    },
+                    {
+                        label: 'Checkout',
+                        accelerator: keymap['git:checkout'],
+                        click: weaki.executeCommand.bind(null, 'git:checkout', 'HEAD', ['.'])
                     }
                 ]
             },

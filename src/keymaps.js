@@ -4,7 +4,6 @@ export default {
     'application:open-repository': 'CmdOrCtrl+R',
     'application:save-file': 'CmdOrCtrl+S',
     'application:close-file': 'CmdOrCtrl+W',
-    'git:fetch': 'CmdOrCtrl+Shift+F',
     'editor:bold': 'CmdOrCtrl+B',
     'editor:italic': 'CmdOrCtrl+I',
     'editor:strike-through': 'CmdOrCtrl+T',

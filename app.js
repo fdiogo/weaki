@@ -21,6 +21,7 @@ import CodeCommand from './src/commands/code-command';
 import HorizontalRuleCommand from './src/commands/horizontal-rule-command';
 import ImageCommand from './src/commands/image-command';
 import GitFetchCommand from './src/commands/git-fetch-command';
+import GitCheckoutCommand from './src/commands/git-checkout-command';
 import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
@@ -48,6 +49,7 @@ function registerCommands () {
     commandRegistry.register('application:save-file', SaveFileCommand);
     commandRegistry.register('application:close-file', CloseFileCommand);
     commandRegistry.register('git:fetch', GitFetchCommand);
+    commandRegistry.register('git:checkout', GitCheckoutCommand);
     commandRegistry.register('editor:bold', BoldCommand);
     commandRegistry.register('editor:italic', ItalicCommand);
     commandRegistry.register('editor:strike-through', StrikeThroughCommand);
@@ -129,10 +131,20 @@ function fetchChanges () {
     });
 }
 
+function checkout (commitHash = 'HEAD', fileGlobs) {
+    return new Promise(function (resolve, reject) {
+        repository.checkout([commitHash, ...fileGlobs], function (err, data) {
+            if (err) reject(new Error(err));
+            resolve(data);
+        });
+    });
+}
+
 export default {
     executeCommand: executeCommand,
     openRepository: openRepository,
-    fetchChanges: fetchChanges
+    fetchChanges: fetchChanges,
+    checkout: checkout
 };
 
 /**
