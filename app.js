@@ -20,6 +20,7 @@ import TableCommand from './src/commands/table-command';
 import CodeCommand from './src/commands/code-command';
 import HorizontalRuleCommand from './src/commands/horizontal-rule-command';
 import ImageCommand from './src/commands/image-command';
+import GitFetchCommand from './src/commands/git-fetch-command';
 import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
@@ -46,6 +47,7 @@ function registerCommands () {
     commandRegistry.register('application:open-repository', OpenRepositoryCommand);
     commandRegistry.register('application:save-file', SaveFileCommand);
     commandRegistry.register('application:close-file', CloseFileCommand);
+    commandRegistry.register('git:fetch', GitFetchCommand);
     commandRegistry.register('editor:bold', BoldCommand);
     commandRegistry.register('editor:italic', ItalicCommand);
     commandRegistry.register('editor:strike-through', StrikeThroughCommand);
@@ -60,12 +62,21 @@ function registerCommands () {
     commandRegistry.register('editor:image', ImageCommand);
 }
 
+/**
+ * Creates the menu with the template on {@link MenuTemplate}.
+ */
 function createMenu () {
     const template = new MenuTemplate();
     const menu = Menu.buildFromTemplate(template.value);
     Menu.setApplicationMenu(menu);
 }
 
+/**
+ * Searches a command by selector, creates an instance with the provided arguments and executes it.
+ *
+ * @param {string} selector - The registered command selector.
+ * @param {Object[]} commandArguments - The arguments to be supplied to the command.
+ */
 function executeCommand (selector, commandArguments) {
     const CommandClass = commandRegistry.get(selector);
     if (!CommandClass) {
@@ -83,11 +94,15 @@ function executeCommand (selector, commandArguments) {
     }
 }
 
+/**
+ * Opens an existing local git repository.
+ * @param {string} repositoryPath - The repository path.
+ * @returns {Promise.<Object, Error>} - A promise to the repository status.
+ */
 function openRepository (repositoryPath) {
     return new Promise(function (resolve, reject) {
-        console.log(`Opening ${repositoryPath}`);
         const newRepo = repository.cwd(repositoryPath).status(function (err, data) {
-            if (err) reject(err);
+            if (err) reject(new Error(err));
             else {
                 repository = newRepo;
                 resolve(data);
@@ -96,9 +111,28 @@ function openRepository (repositoryPath) {
     });
 }
 
+/**
+ * Fetches the remote changes of the current git repository.
+ * @returns {Promise.<Object, Error>} A promise to the remote changes.
+ */
+function fetchChanges () {
+    return new Promise(function (resolve, reject) {
+        repository.status(function (error) {
+            if (error) reject('There is no open repository!');
+            repository.fetch(function (error, data) {
+                if (error)
+                    reject(new Error(`Something went wrong while fetching remote changes. Details: ${error}`));
+                else
+                    resolve(data);
+            });
+        });
+    });
+}
+
 export default {
     executeCommand: executeCommand,
-    openRepository: openRepository
+    openRepository: openRepository,
+    fetchChanges: fetchChanges
 };
 
 /**

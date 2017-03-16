@@ -2,6 +2,9 @@ import { app } from 'electron';
 import keymap from './keymaps';
 import weaki from '../app.js';
 
+/**
+ * @class MenuTemplate
+ **/
 class MenuTemplate {
 
     constructor () {
@@ -157,6 +160,16 @@ class MenuTemplate {
                     },
                     {
                         role: 'selectall'
+                    }
+                ]
+            },
+            {
+                label: 'Git',
+                submenu: [
+                    {
+                        label: 'Fetch',
+                        accelerator: keymap['git:fetch'],
+                        click: weaki.executeCommand.bind(null, 'git:fetch', null)
                     }
                 ]
             },
