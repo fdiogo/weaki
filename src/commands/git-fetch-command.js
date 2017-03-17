@@ -17,7 +17,7 @@ class GitFetchCommand extends Command {
  * @returns {Promise.<Object, Error>}
  */
 function delegateToApplication () {
-    return weaki.fetchChanges();
+    return weaki.git.fetchChanges();
 }
 
 export default GitFetchCommand;

@@ -1,6 +1,7 @@
 import {app, dialog} from 'electron';
 import fs from 'fs';
 import Command from './command';
+import weaki from '../../app';
 
 class OpenFileCommand extends Command {
     constructor (filePath) {
@@ -46,7 +47,7 @@ function readFile (filePath) {
 
 function send (file) {
     return new Promise(resolve => {
-        global.mainWindow.webContents.send('application:file-loaded', file);
+        weaki.mainWindow.webContents.send('application:file-loaded', file);
         resolve();
     });
 }

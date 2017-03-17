@@ -1,6 +1,7 @@
 import { ipcMain } from 'electron';
 import Command from './command';
 import fs from 'fs';
+import weaki from '../../app';
 
 let fileRequests = 0;
 
@@ -43,7 +44,7 @@ class SaveFileCommand extends Command {
             const requestNumber = fileRequests++;
             const responseChannel = `application:current-file@${requestNumber}`;
             ipcMain.once(responseChannel, (event, fileDescriptor) => resolve(fileDescriptor));
-            global.mainWindow.webContents.send('application:current-file', responseChannel);
+            weaki.mainWindow.webContents.send('application:current-file', responseChannel);
         });
     }
 

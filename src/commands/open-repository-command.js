@@ -2,7 +2,7 @@ import {app, dialog} from 'electron';
 import path from 'path';
 import fs from 'fs';
 import Command from './command';
-import weaki from '../../app.js';
+import weaki from '../../app';
 
 /**
  * Opens a git repository in the application.
@@ -41,20 +41,18 @@ function openRepository (directory) {
  */
 function getDirectory () {
     return new Promise(function (resolve, reject) {
-        dialog.showOpenDialog(global.mainWindow, {
+        dialog.showOpenDialog(weaki.mainWindow, {
             title: 'Open Repository',
             defaultPath: app.getPath('desktop'),
             properties: ['openDirectory']
         }, function (directories) {
             const directory = directories[0];
-            weaki.openRepository(directory)
-                .then(
-                    () => resolve(directory), 
-                    () => {
-                        dialog.showErrorBox('Error', 'This directory is not git repository!');
-                        getDirectory().then(resolve, reject);
-                    }
-                );
+            weaki.git.openRepository(directory)
+                .then(status => resolve(directory))
+                .catch(() => {
+                    dialog.showErrorBox('Error', 'This directory is not git repository!');
+                    getDirectory().then(resolve, reject);
+                });
         });
     });
 }
@@ -95,7 +93,7 @@ function getFileDescriptor (filePath) {
 
 function send (descriptor) {
     return new Promise(resolve => {
-        global.mainWindow.webContents.send('application:directory-loaded', descriptor);
+        weaki.mainWindow.webContents.send('application:directory-loaded', descriptor);
         resolve();
     });
 }

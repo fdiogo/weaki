@@ -1,8 +1,8 @@
 import {app, BrowserWindow, Menu, ipcMain} from 'electron';
 import path from 'path';
 import url from 'url';
-import Git from 'simple-git';
 
+import Git from './src/git';
 import CommandRegistry from './src/command-registry';
 import OpenFileCommand from './src/commands/open-file-command';
 import OpenRepositoryCommand from './src/commands/open-repository-command';
@@ -25,24 +25,63 @@ import GitCheckoutCommand from './src/commands/git-checkout-command';
 import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
-const commandStack = [];
-let repository = Git();
 
-app.on('ready', () => {
-    const mainWindow = new BrowserWindow({title: 'Weaki'});
-    ipcMain.on('execute-command', (event, selector, commandArgs) => executeCommand(selector, commandArgs));
+/**
+ * The entry point to Weaki.
+ * @class Weaki
+ */
+class Weaki {
 
-    mainWindow.loadURL(url.format({
-        pathname: path.join(__dirname, 'src', 'window.html'),
-        protocol: 'file',
-        slashes: true
-    }));
+    constructor () {
+        app.on('ready', () => {
+            registerCommands.call(this);
+            createMenu.call(this);
+            registerChannelListeners.call(this);
+            const mainWindow = launchMainWindow.call(this);
+            const gitInterface = new Git();
 
-    Object.defineProperty(global, 'mainWindow', { get: () => mainWindow });
-    registerCommands();
-    createMenu();
-});
+            Object.defineProperties(this, {
+                mainWindow: {
+                    value: mainWindow,
+                    writable: false,
+                    configurable: false
+                },
 
+                git: {
+                    value: gitInterface,
+                    writable: false,
+                    configurable: false
+                }
+            });
+        });
+    }
+
+    /**
+     * Searches a command by selector, creates an instance with the provided arguments and executes it.
+     *
+     * @param {string} selector - The registered command selector.
+     * @param {Object[]} commandArguments - The arguments to be supplied to the command.
+     */
+    executeCommand (selector, commandArguments) {
+        const CommandClass = commandRegistry.get(selector);
+        if (!CommandClass) {
+            console.log(`The command '${selector}' does not exist!`);
+            return;
+        }
+
+        try {
+            const command = new CommandClass(commandArguments);
+            command.execute();
+            console.log(`Executed '${selector}' with arguments '${commandArguments}'`);
+        } catch (error) {
+            console.log(`Could not execute '${selector}'! Detailed error: ${error}`);
+        }
+    }
+}
+
+/**
+ * Registers, by selector, the commands known by the application.
+ */
 function registerCommands () {
     commandRegistry.register('application:open-file', OpenFileCommand);
     commandRegistry.register('application:open-repository', OpenRepositoryCommand);
@@ -74,88 +113,26 @@ function createMenu () {
 }
 
 /**
- * Searches a command by selector, creates an instance with the provided arguments and executes it.
- *
- * @param {string} selector - The registered command selector.
- * @param {Object[]} commandArguments - The arguments to be supplied to the command.
+ * Registers the actions by channel for each ipc message received.
  */
-function executeCommand (selector, commandArguments) {
-    const CommandClass = commandRegistry.get(selector);
-    if (!CommandClass) {
-        console.log(`The command '${selector}' does not exist!`);
-        return;
-    }
-
-    try {
-        const command = new CommandClass(commandArguments);
-        command.execute();
-        console.log(`Executed '${selector}' with arguments '${commandArguments}'`);
-        commandStack.push(command);
-    } catch (error) {
-        console.log(`Could not execute '${selector}'! Detailed error: ${error}`);
-    }
+function registerChannelListeners () {
+    ipcMain.on('execute-command', (event, selector, commandArgs) => this.executeCommand(selector, commandArgs));
 }
 
 /**
- * Opens an existing local git repository.
- * @param {string} repositoryPath - The repository path.
- * @returns {Promise.<Object, Error>} - A promise to the repository status.
+ * Launches the main window of the application.
+ * @return {BrowserWindow} - The window that was just created.
  */
-function openRepository (repositoryPath) {
-    return new Promise(function (resolve, reject) {
-        const newRepo = repository.cwd(repositoryPath).status(function (err, data) {
-            if (err) reject(new Error(err));
-            else {
-                repository = newRepo;
-                resolve(data);
-            }
-        });
-    });
+function launchMainWindow () {
+    const mainWindow = new BrowserWindow({title: 'Weaki'});
+    mainWindow.loadURL(url.format({
+        pathname: path.join(__dirname, 'src', 'window.html'),
+        protocol: 'file',
+        slashes: true
+    }));
+
+    return mainWindow;
 }
 
-/**
- * Fetches the remote changes of the current git repository.
- * @returns {Promise.<Object, Error>} A promise to the remote changes.
- */
-function fetchChanges () {
-    return new Promise(function (resolve, reject) {
-        repository.status(function (error) {
-            if (error) reject('There is no open repository!');
-            repository.fetch(function (error, data) {
-                if (error)
-                    reject(new Error(`Something went wrong while fetching remote changes. Details: ${error}`));
-                else
-                    resolve(data);
-            });
-        });
-    });
-}
-
-function checkout (commitHash = 'HEAD', fileGlobs) {
-    return new Promise(function (resolve, reject) {
-        repository.checkout([commitHash, ...fileGlobs], function (err, data) {
-            if (err) reject(new Error(err));
-            resolve(data);
-        });
-    });
-}
-
-export default {
-    executeCommand: executeCommand,
-    openRepository: openRepository,
-    fetchChanges: fetchChanges,
-    checkout: checkout
-};
-
-/**
- * A function with no parameters and no return value expected.
- * @callback action
- */
-
- /**
-  * A type which describes a file.
-  * @typedef FileDescriptor
-  * @type {Object}
-  * @property {string} filePath - The full path of the file.
-  * @property {boolean} isDirectory - The flag indicating if it's a directory.
-  */
+export default new Weaki();
+export { Weaki };

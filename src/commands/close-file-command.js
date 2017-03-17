@@ -1,4 +1,5 @@
 import Command from './command';
+import weaki from '../../app';
 
 class CloseFileCommand extends Command {
 
@@ -9,7 +10,7 @@ class CloseFileCommand extends Command {
 }
 
 function closeFile (filePath) {
-    global.mainWindow.webContents.send('editor:close-file', filePath);
+    weaki.mainWindow.webContents.send('editor:close-file', filePath);
 }
 
 export default CloseFileCommand;

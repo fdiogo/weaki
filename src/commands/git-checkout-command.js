@@ -8,7 +8,7 @@ import weaki from '../../app.js';
  */
 class GitCheckoutCommand extends Command {
     /**
-     * @param {strign} commitHash - The hash of the wanted commit.
+     * @param {string} commitHash - The hash of the wanted commit.
      * @param {string[]} fileGlobs - The file globs for the command.
      */
     constructor (commitHash, fileGlobs) {
@@ -21,8 +21,7 @@ class GitCheckoutCommand extends Command {
  * @returns {Promise.<Object, Error>}
  */
 function delegateToApplication (commitHash, fileGlobs) {
-    console.log(`${commitHash} - ${fileGlobs}`);
-    return weaki.checkout(commitHash, fileGlobs);
+    return weaki.git.checkout(commitHash, fileGlobs);
 }
 
 export default GitCheckoutCommand;

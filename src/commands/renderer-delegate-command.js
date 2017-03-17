@@ -1,4 +1,5 @@
 import Command from './command';
+import weaki from '../../app';
 
 class RendererDelegateCommand extends Command {
 
@@ -9,7 +10,7 @@ class RendererDelegateCommand extends Command {
 }
 
 function delegate (selector, args) {
-    global.mainWindow.webContents.send(selector, args);
+    weaki.mainWindow.webContents.send(selector, args);
 }
 
 export default RendererDelegateCommand;
