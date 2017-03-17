@@ -26,6 +26,8 @@ describe('Git', function () {
             })
             .then(() => SimpleGitAsync.cwdAsync(REPO_DIR))
             .then(() => SimpleGitAsync.initAsync(false))
+            .then(() => SimpleGitAsync.addConfigAsync('user.email', 'john.doe@gmail.com'))
+            .then(() => SimpleGitAsync.addConfigAsync('user.name', 'johndoe'))
             .then(() => fsAsync.appendFileAsync(path.join(REPO_DIR, 'README'), README_ORIGINAL_CONTENT))
             .then(() => SimpleGitAsync.addAsync(['README']))
             .then(() => SimpleGitAsync.commitAsync('First commit'));

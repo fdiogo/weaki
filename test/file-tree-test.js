@@ -19,7 +19,7 @@ describe('FileTree', function () {
 
         it('create intermediate nodes as directories if necessary', function () {
             const fileTree = new FileTree();
-            const node = fileTree.addDirectory('/a/b/c');
+            const node = fileTree.addDirectory(path.join(ROOT, 'a', 'b', 'c'));
 
             expect(node.parent.name).to.equal('b');
             expect(node.parent.isDirectory).to.be.true;
@@ -27,7 +27,7 @@ describe('FileTree', function () {
             expect(node.parent.parent.name).to.equal('a');
             expect(node.parent.parent.isDirectory).to.be.true;
             expect(node.parent.parent.children['b']).to.exist;
-            expect(node.parent.parent.parent.name).to.equal('/');
+            expect(node.parent.parent.parent.name).to.equal(ROOT);
             expect(node.parent.parent.parent.isDirectory).to.be.true;
             expect(node.parent.parent.parent.children['a']).to.exist;
         });
@@ -93,7 +93,7 @@ describe('FileTree', function () {
 
     describe('.splitPath()', function () {
         it('include root', function () {
-            const fullPath = ROOT + 'users/john/documents';
+            const fullPath = path.join(ROOT, 'users', 'john', 'documents');
 
             expect(FileTree.splitPath(fullPath)).to.deep.equal([ROOT, 'users', 'john', 'documents']);
         });
