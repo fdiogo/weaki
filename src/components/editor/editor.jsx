@@ -97,11 +97,11 @@ class Editor extends React.Component {
         if (this.isTextSelected()) {
             const selectedText = this.getSelectedText();
             if (LINK_REGEX.test(selectedText))
-                this.insertWrapper('![Image Text](', ' "Title")');
+                this.insertWrapper('![Image Name](', ' "Title")');
             else
                 this.insertWrapper('![', '](URI "Title")');
         } else
-            this.insertWrapper('![Image Text]', '(URI "Title")');
+            this.insertWrapper('![Image Name]', '(URI "Title")');
     }
 
     /**

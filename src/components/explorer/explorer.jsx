@@ -31,12 +31,15 @@ class Explorer extends React.Component {
     render () {
         const rootNode = this.state.fileTree.getWorkspaceNode();
 
-        return <ul id='explorer-tree'>
+        return <ul className='explorer-tree'>
             {rootNode !== this.state.fileTree.root ? <ExplorerItem key={rootNode.fullPath} {...rootNode}></ExplorerItem> : []}
         </ul>;
     }
 
 }
+
+const COLLAPED_IMAGE = '../assets/octicon-chevron-right.svg';
+const NON_COLLAPED_IMAGE = '../assets/octicon-chevron-down.svg';
 
 class ExplorerItem extends React.Component {
 
@@ -63,12 +66,26 @@ class ExplorerItem extends React.Component {
             }
         }
 
-        const tag = this.props.isDirectory ? 'ul' : 'li';
-        const itemTitle = <span className='explorer-tree-item-title'
-            onClick={this.onClick.bind(this)}>
-            {this.props.name}
-        </span>;
-        return React.createElement(tag, null, itemTitle, children);
+        const classes = [];
+        let titlePrefix = <span className="explorer-item-title-prefix"></span>;
+        if (this.props.isDirectory) {
+            classes.push('explorer-item-directory');
+            if (Object.keys(this.props.children).length > 0) {
+                const imageSrc = this.state.collapsed ? COLLAPED_IMAGE : NON_COLLAPED_IMAGE;
+                const imageClasses = ['explorer-item-title-prefix', 'explorer-item-directory-chevron'];
+                titlePrefix = <img className={imageClasses.join(' ')} src={imageSrc}></img>;
+            }
+        } else
+            classes.push('explorer-item-file');
+
+        return <div className={classes.join(' ')}>
+            <div className="explorer-item-title"
+                onClick={this.onClick.bind(this)}>
+                {titlePrefix}
+                {this.props.name}
+            </div>
+            {children}
+        </div>;
     }
 }
 
