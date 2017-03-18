@@ -4,6 +4,7 @@ import highlight from 'highlight.js';
 */
 import { CompositeDecorator } from 'draft-js';
 import React from 'react'; //eslint-disable-line
+import ImageDecorator from './image-decorator/image-decorator';
 
 class MarkdownDecorator extends CompositeDecorator {
 
@@ -49,6 +50,10 @@ class MarkdownDecorator extends CompositeDecorator {
             {
                 strategy: (contentBlock, callback) => findWithRegex(/~~.*~~/g, contentBlock, callback),
                 component: (props) => <span className="md-strike-through">{props.children}</span>
+            },
+            {
+                strategy: (contentBlock, callback) => findWithRegex(/!\[.*\](.*)/g, contentBlock, callback),
+                component: (props) => <ImageDecorator {...props}></ImageDecorator>
             },
             {
                 strategy: (contentBlock, callback) => findWithRegex(/\[.*\]\(.*\)/g, contentBlock, callback),
