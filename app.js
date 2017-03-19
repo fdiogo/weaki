@@ -22,6 +22,7 @@ import HorizontalRuleCommand from './src/commands/horizontal-rule-command';
 import ImageCommand from './src/commands/image-command';
 import GitFetchCommand from './src/commands/git-fetch-command';
 import GitCheckoutCommand from './src/commands/git-checkout-command';
+import GitPushCommand from './src/commands/git-push-command';
 import GitOpenCommitCommand from './src/commands/git-open-commit-command';
 import MenuTemplate from './src/menu-template';
 
@@ -101,6 +102,7 @@ function registerCommands () {
     commandRegistry.register('application:close-file', CloseFileCommand);
     commandRegistry.register('git:fetch', GitFetchCommand);
     commandRegistry.register('git:checkout', GitCheckoutCommand);
+    commandRegistry.register('git:push', GitPushCommand);
     commandRegistry.register('git:open-commit', GitOpenCommitCommand);
     commandRegistry.register('editor:bold', BoldCommand);
     commandRegistry.register('editor:italic', ItalicCommand);

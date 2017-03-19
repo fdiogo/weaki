@@ -7,8 +7,8 @@ import weaki from '../../app.js';
  * @class GitPushCommand
  */
 class GitFetchCommand extends Command {
-    constructor () {
-        super(delegateToApplication.bind(null), null);
+    constructor (remote, origin) {
+        super(delegateToApplication.bind(null, remote, origin), null);
     }
 }
 
@@ -16,8 +16,8 @@ class GitFetchCommand extends Command {
  * Delegates the action of pushing the local changes to the application.
  * @returns {Promise.<Object, Error>}
  */
-function delegateToApplication () {
-    return weaki.git.push();
+function delegateToApplication (remote, origin) {
+    return weaki.git.push(remote, origin);
 }
 
 export default GitFetchCommand;
