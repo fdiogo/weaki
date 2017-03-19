@@ -1,6 +1,7 @@
 import { app } from 'electron';
-import keymap from './keymaps';
 import weaki from '../app.js';
+import path from 'path';
+import fs from 'fs';
 
 /**
  * @class MenuTemplate
@@ -8,6 +9,8 @@ import weaki from '../app.js';
 class MenuTemplate {
 
     constructor () {
+        const keymap = JSON.parse(fs.readFileSync(path.join('configs', 'keymaps.json'), 'utf8'));
+
         this.value = [
             {
                 label: 'File',

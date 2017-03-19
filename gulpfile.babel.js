@@ -36,7 +36,12 @@ gulp.task('copy-assets', function () {
         .pipe(gulp.dest('build/assets'));
 });
 
-gulp.task('build', ['build-javascript', 'build-styles', 'build-templates', 'copy-assets']);
+gulp.task('copy-configs', function () {
+    gulp.src('configs/*')
+        .pipe(gulp.dest('build/configs'));
+});
+
+gulp.task('build', ['build-javascript', 'build-styles', 'build-templates', 'copy-configs', 'copy-assets']);
 gulp.task('watch', ['build'], function () {
     return gulp.watch(['src/**/*', 'app.js'], ['build']);
 });
