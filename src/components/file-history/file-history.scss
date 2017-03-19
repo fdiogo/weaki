@@ -1,0 +1,44 @@
+@import '../../styles/theme';
+
+.file-history {
+    height: 100%;
+    width: 100%;
+    margin: 0px;
+    padding: 0px;
+    background-color: $primary-color;
+    color: $font-color;
+    overflow-y: auto;
+}
+
+.file-history-commit {
+    list-style: none;
+    width: 200px;
+    height: 100px;
+    padding: 4px;
+}
+
+.file-history-commit-header {
+    display: block;
+    width: 100%;
+    padding: 0px;
+    margin: 0px;
+    margin-bottom: 3px;
+}
+
+.file-history-commit-hash {
+    border-radius: 2px;
+    background-color: green;
+    color: white;
+    padding: 1px 3px;
+    font-weight: bold;
+    font-size: smaller;
+}
+
+.file-history-commit:nth-child(odd) {
+    background-color: lighten($primary-color, 5%);
+}
+
+.file-history-commit:hover {
+    background-color: $primary-highlight-color;
+    cursor: pointer;
+}

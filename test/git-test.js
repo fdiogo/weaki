@@ -18,7 +18,7 @@ const README_ORIGINAL_CONTENT = 'Hello';
 
 describe('Git', function () {
     before(function () {
-        return fsAsync.mkdtempAsync(path.join('..', '..', 'tmp'))
+        return fsAsync.mkdtempAsync(path.join('..', 'tmp'))
             .then(folderPath => {
                 TMP_DIR = folderPath;
                 REPO_DIR = path.join(TMP_DIR, 'repo');
@@ -68,6 +68,16 @@ describe('Git', function () {
                 .then(() => instance.checkout())
                 .then(() => fsAsync.readFileAsync(readmePath, 'utf8'))
                 .should.become(README_ORIGINAL_CONTENT);
+        });
+    });
+
+    describe('#getCommitsForFile', function () {
+        it('work with an absolute path', function () {
+            const instance = new Git();
+            const readmePath = path.join(path.resolve(process.cwd(), REPO_DIR), 'README');
+            return instance.openRepository(REPO_DIR)
+                .then(() => instance.getCommitsForFile(readmePath))
+                .should.eventually.have.property('total').equal(1);
         });
     });
 });

@@ -46,9 +46,14 @@ class Git {
 
     /**
      * Checkouts a collection of files to a specific commit.
+     * @param {string} [commitHash = 'HEAD'] - The hash of the commit.
+     * @param {string|string[]} [fileGlobs = '.'] - The files to checkout.
      * @returns {Promise.<Object, Error>} A promise to the checkout operation.
      */
-    checkout (commitHash = 'HEAD', fileGlobs = ['.']) {
+    checkout (commitHash = 'HEAD', fileGlobs = '.') {
+        if (typeof fileGlobs === 'string')
+            fileGlobs = [fileGlobs];
+
         return new Promise((resolve, reject) => {
             this.gitInterface.checkout([commitHash, ...fileGlobs], function (err, data) {
                 if (err) reject(new Error(err));
@@ -57,6 +62,17 @@ class Git {
         });
     }
 
+    /**
+     *
+     */
+    getCommitsForFile (filePath) {
+        return new Promise((resolve, reject) => {
+            this.gitInterface.log({ file: filePath }, function (err, data) {
+                if (err) reject(new Error(err));
+                else resolve(data);
+            });
+        });
+    }
 }
 
 export default Git;

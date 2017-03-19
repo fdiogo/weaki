@@ -60,19 +60,27 @@ class Weaki {
      * Searches a command by selector, creates an instance with the provided arguments and executes it.
      *
      * @param {string} selector - The registered command selector.
-     * @param {Object[]} commandArguments - The arguments to be supplied to the command.
+     * @param {Object[]} [...commandArgument] - One of the arguments for the command.
      */
-    executeCommand (selector, commandArguments) {
+    executeCommand (selector) {
         const CommandClass = commandRegistry.get(selector);
         if (!CommandClass) {
             console.log(`The command '${selector}' does not exist!`);
             return;
         }
 
+        /**
+         * Array.prototype.slice is not used here in order to allow engine optimization.
+         * For more: https://github.com/petkaantonov/bluebird/wiki/Optimization-killers#32-leaking-arguments
+         */
+        const commandArguments = [];
+        for (let i = 1; i < arguments.length; i++)
+            commandArguments.push(arguments[i]);
+
         try {
-            const command = new CommandClass(commandArguments);
+            const command = new CommandClass(...commandArguments);
             command.execute();
-            console.log(`Executed '${selector}' with arguments '${commandArguments}'`);
+            console.log(`Executed '${selector}' with arguments ${commandArguments}`);
         } catch (error) {
             console.log(`Could not execute '${selector}'! Detailed error: ${error}`);
         }
@@ -134,5 +142,7 @@ function launchMainWindow () {
     return mainWindow;
 }
 
-export default new Weaki();
+const instance = new Weaki();
+global.instance = instance;
+export default instance;
 export { Weaki };

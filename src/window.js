@@ -4,6 +4,7 @@ import { render } from 'react-dom';
 
 import Explorer from './components/explorer/explorer';
 import Editor from './components/editor/editor';
+import FileHistory from './components/file-history/file-history';
 import StatusBar from './components/status-bar/status-bar';
 import FileTree from './file-tree';
 
@@ -123,6 +124,7 @@ class Window extends React.Component {
                     </Editor>
                 </div>
                 <div id="right-sidebar">
+                    <FileHistory filePath={this.state.currentFile.filePath}></FileHistory>
                 </div>
             </div>
             <div id="bottom-bar">
