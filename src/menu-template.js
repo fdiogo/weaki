@@ -167,6 +167,11 @@ class MenuTemplate {
                 label: 'Git',
                 submenu: [
                     {
+                        label: 'Open Commit',
+                        accelerator: keymap['git:open-commit'],
+                        click: weaki.executeCommand.bind(null, 'git:open-commit')
+                    },
+                    {
                         label: 'Fetch',
                         accelerator: keymap['git:fetch'],
                         click: weaki.executeCommand.bind(null, 'git:fetch', null)

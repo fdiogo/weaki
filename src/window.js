@@ -1,11 +1,14 @@
 import { ipcRenderer } from 'electron';
 import React from 'react';
 import { render } from 'react-dom';
+import { Router, Route } from 'react-router-dom';
+import History from 'history/createMemoryHistory';
 
 import Explorer from './components/explorer/explorer';
 import Editor from './components/editor/editor';
 import FileHistory from './components/file-history/file-history';
 import StatusBar from './components/status-bar/status-bar';
+import GitCommit from './components/git-commit/git-commit';
 import FileTree from './file-tree';
 
 /**
@@ -22,7 +25,12 @@ class Window extends React.Component {
             currentFile: {
                 filePath: null,
                 content: null
-            }
+            },
+            mainPanelHistory: History({
+                initialEntries: ['/edit'],
+                initialIndex: 0,
+                getUserConfirmation: null
+            })
         };
 
         /**
@@ -36,6 +44,7 @@ class Window extends React.Component {
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
         ipcRenderer.on('application:directory-loaded', this.onDirectoryLoaded.bind(this));
         ipcRenderer.on('application:current-file', this.onCurrentFileRequest.bind(this));
+        ipcRenderer.on('application:open-on-main-panel', this.onOpenOnMainPanel.bind(this));
 
         // Commands
         ipcRenderer.on('application:close-file', this.onCloseFile.bind(this));
@@ -103,6 +112,16 @@ class Window extends React.Component {
     }
 
     /**
+     * Opens a component, via its route, on the main panel.
+     * @param {string} route - The route of the component.
+     */
+    onOpenOnMainPanel (event, route) {
+        console.log(`Got route ${route}`);
+        this.state.mainPanelHistory.push(route);
+        this.forceUpdate();
+    }
+
+    /**
      * The handler of the channel 'editor:close-file'. If no filePath is specified, the current file being edited is
      * closed.
      * @param {Object} event - The event descriptor
@@ -117,12 +136,17 @@ class Window extends React.Component {
                 <div id="left-sidebar">
                     <Explorer fileTree={this.state.workspaceFileTree}></Explorer>
                 </div>
-                <div id="main-panel">
-                    <Editor ref={editor => this.editor = editor}
-                        openedFiles={this.state.openedFiles}
-                        currentFile={this.state.currentFile}>
-                    </Editor>
-                </div>
+                <Router history={this.state.mainPanelHistory}>
+                    <div id="main-panel">
+                        <Route path='/edit'
+                            render={() => <Editor ref={editor => this.editor = editor}
+                                openedFiles={this.state.openedFiles}
+                                currentFile={this.state.currentFile}>
+                            </Editor>}/>
+
+                        <Route path='/git/commit' render={() => <GitCommit></GitCommit>}/>
+                    </div>
+                </Router>
                 <div id="right-sidebar">
                     <FileHistory filePath={this.state.currentFile.filePath}></FileHistory>
                 </div>

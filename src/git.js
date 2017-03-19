@@ -11,35 +11,15 @@ class Git {
     }
 
     /**
-     * Opens an existing local git repository.
-     * @param {string} repositoryPath - The repository path.
-     * @returns {Promise.<Object, Error>} - A promise to the repository status.
+     * Adds files to the staging area.
+     * @param {string|string[]} [files='./*'] - The files to add.
+     * @returns {Promise.<, Error>} A promise to the operation.
      */
-    openRepository (repositoryPath) {
+    add (files = './*') {
         return new Promise((resolve, reject) => {
-            this.gitInterface.cwd(repositoryPath).status(function (err, data) {
-                if (err)
-                    reject(new Error(err));
-                else
-                    resolve(data);
-            });
-        });
-    }
-
-    /**
-     * Fetches the remote changes of the current git repository.
-     * @returns {Promise.<Object, Error>} A promise to the remote changes.
-     */
-    fetchChanges () {
-        return new Promise(function (resolve, reject) {
-            this.gitInterface.status((error) => {
-                if (error) reject('There is no open repository!');
-                this.gitInterface.fetch((error, data) => {
-                    if (error)
-                        reject(new Error(`Something went wrong while fetching remote changes. Details: ${error}`));
-                    else
-                        resolve(data);
-                });
+            this.gitInterface.add(files, error => {
+                if (error) reject(new Error(error));
+                else resolve();
             });
         });
     }
@@ -63,7 +43,80 @@ class Git {
     }
 
     /**
-     *
+     * Creates a commit with a message.
+     * @param {string|string[]} message - A single string or a collection of lines to be used as the message.
+     * @returns {Promise.<Object, Error>} - A promise to the commit.
+     */
+    commit (message) {
+        return new Promise((resolve, reject) => {
+            this.gitInterface.commit(message, (error, commit) => {
+                if (error) reject(new Error(error));
+                else resolve(commit);
+            });
+        });
+    }
+
+    /**
+     * @param {string} [remote] - The remote repository.
+     * @param {string} [branch] - The branch of the repository.
+     * @returns {Promise.<, Error>} A promise to the operation.
+     */
+    push (remote, branch) {
+        return new Promise((resolve, reject) => {
+            this.gitInterface.push(remote, branch, error => {
+                if (error) reject(new Error(error));
+                else resolve();
+            });
+        });
+    }
+
+    /**
+     * Opens an existing local git repository.
+     * @param {string} repositoryPath - The repository path.
+     * @returns {Promise.<Object, Error>} - A promise to the repository status.
+     */
+    openRepository (repositoryPath) {
+        return new Promise((resolve, reject) => {
+            this.gitInterface.cwd(repositoryPath).status(function (err, data) {
+                if (err)
+                    reject(new Error(err));
+                else
+                    resolve(data);
+            });
+        });
+    }
+
+    /**
+     * Fetches the remote changes of the current git repository.
+     * @returns {Promise.<Object, Error>} A promise to the remote changes.
+     */
+    fetchChanges () {
+        return this.status().then(new Promise((resolve, reject) => {
+            this.gitInterface.fetch((error, data) => {
+                if (error)
+                    reject(new Error(`Something went wrong while fetching remote changes. Details: ${error}`));
+                else
+                    resolve(data);
+            });
+        }));
+    }
+
+    /**
+     * Obtains the status of the currently open repository.
+     * @returns {Promise.<Object, Error>} A promise to the repository status.
+     */
+    status () {
+        return new Promise((resolve, reject) => {
+            this.gitInterface.status((error, data) => {
+                if (error) reject(new Error('There is no open repository!'));
+                else resolve(data);
+            });
+        });
+    }
+
+    /**
+     * Obtains all the commits where a specific file was changed.
+     * @returns {Promise.<Object, Error>} A promise to the commits.
      */
     getCommitsForFile (filePath) {
         return new Promise((resolve, reject) => {

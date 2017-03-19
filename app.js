@@ -22,6 +22,7 @@ import HorizontalRuleCommand from './src/commands/horizontal-rule-command';
 import ImageCommand from './src/commands/image-command';
 import GitFetchCommand from './src/commands/git-fetch-command';
 import GitCheckoutCommand from './src/commands/git-checkout-command';
+import GitOpenCommitCommand from './src/commands/git-open-commit-command';
 import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
@@ -61,6 +62,7 @@ class Weaki {
      *
      * @param {string} selector - The registered command selector.
      * @param {Object[]} [...commandArgument] - One of the arguments for the command.
+     * @returns {Promise.<*, Error>}
      */
     executeCommand (selector) {
         const CommandClass = commandRegistry.get(selector);
@@ -77,13 +79,15 @@ class Weaki {
         for (let i = 1; i < arguments.length; i++)
             commandArguments.push(arguments[i]);
 
-        try {
-            const command = new CommandClass(...commandArguments);
-            command.execute();
-            console.log(`Executed '${selector}' with arguments ${commandArguments}`);
-        } catch (error) {
-            console.log(`Could not execute '${selector}'! Detailed error: ${error}`);
-        }
+        const command = new CommandClass(...commandArguments);
+        return command.execute()
+                .then(result => {
+                    console.log(`Executed '${selector}' with arguments ${commandArguments}`);
+                    return result;
+                }).catch(error => {
+                    console.log(`Could not execute '${selector}'! Detailed error: ${error}`);
+                    throw error;
+                });
     }
 }
 
@@ -97,6 +101,7 @@ function registerCommands () {
     commandRegistry.register('application:close-file', CloseFileCommand);
     commandRegistry.register('git:fetch', GitFetchCommand);
     commandRegistry.register('git:checkout', GitCheckoutCommand);
+    commandRegistry.register('git:open-commit', GitOpenCommitCommand);
     commandRegistry.register('editor:bold', BoldCommand);
     commandRegistry.register('editor:italic', ItalicCommand);
     commandRegistry.register('editor:strike-through', StrikeThroughCommand);

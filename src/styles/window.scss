@@ -44,3 +44,11 @@ html, body, #root {
 .underlined {
     text-decoration: underline;
 }
+
+.button {
+    background-color: $primary-highlight-color;
+    border-radius: 3px;
+    color: $font-color;
+    padding: 5px;
+    cursor: pointer;
+}

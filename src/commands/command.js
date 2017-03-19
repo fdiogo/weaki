@@ -8,8 +8,8 @@ class Command {
      * @param {action} [undo] - The action to perform when the command is reversed.
      */
     constructor (execute, undo) {
-        this.execute = execute;
-        this.undo = undo;
+        this.execute = () => Promise.resolve(execute());
+        this.undo = () => Promise.resolve(undo());
     }
 
 }

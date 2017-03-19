@@ -1,0 +1,35 @@
+@import '../../styles/theme';
+
+.git-commit-panel {
+    text-align: left;
+    background-color: $primary-color;
+    color: $font-color;
+    height: 100%;
+    width: 100%;
+    padding: 10px;
+
+    h1 {
+        margin: 0px;
+        padding: 0px;
+    }
+}
+
+.git-commit-files {
+    margin: 0px;
+    padding: 0px;
+    list-style: none;
+}
+
+.git-commit-buttons {
+    margin-top: 15px;
+}
+
+.git-commit-message {
+    display: block;
+    border: none;
+    resize: none;
+    font: inherit;
+    font-size: smaller;
+    background-color: lighten($primary-color, 10%);
+    color: $font-color;
+}
