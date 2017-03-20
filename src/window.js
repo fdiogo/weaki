@@ -1,4 +1,4 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, remote } from 'electron';
 import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route } from 'react-router-dom';
@@ -10,6 +10,8 @@ import FileHistory from './components/file-history/file-history';
 import StatusBar from './components/status-bar/status-bar';
 import GitCommit from './components/git-commit/git-commit';
 import FileTree from './file-tree';
+
+const weaki = remote.getGlobal('instance');
 
 /**
  * This React component represents the main window of the application
@@ -23,11 +25,11 @@ class Window extends React.Component {
             workspaceFileTree: new FileTree(),
             openedFiles: [],
             currentFile: {
-                filePath: null,
+                filePath: '',
                 content: null
             },
             rightSidebarHistory: History({
-                initialEntries: ['/'],
+                initialEntries: ['/history'],
                 initialIndex: 0,
                 getUserConfirmation: null
             })
@@ -65,21 +67,29 @@ class Window extends React.Component {
     /**
      * Adds the file to the state and sets it as the current.
      * @param {Object} event - The event descriptor.
-     * @param {Object} payload - A descriptor of the file.
-     * @param {string} payload.filePath - The path of the file.
-     * @param {string} payload.contents - The contents of the file.
+     * @param {string} filePath - The path of the file.
+     * @param {string} content - The content of the file.
      * @listens application:file-loaded
      */
-    onFileLoaded (event, payload) {
-        const fileNode = this.state.workspaceFileTree.addFile(payload.filePath);
-        const relativePath = this.state.workspaceFileTree.getWorkspaceRelativePath(fileNode);
-        this.state.openedFiles.push(payload.filePath);
-        this.state.rightSidebarHistory.push(`/history/${relativePath}`);
+    onFileLoaded (event, filePath, content) {
+        this.state.workspaceFileTree.addFile(filePath);
+        this.state.openedFiles.push(filePath);
         this.state.currentFile = {
-            filePath: payload.filePath,
-            content: payload.contents
+            filePath: filePath,
+            content: content
         };
+
+        weaki.fileManager.watchFileChange(filePath, this.reloadCurrentFile.bind(this), true);
         this.forceUpdate();
+    }
+
+    reloadCurrentFile () {
+        return weaki.fileManager.readFile(this.state.currentFile.filePath)
+            .then(content => {
+                console.log('Read again!');
+                this.state.currentFile.content = content;
+                this.forceUpdate();
+            });
     }
 
     /**
@@ -144,8 +154,8 @@ class Window extends React.Component {
                 </div>
                 <Router history={this.state.rightSidebarHistory}>
                     <div id="right-sidebar">
-                        <Route path='/history/:file' render={({match}) =>
-                            <FileHistory filePath={match.params.file}></FileHistory>
+                        <Route path='/history' render={() =>
+                            <FileHistory filePath={this.state.currentFile.filePath}></FileHistory>
                         }/>
                         <Route path='/git/commit' render={() => <GitCommit></GitCommit>}/>
                         <Route path='/preview/:file' render={() => <div></div>}/>

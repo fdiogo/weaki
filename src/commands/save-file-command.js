@@ -1,6 +1,5 @@
 import { ipcMain } from 'electron';
 import Command from './command';
-import fs from 'fs';
 import weaki from '../../app';
 
 let fileRequests = 0;
@@ -53,17 +52,11 @@ class SaveFileCommand extends Command {
      * @param {Object} fileDescriptor - The arguments for fs.writeFile.
      * @param {string} fileDescriptor.path - The path of the file.
      * @param {string} fileDescriptor.contents - The contents of the file.
-     * @return {Promise} - A promise to the write operation.
+     * @return {Promise.<,Error>} - A promise to the operation.
      */
     static writeFile (fileDescriptor) {
         console.log(`Writing to file '${fileDescriptor.path}': '${fileDescriptor.contents}'`);
-
-        return new Promise(function (resolve, reject) {
-            fs.writeFile(fileDescriptor.path, fileDescriptor.contents, error => {
-                if (error) reject(error);
-                else resolve();
-            });
-        });
+        return weaki.fileManager.writeFile(fileDescriptor.path, fileDescriptor.contents);
     }
 
 }

@@ -2,7 +2,7 @@
 
 .file-history {
     height: 100%;
-    width: 100%;
+    min-width: 200px;
     margin: 0px;
     padding: 5px;
     background-color: $secondary-color;
@@ -11,6 +11,7 @@
 
     h1 {
         margin: 0px;
+        text-align: center;
     }
 }
 

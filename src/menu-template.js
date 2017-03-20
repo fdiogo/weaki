@@ -175,6 +175,11 @@ class MenuTemplate {
                         click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', '/git/commit')
                     },
                     {
+                        label: 'File History',
+                        accelerator: keymap['git:file-history'],
+                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', '/history')
+                    },
+                    {
                         label: 'Push',
                         accelerator: keymap['git:push'],
                         click: weaki.executeCommand.bind(null, 'git:push', 'origin', 'master')

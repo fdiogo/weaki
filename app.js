@@ -3,7 +3,11 @@ import path from 'path';
 import url from 'url';
 
 import Git from './src/git';
+import FileManager from './src/file-manager';
 import CommandRegistry from './src/command-registry';
+import MenuTemplate from './src/menu-template';
+
+// Commands
 import OpenFileCommand from './src/commands/open-file-command';
 import OpenRepositoryCommand from './src/commands/open-repository-command';
 import OpenOnRightSidebarCommand from './src/commands/open-on-right-sidebar-command';
@@ -24,7 +28,6 @@ import ImageCommand from './src/commands/image-command';
 import GitFetchCommand from './src/commands/git-fetch-command';
 import GitCheckoutCommand from './src/commands/git-checkout-command';
 import GitPushCommand from './src/commands/git-push-command';
-import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
 
@@ -39,22 +42,9 @@ class Weaki {
             registerCommands.call(this);
             createMenu.call(this);
             registerChannelListeners.call(this);
-            const mainWindow = launchMainWindow.call(this);
-            const gitInterface = new Git();
-
-            Object.defineProperties(this, {
-                mainWindow: {
-                    value: mainWindow,
-                    writable: false,
-                    configurable: false
-                },
-
-                git: {
-                    value: gitInterface,
-                    writable: false,
-                    configurable: false
-                }
-            });
+            this.git = new Git();
+            this.fileManager = new FileManager();
+            this.mainWindow = launchMainWindow.call(this);
         });
     }
 

@@ -1,5 +1,4 @@
 import {app, dialog} from 'electron';
-import fs from 'fs';
 import Command from './command';
 import weaki from '../../app';
 
@@ -37,19 +36,12 @@ function getFilePath () {
 }
 
 function readFile (filePath) {
-    return new Promise(function (resolve, reject) {
-        fs.readFile(filePath, 'utf8', (err, data) => {
-            if (err) reject(err);
-            else resolve({filePath: filePath, contents: data});
-        });
-    });
+    return weaki.fileManager.readFile(filePath)
+                .then(content => ({path: filePath, content: content}));
 }
 
 function send (file) {
-    return new Promise(resolve => {
-        weaki.mainWindow.webContents.send('application:file-loaded', file);
-        resolve();
-    });
+    return Promise.resolve(weaki.mainWindow.webContents.send('application:file-loaded', file.path, file.content));
 }
 
 export default OpenFileCommand;
