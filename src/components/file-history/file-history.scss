@@ -4,17 +4,20 @@
     height: 100%;
     width: 100%;
     margin: 0px;
-    padding: 0px;
+    padding: 5px;
     background-color: $secondary-color;
     color: $font-color;
     overflow-y: auto;
+
+    h1 {
+        margin: 0px;
+    }
 }
 
 .file-history-commit {
     list-style: none;
     min-width: 200px;
     height: 100px;
-    padding: 4px;
 }
 
 .file-history-commit-header {
@@ -34,7 +37,7 @@
     font-size: smaller;
 }
 
-.file-history-commit:nth-child(odd) {
+.file-history-commit:nth-child(even) {
     background-color: lighten($secondary-color, 5%);
 }
 

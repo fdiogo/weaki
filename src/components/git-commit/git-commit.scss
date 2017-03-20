@@ -2,7 +2,7 @@
 
 .git-commit-panel {
     text-align: left;
-    background-color: $primary-color;
+    background-color: $tertiary-color;
     color: $font-color;
     height: 100%;
     width: 100%;
@@ -30,6 +30,6 @@
     resize: none;
     font: inherit;
     font-size: smaller;
-    background-color: lighten($primary-color, 10%);
+    background-color: lighten($tertiary-color, 10%);
     color: $font-color;
 }

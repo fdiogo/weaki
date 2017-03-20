@@ -172,7 +172,7 @@ class MenuTemplate {
                     {
                         label: 'Open Commit',
                         accelerator: keymap['git:open-commit'],
-                        click: weaki.executeCommand.bind(null, 'git:open-commit')
+                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', '/git/commit')
                     },
                     {
                         label: 'Push',
@@ -185,7 +185,7 @@ class MenuTemplate {
                         click: weaki.executeCommand.bind(null, 'git:fetch', null)
                     },
                     {
-                        label: 'Checkout',
+                        label: 'Checkout All',
                         accelerator: keymap['git:checkout'],
                         click: weaki.executeCommand.bind(null, 'git:checkout', 'HEAD', ['.'])
                     }

@@ -29,10 +29,12 @@ function openRepository (directory) {
     if (!directory) {
         return getDirectory()
                 .then(readDirectory)
-                .then(send);
+                .then(send)
+                .catch(console.log);
     } else {
         return readDirectory(directory)
-                .then(send);
+                .then(send)
+                .catch(console.log);
     }
 }
 
@@ -46,13 +48,17 @@ function getDirectory () {
             defaultPath: app.getPath('desktop'),
             properties: ['openDirectory']
         }, function (directories) {
-            const directory = directories[0];
-            weaki.git.openRepository(directory)
-                .then(status => resolve(directory))
-                .catch(() => {
-                    dialog.showErrorBox('Error', 'This directory is not git repository!');
-                    getDirectory().then(resolve, reject);
-                });
+            if (!directories || directories.length === 0)
+                reject('No directory selected!');
+            else {
+                const directory = directories[0];
+                weaki.git.openRepository(directory)
+                    .then(status => resolve(directory))
+                    .catch(() => {
+                        dialog.showErrorBox('Error', 'This directory is not git repository!');
+                        getDirectory().then(resolve, reject);
+                    });
+            }
         });
     });
 }

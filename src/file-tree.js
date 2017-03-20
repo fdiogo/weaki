@@ -132,6 +132,16 @@ class FileTree {
     }
 
     /**
+     * Returns the relative path of the node to the workspace.
+     * @param {FileTreeNode} node - The relative node.
+     * @returns {string} - The relative path of the node.
+     */
+    getWorkspaceRelativePath (node) {
+        const workspaceNode = this.getWorkspaceNode();
+        return path.relative(workspaceNode.fullPath, node.fullPath);
+    }
+
+    /**
      *
      */
     static splitPath (fullPath) {

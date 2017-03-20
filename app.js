@@ -6,6 +6,7 @@ import Git from './src/git';
 import CommandRegistry from './src/command-registry';
 import OpenFileCommand from './src/commands/open-file-command';
 import OpenRepositoryCommand from './src/commands/open-repository-command';
+import OpenOnRightSidebarCommand from './src/commands/open-on-right-sidebar-command';
 import SaveFileCommand from './src/commands/save-file-command';
 import CloseFileCommand from './src/commands/close-file-command';
 import BoldCommand from './src/commands/bold-command';
@@ -23,7 +24,6 @@ import ImageCommand from './src/commands/image-command';
 import GitFetchCommand from './src/commands/git-fetch-command';
 import GitCheckoutCommand from './src/commands/git-checkout-command';
 import GitPushCommand from './src/commands/git-push-command';
-import GitOpenCommitCommand from './src/commands/git-open-commit-command';
 import MenuTemplate from './src/menu-template';
 
 const commandRegistry = new CommandRegistry();
@@ -100,10 +100,10 @@ function registerCommands () {
     commandRegistry.register('application:open-repository', OpenRepositoryCommand);
     commandRegistry.register('application:save-file', SaveFileCommand);
     commandRegistry.register('application:close-file', CloseFileCommand);
+    commandRegistry.register('application:open-on-right-sidebar', OpenOnRightSidebarCommand);
     commandRegistry.register('git:fetch', GitFetchCommand);
     commandRegistry.register('git:checkout', GitCheckoutCommand);
     commandRegistry.register('git:push', GitPushCommand);
-    commandRegistry.register('git:open-commit', GitOpenCommitCommand);
     commandRegistry.register('editor:bold', BoldCommand);
     commandRegistry.register('editor:italic', ItalicCommand);
     commandRegistry.register('editor:strike-through', StrikeThroughCommand);

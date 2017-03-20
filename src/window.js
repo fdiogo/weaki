@@ -26,8 +26,8 @@ class Window extends React.Component {
                 filePath: null,
                 content: null
             },
-            mainPanelHistory: History({
-                initialEntries: ['/edit'],
+            rightSidebarHistory: History({
+                initialEntries: ['/'],
                 initialIndex: 0,
                 getUserConfirmation: null
             })
@@ -44,7 +44,7 @@ class Window extends React.Component {
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
         ipcRenderer.on('application:directory-loaded', this.onDirectoryLoaded.bind(this));
         ipcRenderer.on('application:current-file', this.onCurrentFileRequest.bind(this));
-        ipcRenderer.on('application:open-on-main-panel', this.onOpenOnMainPanel.bind(this));
+        ipcRenderer.on('application:open-on-right-sidebar', this.onOpenOnRightSidebar.bind(this));
 
         // Commands
         ipcRenderer.on('application:close-file', this.onCloseFile.bind(this));
@@ -71,14 +71,15 @@ class Window extends React.Component {
      * @listens application:file-loaded
      */
     onFileLoaded (event, payload) {
-        this.state.workspaceFileTree.addFile(payload.filePath);
+        const fileNode = this.state.workspaceFileTree.addFile(payload.filePath);
+        const relativePath = this.state.workspaceFileTree.getWorkspaceRelativePath(fileNode);
         this.state.openedFiles.push(payload.filePath);
-        this.setState({
-            currentFile: {
-                filePath: payload.filePath,
-                content: payload.contents
-            }
-        });
+        this.state.rightSidebarHistory.push(`/history/${relativePath}`);
+        this.state.currentFile = {
+            filePath: payload.filePath,
+            content: payload.contents
+        };
+        this.forceUpdate();
     }
 
     /**
@@ -112,12 +113,11 @@ class Window extends React.Component {
     }
 
     /**
-     * Opens a component, via its route, on the main panel.
+     * Opens a component, via its route, on the right sidebar.
      * @param {string} route - The route of the component.
      */
-    onOpenOnMainPanel (event, route) {
-        console.log(`Got route ${route}`);
-        this.state.mainPanelHistory.push(route);
+    onOpenOnRightSidebar (event, route) {
+        this.state.rightSidebarHistory.push(route);
         this.forceUpdate();
     }
 
@@ -136,20 +136,21 @@ class Window extends React.Component {
                 <div id="left-sidebar">
                     <Explorer fileTree={this.state.workspaceFileTree}></Explorer>
                 </div>
-                <Router history={this.state.mainPanelHistory}>
-                    <div id="main-panel">
-                        <Route path='/edit'
-                            render={() => <Editor ref={editor => this.editor = editor}
-                                openedFiles={this.state.openedFiles}
-                                currentFile={this.state.currentFile}>
-                            </Editor>}/>
-
+                <div id="main-panel">
+                    <Editor ref={editor => this.editor = editor}
+                        openedFiles={this.state.openedFiles}
+                        currentFile={this.state.currentFile}>
+                    </Editor>}/>
+                </div>
+                <Router history={this.state.rightSidebarHistory}>
+                    <div id="right-sidebar">
+                        <Route path='/history/:file' render={({match}) =>
+                            <FileHistory filePath={match.params.file}></FileHistory>
+                        }/>
                         <Route path='/git/commit' render={() => <GitCommit></GitCommit>}/>
+                        <Route path='/preview/:file' render={() => <div></div>}/>
                     </div>
                 </Router>
-                <div id="right-sidebar">
-                    <FileHistory filePath={this.state.currentFile.filePath}></FileHistory>
-                </div>
             </div>
             <div id="bottom-bar">
                 <StatusBar filePath={this.state.currentFile.filePath}></StatusBar>
