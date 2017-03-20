@@ -1,6 +1,4 @@
 import {app, dialog} from 'electron';
-import path from 'path';
-import fs from 'fs';
 import Command from './command';
 import weaki from '../../app';
 
@@ -26,16 +24,13 @@ class OpenRepositoryCommand extends Command {
  * @returns {Promise}           - A promise to the operation.
  */
 function openRepository (directory) {
-    if (!directory) {
-        return getDirectory()
-                .then(readDirectory)
-                .then(send)
-                .catch(console.log);
-    } else {
-        return readDirectory(directory)
-                .then(send)
-                .catch(console.log);
-    }
+    let promise;
+    if (!directory)
+        promise = getDirectory().then(directory => weaki.openRepository(directory));
+    else
+        promise = weaki.openRepository(directory);
+
+    return promise.catch(error => dialog.showErrorBox('Error', error));
 }
 
 /**
@@ -52,55 +47,13 @@ function getDirectory () {
                 reject('No directory selected!');
             else {
                 const directory = directories[0];
-                weaki.git.openRepository(directory)
-                    .then(status => resolve(directory))
-                    .catch(() => {
-                        dialog.showErrorBox('Error', 'This directory is not git repository!');
-                        getDirectory().then(resolve, reject);
+                weaki.git.isRepository(directory)
+                    .then(isRepository => {
+                        if (isRepository) resolve(directory);
+                        else reject(new Error(`${directory} is not git repository!`));
                     });
             }
         });
-    });
-}
-
-function readDirectory (directory) {
-    return new Promise(function (resolve, reject) {
-        fs.readdir(directory, 'utf8', (err, files) => {
-            if (err) reject(err);
-            const descriptorPromises = files.map(fileName => path.join(directory, fileName))
-                                            .concat([directory])
-                                            .map(filePath => getFileDescriptor(filePath));
-
-            Promise.all(descriptorPromises).then(files => {
-                resolve({
-                    directory: directory,
-                    files: files
-                });
-            }, reject);
-        });
-    });
-}
-
-function getFileDescriptor (filePath) {
-    return new Promise(function (resolve, reject) {
-        fs.stat(filePath, function (err, stats) {
-            if (err) {
-                console.log(err);
-                reject(err);
-            } else {
-                resolve({
-                    path: filePath,
-                    isDirectory: stats.isDirectory()
-                });
-            }
-        });
-    });
-}
-
-function send (descriptor) {
-    return new Promise(resolve => {
-        weaki.mainWindow.webContents.send('application:directory-loaded', descriptor);
-        resolve();
     });
 }
 

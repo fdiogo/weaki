@@ -1,5 +1,6 @@
 import chokidar from 'chokidar';
 import bluebird from 'bluebird';
+import path from 'path';
 import fs from 'fs';
 
 class FileManager {
@@ -22,6 +23,54 @@ class FileManager {
             fs.readFile(filePath, 'utf8', (err, data) => {
                 if (err) reject(new Error(err));
                 else resolve(data);
+            });
+        });
+    }
+
+    /**
+     * Reads the files and folders on a directory.
+     * @param {string} directory - The directory to read.
+     * @param {boolean} recursive - Whether or not to include files in subfolders.
+     * @returns {Promise<Object[], Error>} A promise to the stats of the files.
+     */
+    readDirectory (directory, recursive) {
+        const readdir = new Promise((resolve, reject) => {
+            fs.readdir(directory, 'utf8', (err, files) => {
+                if (err) reject(new Error(err));
+                else resolve(files);
+            });
+        }).then(files => {
+            const statsPromises = files.map(file => path.join(directory, file))
+                                        .map(file => this.getStats(file));
+            return Promise.all(statsPromises);
+        });
+
+        if (recursive) {
+            readdir.then(files => {
+                const directories = files.filter(file => file.isDirectory());
+                const promises = directories.map(dir => this.readDirectory(dir.path));
+                Promise.all(promises)
+                        .then(subDirectories => files.concat(subDirectories));
+            });
+        }
+
+        return readdir;
+    }
+
+    /**
+     * Obtains the [stat]{@link https://nodejs.org/api/fs.html#fs_class_fs_stats} object at path.
+     * Includes the property 'path' on the object.
+     * @param {string} path - The path of the object.
+     * @returns {Promise.<Object, Error>} The stats of the object at path.
+     */
+    getStats (path) {
+        return new Promise(function (resolve, reject) {
+            fs.stat(path, function (error, stat) {
+                if (error) throw new Error(error);
+                else {
+                    stat.path = path;
+                    resolve(stat);
+                }
             });
         });
     }

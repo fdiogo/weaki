@@ -94,13 +94,10 @@ class Window extends React.Component {
 
     /**
      *
-     * @param {Object} descriptor - A descriptor of the directory.
-     * @param {string} descriptor.directory - The directory.
-     * @param {Object[]} descriptor.files - The descriptor of all the files, including the directory itself.
-     * @listens application:directory-loaded
      */
-    onDirectoryLoaded (event, descriptor) {
-        for (let file of descriptor.files) {
+    onDirectoryLoaded (event, directory, files) {
+        this.state.workspaceFileTree.addDirectory(directory);
+        for (let file of files) {
             if (file.isDirectory)
                 this.state.workspaceFileTree.addDirectory(file.path);
             else

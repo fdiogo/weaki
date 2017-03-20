@@ -126,6 +126,19 @@ class Git {
             });
         });
     }
+
+    /**
+     * Tests a directory as a git repository.
+     * @returns {Promise.<boolean,>} A promise to the answer.
+     */
+    isRepository (directory) {
+        return new Promise(function (resolve, reject) {
+            SimpleGit(directory).status((error, data) => {
+                if (error) resolve(false);
+                else resolve(true);
+            });
+        });
+    }
 }
 
 export default Git;
