@@ -46,11 +46,11 @@ class FileManager {
         });
 
         if (recursive) {
-            readdir.then(files => {
+            return readdir.then(files => {
                 const directories = files.filter(file => file.isDirectory());
-                const promises = directories.map(dir => this.readDirectory(dir.path));
-                Promise.all(promises)
-                        .then(subDirectories => files.concat(subDirectories));
+                const promises = directories.map(dir => this.readDirectory(dir.path, true));
+                return Promise.all(promises)
+                    .then(subDirectories => files.concat(...subDirectories));
             });
         }
 
