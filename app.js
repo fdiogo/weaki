@@ -138,12 +138,18 @@ function registerChannelListeners () {
  * @return {BrowserWindow} - The window that was just created.
  */
 function launchMainWindow () {
-    const mainWindow = new BrowserWindow({title: 'Weaki'});
+    const mainWindow = new BrowserWindow({title: 'Weaki', show: false});
+
     mainWindow.loadURL(url.format({
         pathname: path.join(__dirname, 'src', 'window.html'),
         protocol: 'file',
         slashes: true
     }));
+
+    mainWindow.once('ready-to-show', () => {
+        mainWindow.maximize();
+        mainWindow.show();
+    });
 
     return mainWindow;
 }
