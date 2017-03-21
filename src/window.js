@@ -4,6 +4,7 @@ import { render } from 'react-dom';
 import { Router, Route } from 'react-router-dom';
 import History from 'history/createMemoryHistory';
 
+import ReactMarkdown from 'react-markdown';
 import Explorer from './components/explorer/explorer';
 import Editor from './components/editor/editor';
 import FileHistory from './components/file-history/file-history';
@@ -155,7 +156,9 @@ class Window extends React.Component {
                             <FileHistory filePath={this.state.currentFile.filePath}></FileHistory>
                         }/>
                         <Route path='/git/commit' render={() => <GitCommit></GitCommit>}/>
-                        <Route path='/preview/:file' render={() => <div></div>}/>
+                        <Route path='/preview' render={() =>
+                            <ReactMarkdown source={this.state.currentFile.content}></ReactMarkdown>
+                        }/>
                     </div>
                 </Router>
             </div>

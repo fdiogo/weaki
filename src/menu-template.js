@@ -200,6 +200,11 @@ class MenuTemplate {
                 label: 'View',
                 submenu: [
                     {
+                        label: 'Preview',
+                        accelerator: keymap['application:preview'],
+                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', 'preview')
+                    },
+                    {
                         role: 'reload'
                     },
                     {
