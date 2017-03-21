@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>Weaki Global</title>
+	<title>Weaki Class: FileManager</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -79,13 +79,13 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Global</h1>
+	<h1 class="page-title">Class: FileManager</h1>
 <section>
 
 <header>
     
         <h2>
-        
+        FileManager
         </h2>
         
     
@@ -96,8 +96,28 @@
     <div class="container-overview">
     
         
+<hr>
+<dt>
+    <h4 class="name" id="FileManager"><span class="type-signature"></span>new FileManager()</h4>
+    
+    
+</dt>
+<dd>
 
-        
+    
+    <div class="description">
+        Manages the file system with the node module 'fs' and others.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
 <dl class="details">
     
 
@@ -137,7 +157,21 @@
 </dl>
 
 
-        
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
     
     </div>
 
@@ -160,7 +194,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="createMenu"><span class="type-signature"></span>createMenu()</h4>
+    <h4 class="name" id="createFile"><span class="type-signature"></span>createFile(filePath [, content])</h4>
     
     
 </dt>
@@ -168,7 +202,7 @@
 
     
     <div class="description">
-        Creates the menu with the template on <a href="MenuTemplate.html">MenuTemplate</a>.
+        Creates a new file only if it doesn't exist already.
     </div>
     
 
@@ -178,181 +212,111 @@
 
     
     
+        <h5>Parameters:</h5>
+        
 
-    
-<dl class="details">
-    
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
 
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
+        <th>Type</th>
 
         
+        <th>Argument</th>
+        
+
+        
+        <th>Default</th>
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
             
-<hr>
-<dt>
-    <h4 class="name" id="delegateToApplication"><span class="type-signature"></span>delegateToApplication()</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Delegates the action of pushing the local changes to the application.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
+                <td class="name"><code>filePath</code></td>
             
 
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;Object, Error></span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
+            <td class="type">
             
-<hr>
-<dt>
-    <h4 class="name" id="delegateToApplication"><span class="type-signature"></span>delegateToApplication()</h4>
-    
-    
-</dt>
-<dd>
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                </td>
+            
+
+            <td class="description last">The path of the file.</td>
+        </tr>
 
     
-    <div class="description">
-        Delegates the action of adding the files to the application.
-    </div>
-    
+
+        <tr>
+            
+                <td class="name"><code>content</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+                <td class="attributes">
+                
+                    &lt;optional><br>
+                
+
+                
+
+                
+                </td>
+            
+
+            
+                <td class="default">
+                
+                    ''
+                
+                </td>
+            
+
+            <td class="description last">The initial content of the file.</td>
+        </tr>
 
     
+    </tbody>
+</table>
 
-    
-
-    
     
 
     
@@ -410,7 +374,7 @@
     
             
 <div class="param-desc">
-    - A promise to the operation.
+    A promise to the operation.
 </div>
 
 
@@ -438,7 +402,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="delegateToApplication"><span class="type-signature"></span>delegateToApplication()</h4>
+    <h4 class="name" id="exists"><span class="type-signature"></span>exists(path)</h4>
     
     
 </dt>
@@ -446,379 +410,7 @@
 
     
     <div class="description">
-        Delegates the action of resetting changes to the application.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;Object, Error></span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="delegateToApplication"><span class="type-signature"></span>delegateToApplication()</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Delegates the action of fetching the remote changes to the application.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">Promise.&lt;Object, Error></span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="getDirectory"><span class="type-signature"></span>getDirectory()</h4>
-    
-    
-</dt>
-<dd>
-
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="launchMainWindow"><span class="type-signature"></span>launchMainWindow()</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Launches the main window of the application.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-    <h5>Returns:</h5>
-    
-            
-<div class="param-desc">
-    - The window that was just created.
-</div>
-
-
-
-<dl>
-    <dt>
-        Type
-    </dt>
-    <dd>
-        
-<span class="param-type">BrowserWindow</span>
-
-
-
-    </dd>
-</dl>
-
-
-        
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="openOnRightSidebar"><span class="type-signature"></span>openOnRightSidebar(route)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Sends the route to the main window via the channel 'application:open-on-right-sidebar'.
+        Checks for the existance of an object at a specific path.
     </div>
     
 
@@ -853,7 +445,7 @@
 
         <tr>
             
-                <td class="name"><code>route</code></td>
+                <td class="name"><code>path</code></td>
             
 
             <td class="type">
@@ -870,7 +462,7 @@
 
             
 
-            <td class="description last">The route of the component.</td>
+            <td class="description last">The path of the object.</td>
         </tr>
 
     
@@ -930,6 +522,30 @@
     
 
     
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A promise to the answer.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;Boolean></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
 </dd>
@@ -938,7 +554,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="openRepository"><span class="type-signature"></span>openRepository( [directory])</h4>
+    <h4 class="name" id="getStats"><span class="type-signature"></span>getStats(path)</h4>
     
     
 </dt>
@@ -946,7 +562,8 @@
 
     
     <div class="description">
-        Opens a git repository and sends the contents to the main window.
+        Obtains the <a href="https://nodejs.org/api/fs.html#fs_class_fs_stats">stat</a> object at path.
+Includes the property 'path' on the object.
     </div>
     
 
@@ -969,7 +586,442 @@
         <th>Type</th>
 
         
-        <th>Argument</th>
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>path</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The path of the object.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A promise to the stats of the object at path.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;Object, Error></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="makeTemporaryDirectory"><span class="type-signature"></span>makeTemporaryDirectory(prefix)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Creates a unique temporary directory with a prefix.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>prefix</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The prefix of the folder name.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    - A promise to the generated folder name.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;String, Error></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="onFileChange"><span class="type-signature"></span>onFileChange(filePath)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Calls the respective listeners for the 'change' event on a file.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>filePath</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The changed file.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+    <h5>Fires:</h5>
+    <ul>
+        <li><a href="global.html#event:application:file-changed">application:file-changed</a></li>
+    </ul>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="readDirectory"><span class="type-signature"></span>readDirectory(directory, recursive)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Reads the files and folders on a directory.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
         
 
         
@@ -997,20 +1049,34 @@
             </td>
 
             
-                <td class="attributes">
-                
-                    &lt;optional><br>
-                
 
-                
+            
 
+            <td class="description last">The directory to read.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>recursive</code></td>
+            
+
+            <td class="type">
+            
                 
-                </td>
+<span class="param-type">boolean</span>
+
+
+
+            
+            </td>
+
             
 
             
 
-            <td class="description last">The path of the repository.</td>
+            <td class="description last">Whether or not to include files in subfolders.</td>
         </tr>
 
     
@@ -1074,7 +1140,7 @@
     
             
 <div class="param-desc">
-    - A promise to the operation.
+    A promise to the stats of the files.
 </div>
 
 
@@ -1085,7 +1151,7 @@
     </dt>
     <dd>
         
-<span class="param-type">Promise</span>
+<span class="param-type">Promise.&lt;Array.&lt;Object>, Error></span>
 
 
 
@@ -1102,7 +1168,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="registerChannelListeners"><span class="type-signature"></span>registerChannelListeners()</h4>
+    <h4 class="name" id="readFile"><span class="type-signature"></span>readFile(filePath)</h4>
     
     
 </dt>
@@ -1110,169 +1176,7 @@
 
     
     <div class="description">
-        Registers the actions by channel for each ipc message received.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="registerCommands"><span class="type-signature"></span>registerCommands()</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Registers, by selector, the commands known by the application.
-    </div>
-    
-
-    
-
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-</dd>
-
-        </dl>
-    
-
-    
-        <h3 class="subsection-title">Type Definitions</h3>
-
-        <dl>
-                
-<hr>
-<dt>
-    <h4 class="name" id="fileChangeCallback"><span class="type-signature"></span>fileChangeCallback(path, isExternal)</h4>
-    
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Callback called when the content of file is changed.
+        Reads the content of a file.
     </div>
     
 
@@ -1307,7 +1211,7 @@
 
         <tr>
             
-                <td class="name"><code>path</code></td>
+                <td class="name"><code>filePath</code></td>
             
 
             <td class="type">
@@ -1325,30 +1229,6 @@
             
 
             <td class="description last">The path of the file.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>isExternal</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">boolean</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">Whether the change was external to this manager instance or not.</td>
         </tr>
 
     
@@ -1408,21 +1288,39 @@
     
 
     
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    - A promise to the content of the file.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;String, Error></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
 </dd>
 
-            </dl>
-    
-
-    
-        <h3 class="subsection-title">Events</h3>
-
-        <dl>
+        
             
 <hr>
 <dt>
-    <h4 class="name" id="event:application:file-changed">application:file-changed</h4>
+    <h4 class="name" id="removeDirectory"><span class="type-signature"></span>removeDirectory(directory, recursive)</h4>
     
     
 </dt>
@@ -1430,7 +1328,7 @@
 
     
     <div class="description">
-        When a file's content is changed.
+        Removes a directory with a recursive option.
     </div>
     
 
@@ -1465,7 +1363,7 @@
 
         <tr>
             
-                <td class="name"><code>path</code></td>
+                <td class="name"><code>directory</code></td>
             
 
             <td class="type">
@@ -1482,14 +1380,14 @@
 
             
 
-            <td class="description last">The path of the file.</td>
+            <td class="description last">The directory to be removed.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>isExternal</code></td>
+                <td class="name"><code>recursive</code></td>
             
 
             <td class="type">
@@ -1506,8 +1404,7 @@
 
             
 
-            <td class="description last">Whether or not the change was made through the same <a href="FileManager.html">FileManager</a>
-                              that fired the event.</td>
+            <td class="description last">If the operation should be recursive.</td>
         </tr>
 
     
@@ -1563,15 +1460,34 @@
     
 
     
-    <h5>Listeners of This Event:</h5>
-    <ul>
-        <li><a href="Window.html#onFileChanged">Window#onFileChanged</a></li>
-    </ul>
-    
 
     
 
     
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A promise to the operation.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void, Error></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
 </dd>
@@ -1580,7 +1496,7 @@
             
 <hr>
 <dt>
-    <h4 class="name" id="event:application:file-loaded">application:file-loaded</h4>
+    <h4 class="name" id="unwatchFileChange"><span class="type-signature"></span>unwatchFileChange(filePath, handle)</h4>
     
     
 </dt>
@@ -1588,32 +1504,20 @@
 
     
     <div class="description">
-        Channel used when a file has been loaded by the main process.
+        Removes the listener for changes on a file.
     </div>
     
 
     
 
     
-        <h5>Type: 
-<span class="param-type">object</span>
-
-
-</h5>
-    
 
     
     
+        <h5>Parameters:</h5>
+        
 
-    
-<dl class="details">
-    
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    <dl>
-
-<table class="props table table-striped">
+<table class="params table table-striped">
     <thead>
     <tr>
         
@@ -1659,7 +1563,135 @@
 
         <tr>
             
-                <td class="name"><code>contents</code></td>
+                <td class="name"><code>handle</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">Object</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The object returned by FileManager.watchFileChange</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="watchFileChange"><span class="type-signature"></span>watchFileChange(filePath, callback)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Registers a listener for <a href="global.html#event:application:file-changed">application:file-changed</a>.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>filePath</code></td>
             
 
             <td class="type">
@@ -1676,14 +1708,41 @@
 
             
 
-            <td class="description last">The contents of the file.</td>
+            <td class="description last">The path of the file.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>callback</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type"><a href="global.html#fileChangeCallback">fileChangeCallback</a></span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The function to be called when the event triggers.</td>
         </tr>
 
     
     </tbody>
 </table>
-</dl>
 
+    
+
+    
+<dl class="details">
     
 
 	
@@ -1729,20 +1788,219 @@
     
 
     
-    <h5>Listeners of This Event:</h5>
-    <ul>
-        <li><a href="Window.html#onFileLoaded">Window#onFileLoaded</a></li>
-    </ul>
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    - The listener handler.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Object</span>
+
+
+
+    </dd>
+</dl>
+
+
+        
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="writeFile"><span class="type-signature"></span>writeFile(filePath, content)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Writes new content to a file.
+    </div>
     
 
     
 
     
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>filePath</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The path of file.</td>
+        </tr>
+
+    
+
+        <tr>
+            
+                <td class="name"><code>content</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The content to be written.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <h5>Returns:</h5>
+    
+            
+<div class="param-desc">
+    A promise to the operation.
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;void, Error></span>
+
+
+
+    </dd>
+</dl>
+
+
+        
 
     
 </dd>
 
         </dl>
+    
+
+    
+
     
 </article>
 

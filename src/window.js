@@ -24,10 +24,10 @@ class Window extends React.Component {
         super(props);
         this.state = {
             workspaceFileTree: new FileTree(),
-            openedFiles: [],
             currentFile: {
-                filePath: '',
-                content: null
+                path: '',
+                watchHandle: null,
+                lastSavedContent: null
             },
             rightSidebarHistory: History({
                 initialEntries: ['/history'],
@@ -73,24 +73,18 @@ class Window extends React.Component {
      * @listens application:file-loaded
      */
     onFileLoaded (event, filePath, content) {
+        this.editor.replaceText(content);
+        weaki.fileManager.unwatchFileChange(filePath, this.state.currentFile.watchHandle);
+        const watchHandle = weaki.fileManager.watchFileChange(filePath, this.onFileChanged.bind(this));
+
         this.state.workspaceFileTree.addFile(filePath);
-        this.state.openedFiles.push(filePath);
         this.state.currentFile = {
-            filePath: filePath,
-            content: content
+            path: filePath,
+            watchHandle: watchHandle,
+            lastSavedContent: content
         };
 
-        weaki.fileManager.watchFileChange(filePath, this.reloadCurrentFile.bind(this), true);
         this.forceUpdate();
-    }
-
-    reloadCurrentFile () {
-        return weaki.fileManager.readFile(this.state.currentFile.filePath)
-            .then(content => {
-                console.log('Read again!');
-                this.state.currentFile.content = content;
-                this.forceUpdate();
-            });
     }
 
     /**
@@ -114,10 +108,33 @@ class Window extends React.Component {
      * @param {string} responseChannel - The channel to respond to with the file descriptor
      */
     onCurrentFileRequest (event, responseChannel) {
-        event.sender.send(responseChannel, {
-            path: this.state.currentFile.filePath,
-            contents: this.editor.getCurrentText()
-        });
+        const path = this.state.currentFile.path;
+        const content = this.editor.getCurrentText();
+        event.sender.send(responseChannel, path, content);
+    }
+
+    /**
+     * @listens application:file-changed
+     */
+    onFileChanged (filePath, isExternal) {
+        if (filePath !== this.state.currentFile.path)
+            return;
+
+        if (isExternal) {
+            weaki.fileManager.readFile(filePath)
+                .then(content => {
+                    // This check is here because during the read operation the user
+                    // could have changed files.
+                    if (this.state.currentFile.path === filePath) {
+                        this.editor.replaceText(content);
+                        this.state.currentFile.lastSavedContent = content;
+                        this.forceUpdate();
+                    }
+                });
+        } else {
+            this.state.currentFile.lastSavedContent = this.editor.getCurrentText();
+            this.forceUpdate();
+        }
     }
 
     /**
@@ -145,25 +162,22 @@ class Window extends React.Component {
                     <Explorer fileTree={this.state.workspaceFileTree}></Explorer>
                 </div>
                 <div id="main-panel">
-                    <Editor ref={editor => this.editor = editor}
-                        openedFiles={this.state.openedFiles}
-                        currentFile={this.state.currentFile}>
-                    </Editor>}/>
+                    <Editor ref={editor => this.editor = editor}/>
                 </div>
                 <Router history={this.state.rightSidebarHistory}>
                     <div id="right-sidebar">
                         <Route path='/history' render={() =>
-                            <FileHistory filePath={this.state.currentFile.filePath}></FileHistory>
+                            <FileHistory filePath={this.state.currentFile.path}></FileHistory>
                         }/>
                         <Route path='/git/commit' render={() => <GitCommit></GitCommit>}/>
                         <Route path='/preview' render={() =>
-                            <ReactMarkdown source={this.state.currentFile.content}></ReactMarkdown>
+                            <ReactMarkdown source={this.state.currentFile.lastSavedContent}></ReactMarkdown>
                         }/>
                     </div>
                 </Router>
             </div>
             <div id="bottom-bar">
-                <StatusBar filePath={this.state.currentFile.filePath}></StatusBar>
+                <StatusBar filePath={this.state.currentFile.path}></StatusBar>
             </div>
         </div>;
     }

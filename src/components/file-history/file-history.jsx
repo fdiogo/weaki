@@ -31,7 +31,7 @@ class FileHistory extends React.Component {
     componentWillReceiveProps (nextProps) {
         if (nextProps.filePath) {
             weaki.git.getCommitsForFile(nextProps.filePath)
-                    .then((commits) => { console.log(commits); this.setState({ commits: commits }); });
+                    .then((commits) => this.setState({ commits: commits }));
         }
     }
 

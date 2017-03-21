@@ -5,24 +5,42 @@ import Editor from '../../src/components/editor/editor';
 import TestUtils from 'react-addons-test-utils';
 import jsdom from 'mocha-jsdom';
 
+global.Node = {
+    TEXT_NODE: 3
+};
+
 describe('Editor', function () {
     jsdom({ skipWindowCheck: true });
 
     describe('.constructor()', function () {
         it('no text selected', function () {
-            const currentFile = {
-                filePath: null,
-                content: 'hello'
-            };
-            const editor = TestUtils.renderIntoDocument(<Editor currentFile={currentFile}/>);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
             expect(editor.isTextSelected()).to.be.false;
         });
     });
 
-    /*
-    describe('.bold()', function () {
+    describe('#replaceText', function () {
+        it('replace all text', function () {
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
+            editor.replaceText('bye');
+            expect(editor.getCurrentText()).to.equal('bye');
+        });
+    });
+
+    describe('#isTextSelected()', function () {
+        it('return false on start', function () {
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            const isSelected = editor.isTextSelected();
+
+            expect(isSelected).to.be.false;
+        });
+    });
+
+    describe('#bold()', function () {
         it('surround text if selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.selectText();
             editor.bold();
 
@@ -31,18 +49,19 @@ describe('Editor', function () {
         });
 
         it('append at carret if no text is selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
-            editor.setCaretPosition(0);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.bold();
 
             const text = editor.getCurrentText();
-            expect(text).to.equal('****hello');
+            expect(text).to.equal('hello****');
         });
     });
 
-    describe('.italic()', function () {
+    describe('#italic()', function () {
         it('surround text if selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.selectText();
             editor.italic();
 
@@ -51,18 +70,19 @@ describe('Editor', function () {
         });
 
         it('append at carret if no text is selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
-            editor.setCaretPosition(0);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.italic();
 
             const text = editor.getCurrentText();
-            expect(text).to.equal('__hello');
+            expect(text).to.equal('hello__');
         });
     });
 
     describe('.underline()', function () {
         it('surround text if selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.selectText();
             editor.underline();
 
@@ -71,39 +91,41 @@ describe('Editor', function () {
         });
 
         it('append at carret if no text is selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
-            editor.setCaretPosition(0);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.underline();
 
             const text = editor.getCurrentText();
-            expect(text).to.equal('____hello');
+            expect(text).to.equal('hello____');
         });
     });
 
     describe('.strikeThrough()', function () {
         it('surround text if selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.selectText();
             editor.strikeThrough();
 
             const text = editor.getCurrentText();
-            expect(text).to.equal('~~hello~~');
+            expect(text).to.equal('<s>hello</s>');
         });
 
         it('append at carret if no text is selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
-            editor.setCaretPosition(0);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.strikeThrough();
 
             const text = editor.getCurrentText();
-            expect(text).to.equal('~~~~hello');
+            expect(text).to.equal('hello<s></s>');
         });
     });
 
     describe('.link()', function () {
         it('set URI automatically if selected', function () {
             const uri = 'https://www.google.com';
-            const editor = TestUtils.renderIntoDocument(<Editor content={uri}/>);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper(uri);
             editor.selectText();
             editor.link();
 
@@ -113,7 +135,8 @@ describe('Editor', function () {
 
         it('set name automatically if selected', function () {
             const name = 'Google';
-            const editor = TestUtils.renderIntoDocument(<Editor content={name}/>);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper(name);
             editor.selectText();
             editor.link();
 
@@ -122,41 +145,42 @@ describe('Editor', function () {
         });
 
         it('append link template at caret if no text is selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
-            editor.setCaretPosition(0);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.link();
 
             const text = editor.getCurrentText();
-            expect(text).to.equal(`[Link Name](URI)hello`);
+            expect(text).to.equal(`hello[Link Name](URI)`);
         });
     });
 
     describe('.header()', function () {
         it('prepend to text if selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.selectText();
             editor.header(1);
 
             const text = editor.getCurrentText();
-            expect(text).to.equal(`# hello`);
+            expect(text).to.equal('# hello');
         });
 
         it('append at carret if no text is selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
-            editor.setCaretPosition(1);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.header(1);
 
             const text = editor.getCurrentText();
-            expect(text).to.equal('h# ello');
+            expect(text).to.equal('hello# ');
         });
 
         it('default to level 1', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
-            editor.setCaretPosition(1);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.header();
 
             const text = editor.getCurrentText();
-            expect(text).to.equal('h# ello');
+            expect(text).to.equal('hello# ');
         });
 
         it('support level 1 to 6', function () {
@@ -183,7 +207,8 @@ describe('Editor', function () {
 
     describe('.unorderedList()', function () {
         it('surround text if selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.selectText();
             editor.unorderedList();
 
@@ -192,18 +217,19 @@ describe('Editor', function () {
         });
 
         it('append at carret if no text is selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
-            editor.setCaretPosition(1);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.unorderedList();
 
             const text = editor.getCurrentText();
-            expect(text).to.equal('h* ello');
+            expect(text).to.equal('hello* ');
         });
     });
 
     describe('.orderedList()', function () {
         it('surround text if selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.selectText();
             editor.orderedList();
 
@@ -212,26 +238,12 @@ describe('Editor', function () {
         });
 
         it('append at carret if no text is selected', function () {
-            const editor = TestUtils.renderIntoDocument(<Editor content='hello'/>);
-            editor.setCaretPosition(1);
+            const editor = TestUtils.renderIntoDocument(<Editor/>);
+            editor.insertWrapper('hello');
             editor.orderedList();
 
             const text = editor.getCurrentText();
-            expect(text).to.equal('h1. ello');
-        });
-    });
-    */
-
-    describe('.isTextSelected()', function () {
-        it('return false on start', function () {
-            const currentFile = {
-                filePath: null,
-                content: 'hello'
-            };
-            const editor = TestUtils.renderIntoDocument(<Editor currentFile={currentFile}/>);
-            const isSelected = editor.isTextSelected();
-
-            expect(isSelected).to.be.false;
+            expect(text).to.equal('hello1. ');
         });
     });
 });

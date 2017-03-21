@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>Weaki Classes</title>
+	<title>Weaki Class: GitCheckoutCommand</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -79,13 +79,13 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Classes</h1>
+	<h1 class="page-title">Class: GitCheckoutCommand</h1>
 <section>
 
 <header>
     
         <h2>
-        
+        GitCheckoutCommand
         </h2>
         
     
@@ -96,8 +96,28 @@
     <div class="container-overview">
     
         
+<hr>
+<dt>
+    <h4 class="name" id="GitCheckoutCommand"><span class="type-signature"></span>new GitCheckoutCommand()</h4>
+    
+    
+</dt>
+<dd>
 
-        
+    
+    <div class="description">
+        Checkouts a collection of files to a specific commit.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+
+    
 <dl class="details">
     
 
@@ -137,7 +157,21 @@
 </dl>
 
 
-        
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
     
     </div>
 
@@ -146,73 +180,6 @@
     
 
     
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="Command.html">Command</a></dt>
-            <dd></dd>
-        
-            <dt><a href="CommandRegistry.html">CommandRegistry</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Editor.html">Editor</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Explorer.html">Explorer</a></dt>
-            <dd></dd>
-        
-            <dt><a href="FileManager.html">FileManager</a></dt>
-            <dd></dd>
-        
-            <dt><a href="FileTree.html">FileTree</a></dt>
-            <dd></dd>
-        
-            <dt><a href="FileTree.html">FileTree</a></dt>
-            <dd></dd>
-        
-            <dt><a href="FileTreeNode.html">FileTreeNode</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Git.html">Git</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitAddCommand.html">GitAddCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitAddCommand.html">GitAddCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitCheckoutCommand.html">GitCheckoutCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitCheckoutCommand.html">GitCheckoutCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitFetchCommand.html">GitFetchCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitPushCommand.html">GitPushCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="MenuTemplate.html">MenuTemplate</a></dt>
-            <dd></dd>
-        
-            <dt><a href="OpenGitCommitCommand.html">OpenGitCommitCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="OpenRepositoryCommand.html">OpenRepositoryCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="SaveFileCommand.html">SaveFileCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Weaki.html">Weaki</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Window.html">Window</a></dt>
-            <dd></dd>
-        </dl>
-    
 
     
 
@@ -225,22 +192,38 @@
     
 
     
-        <h3 class="subsection-title">Events</h3>
+</article>
 
-        <dl>
-            
+</section>
+
+
+
+
+	<h1 class="page-title">Class: GitCheckoutCommand</h1>
+<section>
+
+<header>
+    
+        <h2>
+        GitCheckoutCommand
+        </h2>
+        
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
 <hr>
 <dt>
-    <h4 class="name" id="event:application:file-changed">application:file-changed</h4>
+    <h4 class="name" id="GitCheckoutCommand"><span class="type-signature"></span>new GitCheckoutCommand(commitHash, fileGlobs)</h4>
     
     
 </dt>
 <dd>
 
-    
-    <div class="description">
-        When a file's content is changed.
-    </div>
     
 
     
@@ -274,7 +257,7 @@
 
         <tr>
             
-                <td class="name"><code>path</code></td>
+                <td class="name"><code>commitHash</code></td>
             
 
             <td class="type">
@@ -291,20 +274,20 @@
 
             
 
-            <td class="description last">The path of the file.</td>
+            <td class="description last">The hash of the wanted commit.</td>
         </tr>
 
     
 
         <tr>
             
-                <td class="name"><code>isExternal</code></td>
+                <td class="name"><code>fileGlobs</code></td>
             
 
             <td class="type">
             
                 
-<span class="param-type">boolean</span>
+<span class="param-type">Array.&lt;string></span>
 
 
 
@@ -315,8 +298,7 @@
 
             
 
-            <td class="description last">Whether or not the change was made through the same <a href="FileManager.html">FileManager</a>
-                              that fired the event.</td>
+            <td class="description last">The file globs for the command.</td>
         </tr>
 
     
@@ -372,11 +354,6 @@
     
 
     
-    <h5>Listeners of This Event:</h5>
-    <ul>
-        <li><a href="Window.html#onFileChanged">Window#onFileChanged</a></li>
-    </ul>
-    
 
     
 
@@ -385,121 +362,8 @@
     
 </dd>
 
-        
-            
-<hr>
-<dt>
-    <h4 class="name" id="event:application:file-loaded">application:file-loaded</h4>
     
-    
-</dt>
-<dd>
-
-    
-    <div class="description">
-        Channel used when a file has been loaded by the main process.
     </div>
-    
-
-    
-
-    
-        <h5>Type: 
-<span class="param-type">object</span>
-
-
-</h5>
-    
-
-    
-    
-
-    
-<dl class="details">
-    
-
-    <h5 class="subsection-title">Properties:</h5>
-
-    <dl>
-
-<table class="props table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>filePath</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The path of the file.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>contents</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The contents of the file.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-</dl>
-
-    
-
-	
-
-	
-
-	
 
     
 
@@ -509,28 +373,6 @@
 
     
 
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
     
 
     
@@ -538,20 +380,7 @@
     
 
     
-    <h5>Listeners of This Event:</h5>
-    <ul>
-        <li><a href="Window.html#onFileLoaded">Window#onFileLoaded</a></li>
-    </ul>
-    
 
-    
-
-    
-
-    
-</dd>
-
-        </dl>
     
 </article>
 

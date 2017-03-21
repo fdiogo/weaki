@@ -35,7 +35,17 @@ describe('FileTree', function () {
         it('throw error when a relative path is supplied', function () {
             const fileTree = new FileTree();
 
-            expect(fileTree.addDirectory.bind('asd')).to.throw();
+            expect(fileTree.addDirectory.bind(fileTree, 'asd')).to.throw();
+        });
+
+        describe('when directory already exists', function () {
+            it('return the existing node', function () {
+                const fileTree = new FileTree();
+                const add = fileTree.addDirectory.bind(fileTree, path.join(ROOT, 'dir'));
+                const first = add();
+                const second = add();
+                expect(first).to.equal(second);
+            });
         });
     });
 
@@ -55,7 +65,17 @@ describe('FileTree', function () {
         it('throw error when a relative path is supplied', function () {
             const fileTree = new FileTree();
 
-            expect(fileTree.addFile.bind('files/file.txt')).to.throw();
+            expect(fileTree.addFile.bind(fileTree, 'files/file.txt')).to.throw();
+        });
+
+        describe('when file already exists', function () {
+            it('return the existing node', function () {
+                const fileTree = new FileTree();
+                const add = fileTree.addFile.bind(fileTree, path.join(ROOT, 'dir', 'file.txt'));
+                const first = add();
+                const second = add();
+                expect(first).to.equal(second);
+            });
         });
     });
 

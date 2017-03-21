@@ -33,21 +33,21 @@
 			<li class="dropdown">
 				<a href="classes.list.html" class="dropdown-toggle" data-toggle="dropdown">Classes<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="Command.html">Command</a></li><li><a href="CommandRegistry.html">CommandRegistry</a></li><li><a href="Editor.html">Editor</a></li><li><a href="Explorer.html">Explorer</a></li><li><a href="SaveFileCommand.html">SaveFileCommand</a></li><li><a href="Window.html">Window</a></li>
+					<li><a href="Command.html">Command</a></li><li><a href="CommandRegistry.html">CommandRegistry</a></li><li><a href="Editor.html">Editor</a></li><li><a href="Explorer.html">Explorer</a></li><li><a href="FileManager.html">FileManager</a></li><li><a href="FileTree.html">FileTree</a></li><li><a href="FileTreeNode.html">FileTreeNode</a></li><li><a href="Git.html">Git</a></li><li><a href="GitAddCommand.html">GitAddCommand</a></li><li><a href="GitCheckoutCommand.html">GitCheckoutCommand</a></li><li><a href="GitFetchCommand.html">GitFetchCommand</a></li><li><a href="GitPushCommand.html">GitPushCommand</a></li><li><a href="MenuTemplate.html">MenuTemplate</a></li><li><a href="OpenGitCommitCommand.html">OpenGitCommitCommand</a></li><li><a href="OpenRepositoryCommand.html">OpenRepositoryCommand</a></li><li><a href="SaveFileCommand.html">SaveFileCommand</a></li><li><a href="Weaki.html">Weaki</a></li><li><a href="Window.html">Window</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="events.list.html" class="dropdown-toggle" data-toggle="dropdown">Events<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html#event:application:file-loaded">application:file-loaded</a></li>
+					<li><a href="global.html#event:application:file-changed">application:file-changed</a></li><li><a href="global.html#event:application:file-loaded">application:file-loaded</a></li>
 				</ul>
 			</li>
 			
 			<li class="dropdown">
 				<a href="global.html" class="dropdown-toggle" data-toggle="dropdown">Global<b class="caret"></b></a>
 				<ul class="dropdown-menu ">
-					<li><a href="global.html">Global</a></li>
+					<li><a href="global.html#createMenu">createMenu</a></li><li><a href="global.html#delegateToApplication">delegateToApplication</a></li><li><a href="global.html#getDirectory">getDirectory</a></li><li><a href="global.html#launchMainWindow">launchMainWindow</a></li><li><a href="global.html#openOnRightSidebar">openOnRightSidebar</a></li><li><a href="global.html#openRepository">openRepository</a></li><li><a href="global.html#registerChannelListeners">registerChannelListeners</a></li><li><a href="global.html#registerCommands">registerCommands</a></li>
 				</ul>
 			</li>
 			
@@ -498,7 +498,7 @@ closed.
             
 <hr>
 <dt>
-    <h4 class="name" id="onDirectoryLoaded"><span class="type-signature"></span>onDirectoryLoaded(descriptor)</h4>
+    <h4 class="name" id="onDirectoryLoaded"><span class="type-signature"></span>onDirectoryLoaded()</h4>
     
     
 </dt>
@@ -512,129 +512,79 @@ closed.
 
     
     
-        <h5>Parameters:</h5>
-        
 
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
+    
+<dl class="details">
     
 
-        <tr>
-            
-                <td class="name"><code>descriptor</code></td>
-            
+	
 
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
+	
 
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">A descriptor of the directory.
-                <h6 class="method-params-label method-subparams-label">Properties</h6>
-                
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>directory</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The directory.</td>
-        </tr>
+	
 
     
 
-        <tr>
-            
-                <td class="name"><code>files</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Array.&lt;Object></span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The descriptor of all the files, including the directory itself.</td>
-        </tr>
+    
 
     
-    </tbody>
-</table>
-
-            </td>
-        </tr>
 
     
-    </tbody>
-</table>
 
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="onFileChanged"><span class="type-signature"></span>onFileChanged()</h4>
+    
+    
+</dt>
+<dd>
+
+    
+
+    
+
+    
+
+    
     
 
     
@@ -684,7 +634,7 @@ closed.
     
     <h5>Listens to Events:</h5>
     <ul>
-        <li>application:directory-loaded</li>
+        <li><a href="global.html#event:application:file-changed">application:file-changed</a></li>
     </ul>
     
 
@@ -701,7 +651,7 @@ closed.
             
 <hr>
 <dt>
-    <h4 class="name" id="onFileLoaded"><span class="type-signature"></span>onFileLoaded(event, payload)</h4>
+    <h4 class="name" id="onFileLoaded"><span class="type-signature"></span>onFileLoaded(event, filePath, content)</h4>
     
     
 </dt>
@@ -768,49 +718,6 @@ closed.
 
         <tr>
             
-                <td class="name"><code>payload</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">Object</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">A descriptor of the file.
-                <h6 class="method-params-label method-subparams-label">Properties</h6>
-                
-
-<table class="params table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
                 <td class="name"><code>filePath</code></td>
             
 
@@ -835,7 +742,7 @@ closed.
 
         <tr>
             
-                <td class="name"><code>contents</code></td>
+                <td class="name"><code>content</code></td>
             
 
             <td class="type">
@@ -852,14 +759,7 @@ closed.
 
             
 
-            <td class="description last">The contents of the file.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-
-            </td>
+            <td class="description last">The content of the file.</td>
         </tr>
 
     
@@ -928,6 +828,134 @@ closed.
     
 </dd>
 
+        
+            
+<hr>
+<dt>
+    <h4 class="name" id="onOpenOnRightSidebar"><span class="type-signature"></span>onOpenOnRightSidebar(route)</h4>
+    
+    
+</dt>
+<dd>
+
+    
+    <div class="description">
+        Opens a component, via its route, on the right sidebar.
+    </div>
+    
+
+    
+
+    
+
+    
+    
+        <h5>Parameters:</h5>
+        
+
+<table class="params table table-striped">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>route</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">The route of the component.</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+    
+
+    
+<dl class="details">
+    
+
+	
+
+	
+
+	
+
+    
+
+    
+
+    
+
+    
+
+	
+
+	
+
+	
+
+	
+
+	
+
+
+
+	
+
+	
+
+	
+
+	
+</dl>
+
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</dd>
+
         </dl>
     
 
@@ -978,7 +1006,7 @@ closed.
 <span class="jsdoc-message">
 	Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.4.3</a>
 	
-		on 2017-03-13T00:06:17+00:00
+		on 2017-03-21T19:30:49+00:00
 	
 	using the <a href="https://github.com/docstrap/docstrap">DocStrap template</a>.
 </span>

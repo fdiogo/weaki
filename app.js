@@ -46,6 +46,8 @@ class Weaki {
             this.fileManager = new FileManager();
             this.mainWindow = launchMainWindow.call(this);
         });
+
+        app.on('will-quit', () => this.fileManager.watcher.close());
     }
 
     openRepository (directory) {

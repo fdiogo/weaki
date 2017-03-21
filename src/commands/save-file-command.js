@@ -12,25 +12,23 @@ let fileRequests = 0;
 class SaveFileCommand extends Command {
 
     /**
-     * @param {Object} fileDescriptor - A descriptor of the file.
-     * @param {string} fileDescriptor.path - The path of the file.
-     * @param {string} fileDescriptor.contents - The contents of the file.
+     * @param {string} [path] - The path of the file.
+     * @param {string} [content] - The content of the file.
      */
-    constructor (fileDescriptor) {
-        super(SaveFileCommand.saveFile.bind(null, fileDescriptor), null);
+    constructor (path, content) {
+        super(SaveFileCommand.saveFile.bind(null, path, content), null);
     }
 
     /**
-     * @param {Object} fileDescriptor - A descriptor of the file.
-     * @param {string} fileDescriptor.path - The path of the file.
-     * @param {string} fileDescriptor.contents - The contents of the file.
-     * @return {Promise} - A promise to the save operation.
+     * @param {string} [path] - The path of the file.
+     * @param {string} [content] - The content of the file.
+     * @return {Promise.<void, Error>} - A promise to the save operation.
      */
-    static saveFile (fileDescriptor) {
-        if (!fileDescriptor)
-            return SaveFileCommand.getFileDescriptor().then(SaveFileCommand.writeFile);
+    static saveFile (path, content) {
+        if (!path || !content)
+            return SaveFileCommand.getCurrentFile().then(file => weaki.fileManager.writeFile(file.path, file.content));
 
-        return SaveFileCommand.writeFile(fileDescriptor);
+        return weaki.fileManager.writeFile(path, content);
     }
 
     /**
@@ -38,25 +36,13 @@ class SaveFileCommand extends Command {
      * 'application:current-file' and waiting for the response on single-use channel.
      * @return {Promise} - A promise to the file descriptor.
      */
-    static getFileDescriptor () {
+    static getCurrentFile () {
         return new Promise(function (resolve, reject) {
             const requestNumber = fileRequests++;
             const responseChannel = `application:current-file@${requestNumber}`;
-            ipcMain.once(responseChannel, (event, fileDescriptor) => resolve(fileDescriptor));
+            ipcMain.once(responseChannel, (event, path, content) => resolve({path: path, content: content}));
             weaki.mainWindow.webContents.send('application:current-file', responseChannel);
         });
-    }
-
-    /**
-     * Uses the module 'fs' to write a file asynchronously.
-     * @param {Object} fileDescriptor - The arguments for fs.writeFile.
-     * @param {string} fileDescriptor.path - The path of the file.
-     * @param {string} fileDescriptor.contents - The contents of the file.
-     * @return {Promise.<,Error>} - A promise to the operation.
-     */
-    static writeFile (fileDescriptor) {
-        console.log(`Writing to file '${fileDescriptor.path}': '${fileDescriptor.contents}'`);
-        return weaki.fileManager.writeFile(fileDescriptor.path, fileDescriptor.contents);
     }
 
 }

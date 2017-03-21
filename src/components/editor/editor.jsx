@@ -1,5 +1,5 @@
 import React from 'react';
-import {Editor as DraftEditor, EditorState, Modifier, ContentState} from 'draft-js';
+import {Editor as DraftEditor, EditorState, Modifier} from 'draft-js';
 import MarkdownDecorator from '../../decorators/markdown-decorator';
 
 const PropTypes = {
@@ -36,16 +36,8 @@ class Editor extends React.Component {
     constructor (props) {
         super(props);
         const decorator = new MarkdownDecorator();
-        const content = ContentState.createFromText(props.currentFile.content || '');
-        this.state = {editorState: EditorState.createWithContent(content, decorator)};
+        this.state = {editorState: EditorState.createEmpty(decorator)};
         this.onChange = (editorState) => this.setState({editorState});
-    }
-
-    componentWillReceiveProps (nextProps) {
-        const decorator = new MarkdownDecorator();
-        const content = ContentState.createFromText(nextProps.currentFile.content || '');
-        const state = EditorState.createWithContent(content, decorator);
-        this.setState({ editorState: state });
     }
 
     /**
@@ -190,6 +182,41 @@ class Editor extends React.Component {
     getCurrentText () {
         const content = this.state.editorState.getCurrentContent();
         return content.getPlainText();
+    }
+
+    selectText () {
+        const content = this.state.editorState.getCurrentContent();
+        const selection = this.state.editorState.getSelection();
+        const firstBlock = content.getFirstBlock();
+        const lastBlock = content.getLastBlock();
+        const allTextSelection = selection.merge({
+            anchorKey: firstBlock.getKey(),
+            anchorOffset: 0,
+            focusKey: lastBlock.getKey(),
+            focusOffset: lastBlock.getLength(),
+            hasFocus: true
+        });
+
+        const newState = EditorState.forceSelection(this.state.editorState, allTextSelection);
+        this.setState({ editorState: newState });
+    }
+
+    replaceText (newText) {
+        const content = this.state.editorState.getCurrentContent();
+        const selection = this.state.editorState.getSelection();
+        const firstBlock = content.getFirstBlock();
+        const lastBlock = content.getLastBlock();
+        const allTextSelection = selection.merge({
+            anchorKey: firstBlock.getKey(),
+            anchorOffset: 0,
+            focusKey: lastBlock.getKey(),
+            focusOffset: lastBlock.getLength(),
+            hasFocus: true
+        });
+
+        const newContent = Modifier.replaceText(content, allTextSelection, newText);
+        const newState = EditorState.push(this.state.editorState, newContent, 'replace-text');
+        this.setState({ editorState: newState });
     }
 
     /**

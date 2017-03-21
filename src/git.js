@@ -13,7 +13,7 @@ class Git {
     /**
      * Adds files to the staging area.
      * @param {string|string[]} [files='./*'] - The files to add.
-     * @returns {Promise.<, Error>} A promise to the operation.
+     * @returns {Promise.<void, Error>} A promise to the operation.
      */
     add (files = './*') {
         return new Promise((resolve, reject) => {
@@ -59,7 +59,7 @@ class Git {
     /**
      * @param {string} [remote] - The remote repository.
      * @param {string} [branch] - The branch of the repository.
-     * @returns {Promise.<, Error>} A promise to the operation.
+     * @returns {Promise.<void, Error>} A promise to the operation.
      */
     push (remote, branch) {
         return new Promise((resolve, reject) => {
@@ -129,7 +129,7 @@ class Git {
 
     /**
      * Tests a directory as a git repository.
-     * @returns {Promise.<boolean,>} A promise to the answer.
+     * @returns {Promise.<boolean>} A promise to the answer.
      */
     isRepository (directory) {
         return new Promise(function (resolve, reject) {

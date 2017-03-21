@@ -4,7 +4,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width">
-	<title>Weaki Classes</title>
+	<title>Weaki Class: GitAddCommand</title>
 
 	<!--[if lt IE 9]>
 	<script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
@@ -79,13 +79,13 @@
 		<div id="main">
 			
 
-	<h1 class="page-title">Classes</h1>
+	<h1 class="page-title">Class: GitAddCommand</h1>
 <section>
 
 <header>
     
         <h2>
-        
+        GitAddCommand
         </h2>
         
     
@@ -96,151 +96,14 @@
     <div class="container-overview">
     
         
-
-        
-<dl class="details">
-    
-
-	
-
-	
-
-	
-
-    
-
-    
-
-    
-
-    
-
-	
-
-	
-
-	
-
-	
-
-	
-
-
-
-	
-
-	
-
-	
-
-	
-</dl>
-
-
-        
-    
-    </div>
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Classes</h3>
-
-        <dl>
-            <dt><a href="Command.html">Command</a></dt>
-            <dd></dd>
-        
-            <dt><a href="CommandRegistry.html">CommandRegistry</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Editor.html">Editor</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Explorer.html">Explorer</a></dt>
-            <dd></dd>
-        
-            <dt><a href="FileManager.html">FileManager</a></dt>
-            <dd></dd>
-        
-            <dt><a href="FileTree.html">FileTree</a></dt>
-            <dd></dd>
-        
-            <dt><a href="FileTree.html">FileTree</a></dt>
-            <dd></dd>
-        
-            <dt><a href="FileTreeNode.html">FileTreeNode</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Git.html">Git</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitAddCommand.html">GitAddCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitAddCommand.html">GitAddCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitCheckoutCommand.html">GitCheckoutCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitCheckoutCommand.html">GitCheckoutCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitFetchCommand.html">GitFetchCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="GitPushCommand.html">GitPushCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="MenuTemplate.html">MenuTemplate</a></dt>
-            <dd></dd>
-        
-            <dt><a href="OpenGitCommitCommand.html">OpenGitCommitCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="OpenRepositoryCommand.html">OpenRepositoryCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="SaveFileCommand.html">SaveFileCommand</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Weaki.html">Weaki</a></dt>
-            <dd></dd>
-        
-            <dt><a href="Window.html">Window</a></dt>
-            <dd></dd>
-        </dl>
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-
-    
-        <h3 class="subsection-title">Events</h3>
-
-        <dl>
-            
 <hr>
 <dt>
-    <h4 class="name" id="event:application:file-changed">application:file-changed</h4>
+    <h4 class="name" id="GitAddCommand"><span class="type-signature"></span>new GitAddCommand( [files])</h4>
     
     
 </dt>
 <dd>
 
-    
-    <div class="description">
-        When a file's content is changed.
-    </div>
     
 
     
@@ -262,7 +125,11 @@
         <th>Type</th>
 
         
+        <th>Argument</th>
+        
 
+        
+        <th>Default</th>
         
 
         <th class="last">Description</th>
@@ -274,13 +141,16 @@
 
         <tr>
             
-                <td class="name"><code>path</code></td>
+                <td class="name"><code>files</code></td>
             
 
             <td class="type">
             
                 
 <span class="param-type">string</span>
+|
+
+<span class="param-type">Array.&lt;string></span>
 
 
 
@@ -288,35 +158,26 @@
             </td>
 
             
-
-            
-
-            <td class="description last">The path of the file.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>isExternal</code></td>
-            
-
-            <td class="type">
-            
+                <td class="attributes">
                 
-<span class="param-type">boolean</span>
+                    &lt;optional><br>
+                
 
+                
 
-
-            
-            </td>
-
-            
-
+                
+                </td>
             
 
-            <td class="description last">Whether or not the change was made through the same <a href="FileManager.html">FileManager</a>
-                              that fired the event.</td>
+            
+                <td class="default">
+                
+                    []
+                
+                </td>
+            
+
+            <td class="description last">The files to add.</td>
         </tr>
 
     
@@ -372,11 +233,6 @@
     
 
     
-    <h5>Listeners of This Event:</h5>
-    <ul>
-        <li><a href="Window.html#onFileChanged">Window#onFileChanged</a></li>
-    </ul>
-    
 
     
 
@@ -385,11 +241,53 @@
     
 </dd>
 
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+	<h1 class="page-title">Class: GitAddCommand</h1>
+<section>
+
+<header>
+    
+        <h2>
+        GitAddCommand
+        </h2>
         
-            
+    
+</header>
+
+
+<article>
+    <div class="container-overview">
+    
+        
 <hr>
 <dt>
-    <h4 class="name" id="event:application:file-loaded">application:file-loaded</h4>
+    <h4 class="name" id="GitAddCommand"><span class="type-signature"></span>new GitAddCommand()</h4>
     
     
 </dt>
@@ -397,18 +295,12 @@
 
     
     <div class="description">
-        Channel used when a file has been loaded by the main process.
+        Adds files to the staging area.
     </div>
     
 
     
 
-    
-        <h5>Type: 
-<span class="param-type">object</span>
-
-
-</h5>
     
 
     
@@ -418,83 +310,6 @@
 <dl class="details">
     
 
-    <h5 class="subsection-title">Properties:</h5>
-
-    <dl>
-
-<table class="props table table-striped">
-    <thead>
-    <tr>
-        
-        <th>Name</th>
-        
-
-        <th>Type</th>
-
-        
-
-        
-
-        <th class="last">Description</th>
-    </tr>
-    </thead>
-
-    <tbody>
-    
-
-        <tr>
-            
-                <td class="name"><code>filePath</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The path of the file.</td>
-        </tr>
-
-    
-
-        <tr>
-            
-                <td class="name"><code>contents</code></td>
-            
-
-            <td class="type">
-            
-                
-<span class="param-type">string</span>
-
-
-
-            
-            </td>
-
-            
-
-            
-
-            <td class="description last">The contents of the file.</td>
-        </tr>
-
-    
-    </tbody>
-</table>
-</dl>
-
-    
-
 	
 
 	
@@ -537,11 +352,6 @@
 
     
 
-    
-    <h5>Listeners of This Event:</h5>
-    <ul>
-        <li><a href="Window.html#onFileLoaded">Window#onFileLoaded</a></li>
-    </ul>
     
 
     
@@ -551,7 +361,25 @@
     
 </dd>
 
-        </dl>
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
     
 </article>
 

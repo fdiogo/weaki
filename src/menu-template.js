@@ -28,7 +28,7 @@ class MenuTemplate {
                     {
                         label: 'Save',
                         accelerator: keymap['application:save-file'],
-                        click: weaki.executeCommand.bind(null, 'application:save-file', null)
+                        click: weaki.executeCommand.bind(null, 'application:save-file', null, null)
                     },
                     {
                         label: 'Close',

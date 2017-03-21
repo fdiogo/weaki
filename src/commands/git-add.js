@@ -17,7 +17,7 @@ class GitAddCommand extends Command {
 
 /**
  * Delegates the action of adding the files to the application.
- * @returns {Promise.<, Error>} - A promise to the operation.
+ * @returns {Promise.<void, Error>} - A promise to the operation.
  */
 function delegateToApplication (files) {
     return weaki.git.add(files);

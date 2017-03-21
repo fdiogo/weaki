@@ -19,6 +19,7 @@ class FileTree {
 
     /**
      * Adds a directory to the tree creating the intermediate directories if necessary.
+     * If the directory was already added, the existing node is returned.
      * @param {string} directory - The full name of the directory.
      * @returns {boolean} The added node.
      * @throws If there is not parent directory on the tree.
@@ -29,6 +30,7 @@ class FileTree {
 
     /**
      * Adds a file to the tree creating the intermediate directories if necessary.
+     * If the file was already added, the existing node is returned.
      * @param {string} fullPath - The full path of the file.
      * @returns {FileTreeNode} - The created node.
      * @throws If there is not parent directory on the tree.
@@ -36,6 +38,9 @@ class FileTree {
     addFile (fullPath) {
         const parts = path.parse(fullPath);
         let parent = this.ensureDirectories(parts.dir);
+
+        if (parent.hasChild(parts.base))
+            return parent.getChild(parts.base);
 
         const node = new FileTreeNode(fullPath, false);
         parent.addChild(node);
@@ -99,7 +104,7 @@ class FileTree {
                     node = childNode;
             }
         }
-
+        
         return node;
     }
 
@@ -212,10 +217,7 @@ class FileTreeNode {
      * @returns {FileTreeNode} - The child node or null if non-existing.
      */
     getChild (childName) {
-        if (!this.hasChild(childName))
-            return null;
-        else
-            return this.children[childName];
+        return this.children[childName] || null;
     }
 
 }

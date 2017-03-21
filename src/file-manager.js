@@ -2,14 +2,18 @@ import chokidar from 'chokidar';
 import bluebird from 'bluebird';
 import path from 'path';
 import fs from 'fs';
+import rimraf from 'rimraf';
 
+/**
+ * Manages the file system with the node module 'fs' and others.
+ * @class FileManager
+ */
 class FileManager {
 
     constructor () {
         this.fileSaves = {};
         this.changeListeners = {};
-        this.externalChangeListeners = {};
-        this.watcher = chokidar.watch();
+        this.watcher = chokidar.watch([], { persistent: false });
         this.watcher.on('change', this.onFileChange.bind(this));
     }
 
@@ -58,10 +62,40 @@ class FileManager {
     }
 
     /**
+     * Removes a directory with a recursive option.
+     * @param {string} directory - The directory to be removed.
+     * @param {boolean} recursive - If the operation should be recursive.
+     * @returns {Promise.<void,Error>} A promise to the operation.
+     */
+    removeDirectory (directory, recursive) {
+        return new Promise(function (resolve, reject) {
+            const remove = recursive ? rimraf : fs.rmdir;
+            remove(directory, err => {
+                if (err) reject(err);
+                else resolve();
+            });
+        });
+    }
+
+    /**
+     * Creates a unique temporary directory with a prefix.
+     * @param {string} prefix - The prefix of the folder name.
+     * @returns {Promise.<String, Error>} - A promise to the generated folder name.
+     */
+    makeTemporaryDirectory (prefix) {
+        return new Promise((resolve, reject) => {
+            fs.mkdtemp(prefix, (err, folderName) => {
+                if (err) reject(new Error(err));
+                else resolve(folderName);
+            });
+        });
+    }
+
+    /**
      * Obtains the [stat]{@link https://nodejs.org/api/fs.html#fs_class_fs_stats} object at path.
      * Includes the property 'path' on the object.
      * @param {string} path - The path of the object.
-     * @returns {Promise.<Object, Error>} The stats of the object at path.
+     * @returns {Promise.<Object, Error>} A promise to the stats of the object at path.
      */
     getStats (path) {
         return new Promise(function (resolve, reject) {
@@ -79,70 +113,142 @@ class FileManager {
      * Writes new content to a file.
      * @param {string} filePath - The path of file.
      * @param {string} content - The content to be written.
-     * @returns {Promise.<,Error>} A promise to the operation.
+     * @returns {Promise.<void,Error>} A promise to the operation.
      */
     writeFile (filePath, content) {
         if (!this.fileSaves[filePath])
-            this.fileSaves[filePath] = [];
+            this.fileSaves[filePath] = new Set();
 
-        const saveOperation = new Promise((resolve, reject) => {
+        const promise = new Promise((resolve, reject) => {
             fs.writeFile(filePath, content, error => {
-                if (error) {
-                    const index = this.fileSaves[filePath].indexOf(saveOperation);
-                    this.fileSaves[filePath].splice(index, 1);
+                if (error)
                     reject(new Error(error));
-                } else
+                else {
+                    console.log(`Wrote on ${filePath} - ${content}`);
                     resolve();
-
-                saveOperation.pending = false;
+                }
             });
         });
 
-        this.fileSaves[filePath].push(saveOperation);
-        return saveOperation;
+        const operation = { promise: promise.then(() => operation, () => operation) };
+
+        this.fileSaves[filePath].add(operation);
+        return promise;
     }
 
     /**
-     * Registers a listener for when a file is changed.
+     * Creates a new file only if it doesn't exist already.
      * @param {string} filePath - The path of the file.
-     * @param {function} callback - The function to be called when the event triggers.
-     * @param {boolean} [externalOnly=false] - Whether or not to skip notifications when the file was changed
-     *                                         via {@link FileManager.writeFile}.
+     * @param {string} [content = ''] - The initial content of the file.
+     * @returns {Promise.<void,Error>} A promise to the operation.
+     */
+    createFile (filePath, content = '') {
+        return this.exists(filePath)
+            .then(exists => new Promise(function (resolve, reject) {
+                if (exists)
+                    reject(new Error('The file already exists!'));
+                else {
+                    fs.appendFile(filePath, content, err => {
+                        if (err)
+                            reject(new Error(err));
+                        else
+                            resolve();
+                    });
+                }
+            }));
+    }
+
+    /**
+     * Checks for the existance of an object at a specific path.
+     * @param {string} path - The path of the object.
+     * @returns {Promise.<Boolean>} A promise to the answer.
+     */
+    exists (path) {
+        return new Promise(function (resolve, reject) {
+            fs.access(path, err => {
+                if (err) resolve(false);
+                else resolve(true);
+            });
+        });
+    }
+
+    /**
+     * Callback called when the content of file is changed.
+     * @callback fileChangeCallback
+     * @param {string} path - The path of the file.
+     * @param {boolean} isExternal - Whether the change was external to this manager instance or not.
+     */
+
+    /**
+     * Registers a listener for {@link application:file-changed}.
+     * @param {string} filePath - The path of the file.
+     * @param {fileChangeCallback} callback - The function to be called when the event triggers.
      * @returns {Object} - The listener handler.
      */
-    watchFileChange (filePath, callback, externalOnly = false) {
-        let listeners = externalOnly ? this.externalChangeListeners : this.changeListeners;
-
-        if (!listeners[filePath]) {
-            listeners[filePath] = [callback];
+    watchFileChange (filePath, callback) {
+        if (!this.changeListeners[filePath]) {
+            this.changeListeners[filePath] = new Set();
+            this.fileSaves[filePath] = new Set();
             this.watcher.add(filePath);
-        } else
-            listeners[filePath].push(callback);
+        }
 
+        this.changeListeners[filePath].add(callback);
         return callback;
     }
 
     /**
+     * Removes the listener for changes on a file.
+     * @param {string} filePath - The path of the file.
+     * @param {Object} handle - The object returned by {@link FileManager.watchFileChange}
+     */
+    unwatchFileChange (filePath, handle) {
+        const listeners = this.changeListeners[filePath];
+        if (!listeners || listeners.has(handle) === false)
+            return;
+
+        listeners.delete(handle);
+        if (listeners.size === 0) {
+            delete this.changeListeners[filePath];
+            delete this.fileSaves[filePath];
+            this.watcher.unwatch(filePath);
+        }
+    }
+
+    /**
+     * When a file's content is changed.
+     *
+     * @event application:file-changed
+     * @param {string} path - The path of the file.
+     * @param {boolean} isExternal - Whether or not the change was made through the same {@link FileManager}
+     *                               that fired the event.
+     */
+
+    /**
      * Calls the respective listeners for the 'change' event on a file.
      * @param {string} filePath - The changed file.
+     * @fires application:file-changed
      */
     onFileChange (filePath) {
+        if (!this.changeListeners[filePath])
+            return;
+
         const saveOperations = this.fileSaves[filePath];
-        if (this.externalChangeListeners[filePath] && saveOperations) {
-            bluebird.Promise.some(saveOperations, 1)
-                .then(promise => {
-                    const index = saveOperations.indexOf(promise);
-                    saveOperations.splice(index, 1);
-                    console.log('Detected internal change!');
-                })
-                .catch(() => {
-                    console.log('Detected external change!');
-                    this.externalChangeListeners[filePath].forEach(cb => cb());
-                });
+        if (saveOperations.size === 0) {
+            console.log('Detected external change!');
+            this.changeListeners[filePath].forEach(cb => cb(filePath, true));
         }
 
-        if (this.changeListeners[filePath])
-            this.changeListeners[filePath].forEach(cb => cb());
+        bluebird.Promise.any(Array.from(saveOperations).map(op => op.promise))
+            .then(operation => {
+                saveOperations.delete(operation);
+                console.log('Detected internal change!');
+                this.changeListeners[filePath].forEach(cb => cb(filePath, false));
+            })
+            .catch(operation => {
+                saveOperations.delete(operation);
+                console.log('Detected external change!');
+                this.changeListeners[filePath].forEach(cb => cb(filePath, true));
+            });
     }
 }
 
