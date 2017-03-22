@@ -14,7 +14,6 @@ import GitCommit from './components/git-commit/git-commit';
 import FileTree from './file-tree';
 
 const weaki = remote.getGlobal('instance');
-
 /**
  * This React component represents the main window of the application
  * which contains all the other components.

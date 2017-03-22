@@ -19,7 +19,7 @@ gulp.task('build-javascript', ['build-entry'], function () {
 });
 
 gulp.task('build-styles', function () {
-    gulp.src('src/**/*.scss')
+    gulp.src(['src/**/*.scss', 'src/**/*.css'])
         .pipe(sass())
         .pipe(gulp.dest('build/src'));
 });

@@ -1,6 +1,6 @@
 import React from 'react';
-import {Editor as DraftEditor, EditorState, Modifier} from 'draft-js';
-import MarkdownDecorator from '../../decorators/markdown-decorator';
+import Quill from 'quill';
+import highlight from 'highlight.js';
 
 const PropTypes = {
     openedFiles: React.PropTypes.array,
@@ -35,37 +35,51 @@ class Editor extends React.Component {
 
     constructor (props) {
         super(props);
-        const decorator = new MarkdownDecorator();
-        this.state = {editorState: EditorState.createEmpty(decorator)};
-        this.onChange = (editorState) => this.setState({editorState});
+        highlight.configure({
+            useBR: false,
+            languages: ['markdown']
+        });
+    }
+
+    componentDidMount () {
+        this.quill = new Quill(this.refs.content, {
+            theme: 'bubble',
+            modules: {
+                toolbar: false,
+                syntax: {
+                    highlight: text => highlight.highlightAuto(text).value
+                }
+            }
+        });
+        this.quill.format('code-block', true);
     }
 
     /**
      * Turns the text bold.
      */
     bold () {
-        this.insertWrapper('**', '**');
+        this.wrap('**', '**');
     }
 
     /**
      * Turns the text italic.
      */
     italic () {
-        this.insertWrapper('_', '_');
+        this.wrap('_', '_');
     }
 
     /**
      * Underlines the text.
      */
     underline () {
-        this.insertWrapper('__', '__');
+        this.wrap('__', '__');
     }
 
     /**
      * Strikes through the text.
      */
     strikeThrough () {
-        this.insertWrapper('<s>', '</s>');
+        this.wrap('<s>', '</s>');
     }
 
     /**
@@ -75,11 +89,11 @@ class Editor extends React.Component {
         if (this.isTextSelected()) {
             const selectedText = this.getSelectedText();
             if (LINK_REGEX.test(selectedText))
-                this.insertWrapper('[Link Name](', ')');
+                this.wrap('[Link Name](', ')');
             else
-                this.insertWrapper('[', '](URI)');
+                this.wrap('[', '](URI)');
         } else
-            this.insertWrapper('[Link Name]', '(URI)');
+            this.wrap('[Link Name]', '(URI)');
     }
 
     /**
@@ -89,11 +103,11 @@ class Editor extends React.Component {
         if (this.isTextSelected()) {
             const selectedText = this.getSelectedText();
             if (LINK_REGEX.test(selectedText))
-                this.insertWrapper('![Image Name](', ' "Title")');
+                this.wrap('![Image Name](', ' "Title")');
             else
-                this.insertWrapper('![', '](URI "Title")');
+                this.wrap('![', '](URI "Title")');
         } else
-            this.insertWrapper('![Image Name]', '(URI "Title")');
+            this.wrap('![Image Name]', '(URI "Title")');
     }
 
     /**
@@ -105,47 +119,47 @@ class Editor extends React.Component {
         else if (level > MAXIMUM_HEADER_LEVEL) level = MAXIMUM_HEADER_LEVEL;
 
         const headerWrapper = '#'.repeat(level);
-        this.insertWrapper(`${headerWrapper} `);
+        this.wrap(`${headerWrapper} `);
     }
 
     /**
      * Creates an unordered list.
      */
     unorderedList () {
-        this.insertWrapper('* ');
+        this.wrap('* ');
     }
 
     /**
      * Creates an ordered list.
      */
     orderedList () {
-        this.insertWrapper('1. ');
+        this.wrap('1. ');
     }
 
     /**
      * Creates a blockquote.
      */
     blockquote () {
-        this.insertWrapper('> ');
+        this.wrap('> ');
     }
 
     /**
      * Creates a span of code.
      */
     code () {
-        this.insertWrapper('`', '`');
+        this.wrap('`', '`');
     }
 
     /**
      * Creates a horizontal rule.
      */
     horizontalRule () {
-        this.insertWrapper('', '\n***\n');
+        this.wrap('', '\n***\n');
     }
 
     table () {
         const tableParts = TABLE_TEMPLATE.split('*DATA*');
-        this.insertWrapper(tableParts[0], tableParts[1]);
+        this.wrap(tableParts[0], tableParts[1]);
     }
 
     /**
@@ -153,8 +167,8 @@ class Editor extends React.Component {
      * @returns {boolean} True if there is a text selection.
      */
     isTextSelected () {
-        const selection = this.state.editorState.getSelection();
-        return !selection.isCollapsed();
+        const selection = this.quill.getSelection();
+        return selection.range !== 0;
     }
 
     /**
@@ -162,17 +176,12 @@ class Editor extends React.Component {
      * @returns {string} The currently selected text.
      */
     getSelectedText () {
-        const selection = this.state.editorState.getSelection();
+        const selection = this.quill.getSelection();
 
-        if (selection.isCollapsed())
+        if (selection.length === 0)
             return '';
 
-        const content = this.state.editorState.getCurrentContent();
-        const anchorKey = selection.getAnchorKey();
-        const currentContentBlock = content.getBlockForKey(anchorKey);
-        const start = selection.getStartOffset();
-        const end = selection.getEndOffset();
-        return currentContentBlock.getText().slice(start, end);
+        return this.quill.getText(selection.index, selection.length);
     }
 
     /**
@@ -180,43 +189,16 @@ class Editor extends React.Component {
      * @returns {string} The current content.
      */
     getCurrentText () {
-        const content = this.state.editorState.getCurrentContent();
-        return content.getPlainText();
+        return this.quill.getText();
     }
 
     selectText () {
-        const content = this.state.editorState.getCurrentContent();
-        const selection = this.state.editorState.getSelection();
-        const firstBlock = content.getFirstBlock();
-        const lastBlock = content.getLastBlock();
-        const allTextSelection = selection.merge({
-            anchorKey: firstBlock.getKey(),
-            anchorOffset: 0,
-            focusKey: lastBlock.getKey(),
-            focusOffset: lastBlock.getLength(),
-            hasFocus: true
-        });
-
-        const newState = EditorState.forceSelection(this.state.editorState, allTextSelection);
-        this.setState({ editorState: newState });
+        this.quill.setSelection(0, this.quill.getLength());
     }
 
     replaceText (newText) {
-        const content = this.state.editorState.getCurrentContent();
-        const selection = this.state.editorState.getSelection();
-        const firstBlock = content.getFirstBlock();
-        const lastBlock = content.getLastBlock();
-        const allTextSelection = selection.merge({
-            anchorKey: firstBlock.getKey(),
-            anchorOffset: 0,
-            focusKey: lastBlock.getKey(),
-            focusOffset: lastBlock.getLength(),
-            hasFocus: true
-        });
-
-        const newContent = Modifier.replaceText(content, allTextSelection, newText);
-        const newState = EditorState.push(this.state.editorState, newContent, 'replace-text');
-        this.setState({ editorState: newState });
+        this.quill.setText(newText);
+        this.quill.formatText(0, newText.length, 'code-block', true);
     }
 
     /**
@@ -225,31 +207,21 @@ class Editor extends React.Component {
      * @param {string} [prepend=''] - The text to prepend.
      * @param {string} [append=''] - The text to append.
      */
-    insertWrapper (prepend = '', append = '') {
-        const content = this.state.editorState.getCurrentContent();
-        const selection = this.state.editorState.getSelection();
-
-        let newContent;
-        if (selection.isCollapsed())
-            newContent = Modifier.insertText(content, selection, `${prepend}${append}`);
-        else {
-            const selectedText = this.getSelectedText();
-            newContent = Modifier.replaceText(content, selection, `${prepend}${selectedText}${append}`);
+    wrap (prepend = '', append = '') {
+        const selection = this.quill.getSelection();
+        if (selection.length === 0) {
+            this.quill.insertText(selection.index, `${prepend}${append}`);
+            this.quill.setSelection(selection.index + prepend.length, 0);
+        } else {
+            this.quill.insertText(selection.index, prepend);
+            this.quill.insertText(selection.index + prepend.length + selection.length, append);
+            this.quill.setSelection(selection.index + prepend.length, selection.length);
         }
-
-        const afterInsertState = EditorState.push(this.state.editorState, newContent, 'insert-characters');
-        const withSelectionState = EditorState.forceSelection(afterInsertState, selection.merge({
-            anchorKey: selection.anchorKey,
-            anchorOffset: selection.anchorOffset + prepend.length,
-            focusKey: selection.focusKey,
-            focusOffset: selection.focusOffset + prepend.length
-        }));
-        this.setState({ editorState: withSelectionState });
     }
 
     render () {
-        return <div id="editor">
-            <div id="editor-buttons">
+        return <div className="editor">
+            <div className="editor-buttons">
                 <span className="editor-button-group">
                     <span className="editor-button" onClick={this.header.bind(this, 1)}>
                         <b>h1</b>
@@ -303,10 +275,7 @@ class Editor extends React.Component {
                     </span>
                 </span>
             </div>
-            <div id="editor-content" onClick={() => this.draftEditor.focus()}>
-                <DraftEditor ref={editor => this.draftEditor = editor}
-                    editorState={this.state.editorState}
-                    onChange={this.onChange.bind(this)}/>
+            <div ref="content" className="editor-content">
             </div>
         </div>;
     }
