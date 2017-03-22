@@ -14,6 +14,13 @@ class FileManager {
         this.fileSaves = {};
         this.changeListeners = {};
         this.watcher = chokidar.watch([], { persistent: false });
+        this.watcher.on('raw', (event, path, {watchedPath}) => {
+            if (event === 'rename') {
+                this.watcher.unwatch(watchedPath);
+                if (this.changeListeners[watchedPath])
+                    this.watcher.add(watchedPath);
+            }
+        });
         this.watcher.on('change', this.onFileChange.bind(this));
     }
 
@@ -123,10 +130,8 @@ class FileManager {
             fs.writeFile(filePath, content, error => {
                 if (error)
                     reject(new Error(error));
-                else {
-                    console.log(`Wrote on ${filePath} - ${content}`);
+                else
                     resolve();
-                }
             });
         });
 
@@ -236,6 +241,7 @@ class FileManager {
         if (saveOperations.size === 0) {
             console.log('Detected external change!');
             this.changeListeners[filePath].forEach(cb => cb(filePath, true));
+            return;
         }
 
         bluebird.Promise.any(Array.from(saveOperations).map(op => op.promise))
