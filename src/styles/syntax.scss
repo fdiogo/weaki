@@ -1,3 +1,5 @@
+@import 'theme';
+
 .markdown-header,
 .markdown-ordered-list,
 .markdown-unordered-list,
@@ -25,6 +27,11 @@
 
 .markdown-image, .md-image {
     color: #ae81ff;
+
+    img {
+        position: absolute;
+        margin-top: $font-size;
+    }
 }
 
 .link {

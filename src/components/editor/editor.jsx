@@ -263,43 +263,43 @@ class Editor extends React.Component {
                 </span>
                 <span className="editor-button-group">
                     <span className="editor-button" onClick={this.link.bind(this)}>
-                        <img src="../assets/octicon-link.svg"/>
+                        <span className="octicon octicon-link"></span>
                     </span>
                     <span className="editor-button" onClick={this.image.bind(this)}>
-                        <img src="../assets/octicon-file-media.svg"/>
+                        <span className="octicon octicon-file-media"></span>
                     </span>
                 </span>
                 <span className="editor-button-group">
                     <span className="editor-button" onClick={this.bold.bind(this)}>
-                        <img src="../assets/octicon-bold.svg"/>
+                        <span className="octicon octicon-bold"></span>
                     </span>
                     <span className="editor-button" onClick={this.italic.bind(this)}>
-                        <img src="../assets/octicon-italic.svg"/>
+                        <span className="octicon octicon-italic"></span>
                     </span>
                     <span className="editor-button" onClick={this.code.bind(this)}>
-                        <img src="../assets/octicon-code.svg"/>
+                        <span className="octicon octicon-code"></span>
                     </span>
                 </span>
                 <span className="editor-button-group">
                     <span className="editor-button" onClick={this.unorderedList.bind(this)}>
-                        <img src="../assets/octicon-list-unordered.svg"/>
+                        <span className="octicon octicon-list-unordered"></span>
                     </span>
                     <span className="editor-button" onClick={this.orderedList.bind(this)}>
-                        <img src="../assets/octicon-list-ordered.svg"/>
+                        <span className="octicon octicon-list-ordered"></span>
                     </span>
                     <span className="editor-button" onClick={this.blockquote.bind(this)}>
-                        <img src="../assets/octicon-quote.svg"/>
+                        <span className="octicon octicon-quote"></span>
                     </span>
                     <span className="editor-button" onClick={this.horizontalRule.bind(this)}>
-                        <img src="../assets/octicon-horizontal-rule.svg"/>
+                        <span className="octicon octicon-horizontal-rule"></span>
                     </span>
                 </span>
                 <span className="editor-button-group">
-                    <span className="editor-button glyphicon" onClick={this.strikeThrough.bind(this)}>
-                        <img src="../assets/glyphicons-text-strike.png"/>
+                    <span className="editor-button" onClick={this.strikeThrough.bind(this)}>
+                        <span className="glyphicon glyphicon-text-strike"></span>
                     </span>
-                    <span className="editor-button glyphicon" onClick={this.table.bind(this)}>
-                        <img src="../assets/glyphicons-table.png"/>
+                    <span className="editor-button" onClick={this.table.bind(this)}>
+                        <span className="glyphicon glyphicon-table"></span>
                     </span>
                 </span>
             </div>

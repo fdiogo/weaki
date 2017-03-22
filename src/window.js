@@ -3,6 +3,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route } from 'react-router-dom';
 import History from 'history/createMemoryHistory';
+import path from 'path';
 
 import ReactMarkdown from 'react-markdown';
 import Explorer from './components/explorer/explorer';
@@ -157,6 +158,7 @@ class Window extends React.Component {
 
     render () {
         return <div id="viewport">
+            <base href={this.state.currentFile.path === '' ? '.' : path.dirname(this.state.currentFile.path) + path.sep}/>
             <div id="workspace">
                 <div id="left-sidebar">
                     <Explorer fileTree={this.state.workspaceFileTree}></Explorer>

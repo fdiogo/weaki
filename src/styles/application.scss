@@ -1,0 +1,81 @@
+@import 'theme';
+
+.hidden {
+    display: none;
+}
+
+.underlined {
+    text-decoration: underline;
+}
+
+.button {
+    background-color: $primary-highlight-color;
+    border-radius: 3px;
+    color: $font-color;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.octicon, .glyphicon {
+    height: 16px;
+    width: 16px;
+    background-repeat: no-repeat;
+    background-size: 16px 16px;
+
+    &-white {
+        @extend .octicon;
+        filter: invert(1);
+    }
+}
+
+.octicon-bold {
+    background-image: url("../../assets/octicon-bold.svg");
+}
+
+.octicon-link {
+    background-image: url("../../assets/octicon-link.svg");
+}
+
+.octicon-file-media {
+    background-image: url("../../assets/octicon-file-media.svg");
+}
+
+.octicon-italic {
+    background-image: url("../../assets/octicon-italic.svg");
+}
+
+.octicon-code {
+    background-image: url("../../assets/octicon-code.svg");
+}
+
+.octicon-list-unordered {
+    background-image: url("../../assets/octicon-list-unordered.svg");
+}
+
+.octicon-list-ordered {
+    background-image: url("../../assets/octicon-list-ordered.svg");
+}
+
+.octicon-quote {
+    background-image: url("../../assets/octicon-quote.svg");
+}
+
+.octicon-horizontal-rule {
+    background-image: url("../../assets/octicon-horizontal-rule.svg");
+}
+
+.octicon-chevron-down {
+    background-image: url("../../assets/octicon-chevron-down.svg");
+}
+
+.octicon-chevron-right {
+    background-image: url("../../assets/octicon-chevron-right.svg");
+}
+
+.glyphicon-text-strike {
+    background-image: url("../../assets/glyphicon-text-strike.png");
+}
+
+.glyphicon-table {
+    background-image: url("../../assets/glyphicon-table.png");
+}

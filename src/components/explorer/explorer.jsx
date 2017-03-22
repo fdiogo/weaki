@@ -38,9 +38,6 @@ class Explorer extends React.Component {
 
 }
 
-const COLLAPED_IMAGE = '../assets/octicon-chevron-right.svg';
-const NON_COLLAPED_IMAGE = '../assets/octicon-chevron-down.svg';
-
 class ExplorerItem extends React.Component {
 
     constructor (props) {
@@ -71,9 +68,12 @@ class ExplorerItem extends React.Component {
         if (this.props.isDirectory) {
             classes.push('explorer-item-directory');
             if (Object.keys(this.props.children).length > 0) {
-                const imageSrc = this.state.collapsed ? COLLAPED_IMAGE : NON_COLLAPED_IMAGE;
-                const imageClasses = ['explorer-item-title-prefix', 'explorer-item-directory-chevron'];
-                titlePrefix = <img className={imageClasses.join(' ')} src={imageSrc}></img>;
+                const prefixClasses = ['explorer-item-title-prefix', 'octicon-white'];
+                if (this.state.collapsed)
+                    prefixClasses.push('octicon-chevron-right');
+                else
+                    prefixClasses.push('octicon-chevron-down');
+                titlePrefix = <span className={prefixClasses.join(' ')}></span>;
             }
         } else
             classes.push('explorer-item-file');
