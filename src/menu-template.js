@@ -26,18 +26,18 @@ class MenuTemplate {
                         click: weaki.executeCommand.bind(null, 'application:open-repository', null)
                     },
                     {
-                        label: 'Save',
+                        label: 'Save File',
                         accelerator: keymap['application:save-file'],
                         click: weaki.executeCommand.bind(null, 'application:save-file', null, null)
                     },
                     {
-                        label: 'Close',
+                        label: 'Close File',
                         accelerator: keymap['application:close-file'],
                         click: weaki.executeCommand.bind(null, 'application:close-file', null)
                     },
                     {
                         role: 'quit',
-                        accelerator: keymap['application:close-file']
+                        accelerator: keymap['application:quit']
                     }
                 ]
             },
@@ -45,10 +45,12 @@ class MenuTemplate {
                 label: 'Edit',
                 submenu: [
                     {
-                        role: 'undo'
+                        role: 'undo',
+                        accelerator: keymap['edit:undo']
                     },
                     {
-                        role: 'redo'
+                        role: 'redo',
+                        accelerator: keymap['edit:redo']
                     },
                     {
                         type: 'separator'
@@ -147,22 +149,24 @@ class MenuTemplate {
                         type: 'separator'
                     },
                     {
-                        role: 'cut'
+                        role: 'cut',
+                        accelerator: keymap['edit:cut']
                     },
                     {
-                        role: 'copy'
+                        role: 'copy',
+                        accelerator: keymap['edit:copy']
                     },
                     {
-                        role: 'paste'
+                        role: 'paste',
+                        accelerator: keymap['edit:paste']
                     },
                     {
-                        role: 'pasteandmatchstyle'
+                        role: 'delete',
+                        accelerator: keymap['edit:delete']
                     },
                     {
-                        role: 'delete'
-                    },
-                    {
-                        role: 'selectall'
+                        role: 'selectall',
+                        accelerator: keymap['edit:select-all']
                     }
                 ]
             },
@@ -170,22 +174,12 @@ class MenuTemplate {
                 label: 'Git',
                 submenu: [
                     {
-                        label: 'Open Commit',
-                        accelerator: keymap['git:open-commit'],
-                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', '/git/commit')
-                    },
-                    {
-                        label: 'File History',
-                        accelerator: keymap['git:file-history'],
-                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', '/history')
-                    },
-                    {
-                        label: 'Push',
+                        label: 'Push All',
                         accelerator: keymap['git:push'],
                         click: weaki.executeCommand.bind(null, 'git:push', 'origin', 'master')
                     },
                     {
-                        label: 'Fetch',
+                        label: 'Fetch Changes',
                         accelerator: keymap['git:fetch'],
                         click: weaki.executeCommand.bind(null, 'git:fetch', null)
                     },
@@ -201,55 +195,71 @@ class MenuTemplate {
                 submenu: [
                     {
                         label: 'Preview',
-                        accelerator: keymap['application:preview'],
-                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', 'preview')
+                        accelerator: keymap['view:preview'],
+                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', '/preview')
                     },
                     {
-                        role: 'reload'
+                        label: 'Commit',
+                        accelerator: keymap['view:git-commit'],
+                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', '/git/commit')
                     },
                     {
-                        role: 'toggledevtools'
+                        label: 'File History',
+                        accelerator: keymap['view:file-history'],
+                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', '/history')
+                    },
+                    {
+                        role: 'toggledevtools',
+                        accelerator: keymap['view:toggle-dev-tools']
+                    },
+                    {
+                        role: 'reload',
+                        accelerator: keymap['view:reload']
                     },
                     {
                         type: 'separator'
                     },
                     {
-                        role: 'resetzoom'
+                        role: 'resetzoom',
+                        accelerator: keymap['view:reset-zoom']
                     },
                     {
-                        role: 'zoomin'
+                        role: 'zoomin',
+                        accelerator: keymap['view:zoom-in']
                     },
                     {
-                        role: 'zoomout'
+                        role: 'zoomout',
+                        accelerator: keymap['view:zoom-out']
                     },
                     {
                         type: 'separator'
                     },
                     {
-                        role: 'togglefullscreen'
-                    }
-                ]
-            },
-            {
-                role: 'window',
-                submenu: [
-                    {
-                        role: 'minimize'
-                    },
-                    {
-                        role: 'close'
-                    }
-                ]
-            },
-            {
-                role: 'help',
-                submenu: [
-                    {
-                        label: 'Learn More',
-                        click () { require('electron').shell.openExternal('http://electron.atom.io'); }
+                        role: 'togglefullscreen',
+                        accelerator: keymap['view:fullscreen']
                     }
                 ]
             }
+            // {
+            //     role: 'window',
+            //     submenu: [
+            //         {
+            //             role: 'minimize'
+            //         },
+            //         {
+            //             role: 'close'
+            //         }
+            //     ]
+            // },
+            // {
+            //     role: 'help',
+            //     submenu: [
+            //         {
+            //             label: 'Learn More',
+            //             click () { require('electron').shell.openExternal('http://electron.atom.io'); }
+            //         }
+            //     ]
+            // }
         ];
 
         if (process.platform === 'darwin') {

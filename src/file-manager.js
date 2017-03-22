@@ -46,7 +46,6 @@ class FileManager {
      */
     readDirectory (directory, recursive) {
         const readdir = new Promise((resolve, reject) => {
-            console.log(`Reading ${directory}`);
             fs.readdir(directory, (err, files) => {
                 if (err) {
                     console.log(`Could not read ${directory}`);
