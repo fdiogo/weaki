@@ -46,9 +46,13 @@ class FileManager {
      */
     readDirectory (directory, recursive) {
         const readdir = new Promise((resolve, reject) => {
-            fs.readdir(directory, 'utf8', (err, files) => {
-                if (err) reject(new Error(err));
-                else resolve(files);
+            console.log(`Reading ${directory}`);
+            fs.readdir(directory, (err, files) => {
+                if (err) {
+                    console.log(`Could not read ${directory}`);
+                    reject(new Error(err));
+                } else
+                    resolve(files);
             });
         }).then(files => {
             const statsPromises = files.map(file => path.join(directory, file))
@@ -78,7 +82,7 @@ class FileManager {
         return new Promise(function (resolve, reject) {
             const remove = recursive ? rimraf : fs.rmdir;
             remove(directory, err => {
-                if (err) reject(err);
+                if (err) reject(new Error(err));
                 else resolve();
             });
         });
@@ -107,8 +111,10 @@ class FileManager {
     getStats (path) {
         return new Promise(function (resolve, reject) {
             fs.stat(path, function (error, stat) {
-                if (error) throw new Error(error);
-                else {
+                if (error) {
+                    console.log(error);
+                    reject(new Error(error));
+                } else {
                     stat.path = path;
                     resolve(stat);
                 }
