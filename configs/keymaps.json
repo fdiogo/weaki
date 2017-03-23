@@ -8,7 +8,7 @@
     "view:git-commit": "CmdOrCtrl+Shift+G",
     "view:file-history": "CmdOrCtrl+Shift+H",
     "view:toggle-dev-tools": "CmdOrCtrl+Shift+I",
-    "view:reload": "",
+    "view:reload": "CmdOrCtrl+R",
     "view:reset-zoom": "CmdOrCtrl+0",
     "view:zoom-in": "CmdOrCtrl+Shift+=",
     "view:zoom-out": "CmdOrCtrl+-",

@@ -32,13 +32,40 @@ class Explorer extends React.Component {
         const rootNode = this.state.fileTree.getWorkspaceNode();
 
         return <ul className='explorer-tree'>
-            {rootNode !== this.state.fileTree.root ? <ExplorerItem key={rootNode.fullPath} {...rootNode}></ExplorerItem> : []}
+            {rootNode !== this.state.fileTree.root ? ExplorerItem.fromNode(rootNode) : []}
         </ul>;
     }
 
 }
 
 class ExplorerItem extends React.Component {
+
+    static fromNode (node) {
+        if (node.isDirectory)
+            return <ExplorerDirectory key={node.fullPath} {...node} />;
+        else
+            return <ExplorerFile key={node.fullPath} {...node} />;
+    }
+}
+
+class ExplorerFile extends ExplorerItem {
+
+    onClick () {
+        ipcRenderer.send('execute-command', 'application:open-file', this.props.fullPath);
+    }
+
+    render () {
+        return <div className="explorer-item explorer-item-file">
+            <div className="explorer-item-title" onClick={this.onClick.bind(this)}>
+                <span className="octicon-white octicon-file"></span>
+                {this.props.name}
+            </div>
+        </div>;
+    }
+
+}
+
+class ExplorerDirectory extends ExplorerItem {
 
     constructor (props) {
         super(props);
@@ -48,10 +75,7 @@ class ExplorerItem extends React.Component {
     }
 
     onClick () {
-        if (this.props.isDirectory)
-            this.setState({ collapsed: !this.state.collapsed });
-        else
-            ipcRenderer.send('execute-command', 'application:open-file', this.props.fullPath);
+        this.setState({ collapsed: !this.state.collapsed });
     }
 
     render () {
@@ -59,34 +83,26 @@ class ExplorerItem extends React.Component {
         if (!this.state.collapsed) {
             for (let name in this.props.children) {
                 const childNode = this.props.children[name];
-                children.push(<ExplorerItem key={childNode.fullPath} {...childNode}></ExplorerItem>);
+                children.push(ExplorerItem.fromNode(childNode));
             }
         }
 
-        const classes = [];
-        let titlePrefix = <span className="explorer-item-title-prefix"></span>;
-        if (this.props.isDirectory) {
-            classes.push('explorer-item-directory');
-            if (Object.keys(this.props.children).length > 0) {
-                const prefixClasses = ['explorer-item-title-prefix', 'octicon-white'];
-                if (this.state.collapsed)
-                    prefixClasses.push('octicon-chevron-right');
-                else
-                    prefixClasses.push('octicon-chevron-down');
-                titlePrefix = <span className={prefixClasses.join(' ')}></span>;
-            }
-        } else
-            classes.push('explorer-item-file');
+        const chevronClasses = ['octicon-white'];
+        if (this.state.collapsed)
+            chevronClasses.push('octicon-chevron-right');
+        else
+            chevronClasses.push('octicon-chevron-down');
 
-        return <div className={classes.join(' ')}>
-            <div className="explorer-item-title"
-                onClick={this.onClick.bind(this)}>
-                {titlePrefix}
+        return <div className="explorer-item explorer-item-directory">
+            <div className="explorer-item-title" onClick={this.onClick.bind(this)}>
+                <span className={chevronClasses.join(' ')}></span>
+                <span className="octicon-white octicon-file-directory"></span>
                 {this.props.name}
             </div>
             {children}
         </div>;
     }
+
 }
 
 export default Explorer;
