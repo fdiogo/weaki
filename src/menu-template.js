@@ -18,22 +18,22 @@ class MenuTemplate {
                     {
                         label: 'Open File...',
                         accelerator: keymap['application:open-file'],
-                        click: weaki.executeCommand.bind(null, 'application:open-file', null)
+                        click: function () { weaki.executeCommand('application:open-file'); }
                     },
                     {
                         label: 'Open Repository...',
                         accelerator: keymap['application:open-repository'],
-                        click: weaki.executeCommand.bind(null, 'application:open-repository', null)
+                        click: function () { weaki.executeCommand('application:open-repository'); }
                     },
                     {
                         label: 'Save File',
                         accelerator: keymap['application:save-file'],
-                        click: weaki.executeCommand.bind(null, 'application:save-file', null, null)
+                        click: function () { weaki.executeCommand('application:save-file'); }
                     },
                     {
                         label: 'Close File',
                         accelerator: keymap['application:close-file'],
-                        click: weaki.executeCommand.bind(null, 'application:close-file', null)
+                        click: function () { weaki.executeCommand('application:close-file'); }
                     },
                     {
                         role: 'quit',
@@ -61,89 +61,89 @@ class MenuTemplate {
                             {
                                 label: 'Header 1',
                                 accelerator: keymap['editor:header-1'],
-                                click: weaki.executeCommand.bind(null, 'editor:header', 1)
+                                click: function () { weaki.executeCommand('editor:header', 1); }
                             },
                             {
                                 label: 'Header 2',
                                 accelerator: keymap['editor:header-2'],
-                                click: weaki.executeCommand.bind(null, 'editor:header', 2)
+                                click: function () { weaki.executeCommand('editor:header', 2); }
                             },
                             {
                                 label: 'Header 3',
                                 accelerator: keymap['editor:header-3'],
-                                click: weaki.executeCommand.bind(null, 'editor:header', 3)
+                                click: function () { weaki.executeCommand('editor:header', 3); }
                             },
                             {
                                 label: 'Header 4',
                                 accelerator: keymap['editor:header-4'],
-                                click: weaki.executeCommand.bind(null, 'editor:header', 4)
+                                click: function () { weaki.executeCommand('editor:header', 4); }
                             },
                             {
                                 label: 'Header 5',
                                 accelerator: keymap['editor:header-5'],
-                                click: weaki.executeCommand.bind(null, 'editor:header', 5)
+                                click: function () { weaki.executeCommand('editor:header', 5); }
                             },
                             {
                                 label: 'Header 6',
                                 accelerator: keymap['editor:header-6'],
-                                click: weaki.executeCommand.bind(null, 'editor:header', 6)
+                                click: function () { weaki.executeCommand('editor:header', 6); }
                             }
                         ]
                     },
                     {
                         label: 'Bold',
                         accelerator: keymap['editor:bold'],
-                        click: weaki.executeCommand.bind(null, 'editor:bold', null)
+                        click: function () { weaki.executeCommand('editor:bold'); }
                     },
                     {
                         label: 'Italic',
                         accelerator: keymap['editor:italic'],
-                        click: weaki.executeCommand.bind(null, 'editor:italic', null)
+                        click: function () { weaki.executeCommand('editor:italic'); }
                     },
                     {
                         label: 'Strike Through',
                         accelerator: keymap['editor:strike-through'],
-                        click: weaki.executeCommand.bind(null, 'editor:strike-through', null)
+                        click: function () { weaki.executeCommand.bind('editor:strike-through'); }
                     },
                     {
                         label: 'Blockquote',
                         accelerator: keymap['editor:blockquote'],
-                        click: weaki.executeCommand.bind(null, 'editor:blockquote', null)
+                        click: function () { weaki.executeCommand.bind('editor:blockquote'); }
                     },
                     {
                         label: 'Code',
                         accelerator: keymap['editor:code'],
-                        click: weaki.executeCommand.bind(null, 'editor:code', null)
+                        click: function () { weaki.executeCommand.bind('editor:code'); }
                     },
                     {
                         label: 'Horizontal Rule',
                         accelerator: keymap['editor:horizontal-rule'],
-                        click: weaki.executeCommand.bind(null, 'editor:horizontal-rule', null)
+                        click: function () { weaki.executeCommand.bind('editor:horizontal-rule'); }
                     },
                     {
                         label: 'Link',
                         accelerator: keymap['editor:link'],
-                        click: weaki.executeCommand.bind(null, 'editor:link', null)
+                        click: function () { weaki.executeCommand.bind('editor:link'); }
                     },
                     {
                         label: 'Image',
                         accelerator: keymap['editor:image'],
-                        click: weaki.executeCommand.bind(null, 'editor:image', null)
+                        click: function () { weaki.executeCommand.bind('editor:image'); }
                     },
                     {
                         label: 'Unordered List',
                         accelerator: keymap['editor:unordered-list'],
-                        click: weaki.executeCommand.bind(null, 'editor:unordered-list', null)
+                        click: function () { weaki.executeCommand.bind('editor:unordered-list'); }
                     },
                     {
                         label: 'Ordered List',
                         accelerator: keymap['editor:ordered-list'],
-                        click: weaki.executeCommand.bind(null, 'editor:ordered-list', null)
+                        click: function () { weaki.executeCommand('editor:ordered-list'); }
                     },
                     {
                         label: 'Table',
                         accelerator: keymap['editor:table'],
-                        click: weaki.executeCommand.bind(null, 'editor:table', null)
+                        click: function () { weaki.executeCommand('editor:table'); }
                     },
                     {
                         type: 'separator'
@@ -176,17 +176,17 @@ class MenuTemplate {
                     {
                         label: 'Push All',
                         accelerator: keymap['git:push'],
-                        click: weaki.executeCommand.bind(null, 'git:push', 'origin', 'master')
+                        click: function () { weaki.executeCommand('git:push', 'origin', 'master'); }
                     },
                     {
                         label: 'Fetch Changes',
                         accelerator: keymap['git:fetch'],
-                        click: weaki.executeCommand.bind(null, 'git:fetch', null)
+                        click: function () { weaki.executeCommand('git:fetch'); }
                     },
                     {
                         label: 'Checkout All',
                         accelerator: keymap['git:checkout'],
-                        click: weaki.executeCommand.bind(null, 'git:checkout', 'HEAD', ['.'])
+                        click: function () { weaki.executeCommand('git:checkout', 'HEAD', ['.']); }
                     }
                 ]
             },
@@ -196,17 +196,17 @@ class MenuTemplate {
                     {
                         label: 'Preview',
                         accelerator: keymap['view:preview'],
-                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', '/preview')
+                        click: function () { weaki.executeCommand('application:open-on-right-sidebar', '/preview'); }
                     },
                     {
                         label: 'Commit',
                         accelerator: keymap['view:git-commit'],
-                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', '/git/commit')
+                        click: function () { weaki.executeCommand('application:open-on-right-sidebar', '/git/commit'); }
                     },
                     {
                         label: 'File History',
                         accelerator: keymap['view:file-history'],
-                        click: weaki.executeCommand.bind(null, 'application:open-on-right-sidebar', '/history')
+                        click: function () { weaki.executeCommand('application:open-on-right-sidebar', '/history'); }
                     },
                     {
                         role: 'toggledevtools',

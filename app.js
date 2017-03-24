@@ -84,7 +84,11 @@ class Weaki {
         const command = new CommandClass(...commandArguments);
         return command.execute()
                 .then(result => {
-                    console.log(`Executed '${selector}' with arguments ${commandArguments}`);
+                    if (commandArguments.length === 0)
+                        console.log(`Executed '${selector} with no arguments!`);
+                    else
+                        console.log(`Executed '${selector}' with arguments ${commandArguments}`);
+
                     return result;
                 }).catch(error => {
                     console.log(`Could not execute '${selector}'! Detailed error: ${error}`);

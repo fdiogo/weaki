@@ -25,7 +25,7 @@ class Window extends React.Component {
         this.state = {
             workspaceFileTree: new FileTree(),
             currentFile: {
-                path: '',
+                path: null,
                 watchHandle: null,
                 lastSavedContent: null
             },
@@ -157,7 +157,7 @@ class Window extends React.Component {
 
     render () {
         return <div id="viewport">
-            <base href={this.state.currentFile.path === '' ? '.' : path.dirname(this.state.currentFile.path) + path.sep}/>
+            <base href={this.state.currentFile.path ? path.dirname(this.state.currentFile.path) + path.sep : '.'}/>
             <div id="workspace">
                 <div id="left-sidebar">
                     <Explorer fileTree={this.state.workspaceFileTree}></Explorer>

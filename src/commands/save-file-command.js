@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron';
+import { ipcMain, dialog } from 'electron';
 import Command from './command';
 import weaki from '../../app';
 
@@ -25,10 +25,31 @@ class SaveFileCommand extends Command {
      * @return {Promise.<void, Error>} - A promise to the save operation.
      */
     static saveFile (path, content) {
-        if (!path || !content)
-            return SaveFileCommand.getCurrentFile().then(file => weaki.fileManager.writeFile(file.path, file.content));
+        if (!path || !content) {
+            return SaveFileCommand.getCurrentFile()
+                .then(file => {
+                    if (!file.path)
+                        return SaveFileCommand.getSavePath().then(path => { file.path = path; return file; });
+                    else
+                        return file;
+                })
+                .then(file => {
+                    if (file.path)
+                        weaki.fileManager.writeFile(file.path, file.content);
+                });
+        }
 
         return weaki.fileManager.writeFile(path, content);
+    }
+
+    static getSavePath () {
+        return new Promise(function (resolve, reject) {
+            dialog.showSaveDialog(weaki.mainWindow, {
+                title: 'Save As...'
+            }, function (filePath) {
+                resolve(filePath);
+            });
+        });
     }
 
     /**
