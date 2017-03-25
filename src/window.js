@@ -11,9 +11,18 @@ import Editor from './components/editor/editor';
 import FileHistory from './components/file-history/file-history';
 import StatusBar from './components/status-bar/status-bar';
 import GitCommit from './components/git-commit/git-commit';
+import Toolbar from './components/toolbar/toolbar';
 import FileTree from './file-tree';
 
 const weaki = remote.getGlobal('instance');
+
+function File (filePath) {
+    this.path = filePath;
+    this.watchHandle = null;
+    this.lastSavedContent = null;
+    this.pendingChanges = true;
+}
+
 /**
  * This React component represents the main window of the application
  * which contains all the other components.
@@ -24,11 +33,8 @@ class Window extends React.Component {
         super(props);
         this.state = {
             workspaceFileTree: new FileTree(),
-            currentFile: {
-                path: null,
-                watchHandle: null,
-                lastSavedContent: null
-            },
+            openedFiles: [],
+            currentFile: new File(),
             rightSidebarHistory: History({
                 initialEntries: ['/history'],
                 initialIndex: 0,
@@ -73,16 +79,22 @@ class Window extends React.Component {
      * @listens application:file-loaded
      */
     onFileLoaded (event, filePath, content) {
-        this.editor.replaceText(content);
-        weaki.fileManager.unwatchFileChange(filePath, this.state.currentFile.watchHandle);
-        const watchHandle = weaki.fileManager.watchFileChange(filePath, this.onFileChanged.bind(this));
-
         this.state.workspaceFileTree.addFile(filePath);
-        this.state.currentFile = {
-            path: filePath,
-            watchHandle: watchHandle,
-            lastSavedContent: content
-        };
+        this.editor.replaceText(content);
+
+        weaki.fileManager.unwatchFileChange(filePath, this.state.currentFile.watchHandle);
+        const newWatchHandle = weaki.fileManager.watchFileChange(filePath, this.onFileChanged.bind(this));
+
+        let file = this.state.openedFiles.find(file => file.path === filePath);
+        if (!file) {
+            file = new File(filePath);
+            this.state.openedFiles.push(file);
+        }
+
+        this.state.currentFile = file;
+        this.state.currentFile.lastSavedContent = content;
+        this.state.currentFile.watchHandle = newWatchHandle;
+        this.state.currentFile.pendingChanges = false;
 
         this.forceUpdate();
     }
@@ -163,7 +175,11 @@ class Window extends React.Component {
                     <Explorer fileTree={this.state.workspaceFileTree}></Explorer>
                 </div>
                 <div id="main-panel">
-                    <Editor ref={editor => this.editor = editor}/>
+                    <Toolbar files={this.state.openedFiles}
+                        active={this.state.currentFile}
+                        onClick={file => this.setState({ currentFile: file })} />
+                    <Editor ref={editor => this.editor = editor}
+                        content={this.state.currentFile.lastSavedContent}/>
                 </div>
                 <Router history={this.state.rightSidebarHistory}>
                     <div id="right-sidebar">

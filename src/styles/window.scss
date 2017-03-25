@@ -28,6 +28,8 @@ html, body, #root {
         }
 
         #main-panel {
+            display: flex;
+            flex-direction: column;
             width: 100%;
         }
     }

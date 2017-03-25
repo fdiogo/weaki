@@ -65,6 +65,7 @@
     "draft-js": "^0.10.0",
     "highlight.js": "^9.9.0",
     "history": "^4.6.1",
+    "octicons": "^5.0.1",
     "quill": "^1.2.2",
     "react": "^15.4.2",
     "react-dom": "^15.4.2",

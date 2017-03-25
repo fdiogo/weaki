@@ -1,0 +1,27 @@
+@import '../../styles/theme';
+
+.toolbar {
+    display: flex;
+    height: 35px;
+    flex-direction: row;
+    align-items: flex-start;
+    background-color: $secondary-color;
+    color: $font-color;
+}
+
+.toolbar-tab {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 100%;
+    width: 150px;
+    padding: 0px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow-x: hidden;
+    overflow-y: hidden;
+}
+
+.toolbar-tab:hover, .toolbar-tab-active {
+    background-color: lighten($secondary-color, 10%);
+}

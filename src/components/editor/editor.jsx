@@ -52,6 +52,12 @@ class Editor extends React.Component {
             }
         });
         this.quill.format('code-block', true);
+        this.replaceText(this.props.content || '');
+    }
+
+    componentWillReceiveProps (nextProps) {
+        if (nextProps.content)
+            this.replaceText(nextProps.content);
     }
 
     /**
@@ -221,7 +227,7 @@ class Editor extends React.Component {
 
     render () {
         return <div className="editor">
-            <div className="editor-buttons">
+            {/* <div className="editor-buttons">
                 <span className="editor-button-group">
                     <span className="editor-button" onClick={this.header.bind(this, 1)}>
                         <b>h1</b>
@@ -274,7 +280,7 @@ class Editor extends React.Component {
                         <span className="glyphicon glyphicon-table"></span>
                     </span>
                 </span>
-            </div>
+            </div> */}
             <div ref="content" className="editor-content">
             </div>
         </div>;
