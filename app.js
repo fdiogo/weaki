@@ -92,7 +92,6 @@ class Weaki {
                     return result;
                 }).catch(error => {
                     console.log(`Could not execute '${selector}'! Detailed error: ${error}`);
-                    throw error;
                 });
     }
 }
@@ -158,6 +157,10 @@ function launchMainWindow () {
     });
 
     return mainWindow;
+}
+
+function onFileAdd (filePath) {
+    this.mainWindow.webContents.send('application:file-created', filePath);
 }
 
 const instance = new Weaki();

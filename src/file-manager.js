@@ -14,14 +14,9 @@ class FileManager {
         this.fileSaves = {};
         this.changeListeners = {};
         this.watcher = chokidar.watch([], { persistent: false });
-        this.watcher.on('raw', (event, path, {watchedPath}) => {
-            if (event === 'rename') {
-                this.watcher.unwatch(watchedPath);
-                if (this.changeListeners[watchedPath])
-                    this.watcher.add(watchedPath);
-            }
-        });
+        this.watcher.on('add', this.onFileAdd.bind(this));
         this.watcher.on('change', this.onFileChange.bind(this));
+        this.watcher.on('unlink', path => console.log(`File ${path} has been removed`));
     }
 
     /**
@@ -190,7 +185,6 @@ class FileManager {
      */
 
     /**
-     * Registers a listener for {@link application:file-changed}.
      * @param {string} filePath - The path of the file.
      * @param {fileChangeCallback} callback - The function to be called when the event triggers.
      * @returns {Object} - The listener handler.
@@ -204,6 +198,21 @@ class FileManager {
 
         this.changeListeners[filePath].add(callback);
         return callback;
+    }
+
+    /**
+     * @param {func} callback - The function to be called when the event triggers.
+     * @returns {Object} The listener handler.
+     */
+    watchFileAdd (directory, callback) {
+        if (!this.addListeners)
+            this.addListeners = new Set();
+
+        const handle = { root: directory, callback: callback };
+        this.addListeners.add(handle);
+        this.watcher.add(directory);
+
+        return handle;
     }
 
     /**
@@ -260,6 +269,16 @@ class FileManager {
                 console.log('Detected external change!');
                 this.changeListeners[filePath].forEach(cb => cb(filePath, true));
             });
+    }
+
+    onFileAdd (filePath) {
+        if (!this.addListeners)
+            return;
+
+        this.addListeners.forEach(listener => {
+            if (filePath.indexOf(listener.root) === 0)
+                listener.callback(filePath);
+        });
     }
 }
 

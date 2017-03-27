@@ -1,27 +1,16 @@
-import { ipcRenderer, remote } from 'electron';
+import { ipcRenderer } from 'electron';
 import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route } from 'react-router-dom';
 import History from 'history/createMemoryHistory';
 import path from 'path';
 
-import ReactMarkdown from 'react-markdown';
 import Explorer from './components/explorer/explorer';
 import Editor from './components/editor/editor';
-import FileHistory from './components/file-history/file-history';
 import StatusBar from './components/status-bar/status-bar';
 import GitCommit from './components/git-commit/git-commit';
-import Toolbar from './components/toolbar/toolbar';
-import FileTree from './file-tree';
-
-const weaki = remote.getGlobal('instance');
-
-function File (filePath) {
-    this.path = filePath;
-    this.watchHandle = null;
-    this.lastSavedContent = null;
-    this.pendingChanges = true;
-}
+import FileHistory from './components/file-history/file-history';
+import Preview from './components/preview/preview';
 
 /**
  * This React component represents the main window of the application
@@ -32,9 +21,7 @@ class Window extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            workspaceFileTree: new FileTree(),
-            openedFiles: [],
-            currentFile: new File(),
+            currentFile: {},
             rightSidebarHistory: History({
                 initialEntries: ['/history'],
                 initialIndex: 0,
@@ -42,33 +29,15 @@ class Window extends React.Component {
             })
         };
 
-        /**
-         * Channel used when a file has been loaded by the main process.
-         *
-         * @event application:file-loaded
-         * @type {object}
-         * @property {string} filePath - The path of the file.
-         * @property {string} contents - The contents of the file.
-         */
-        ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
-        ipcRenderer.on('application:directory-loaded', this.onDirectoryLoaded.bind(this));
-        ipcRenderer.on('application:current-file', this.onCurrentFileRequest.bind(this));
-        ipcRenderer.on('application:open-on-right-sidebar', this.onOpenOnRightSidebar.bind(this));
+        this.sidebarComponents = [
+            { route: '/history', component: FileHistory },
+            { route: '/git/commit', component: GitCommit },
+            { route: '/preview', component: Preview }
+        ];
 
-        // Commands
-        ipcRenderer.on('application:close-file', this.onCloseFile.bind(this));
-        ipcRenderer.on('editor:bold', () => this.editor.bold());
-        ipcRenderer.on('editor:italic', () => this.editor.italic());
-        ipcRenderer.on('editor:strike-through', () => this.editor.strikeThrough());
-        ipcRenderer.on('editor:header', (event, level) => this.editor.header(level));
-        ipcRenderer.on('editor:link', () => this.editor.link());
-        ipcRenderer.on('editor:unordered-list', () => this.editor.unorderedList());
-        ipcRenderer.on('editor:ordered-list', () => this.editor.orderedList());
-        ipcRenderer.on('editor:blockquote', () => this.editor.blockquote());
-        ipcRenderer.on('editor:table', () => this.editor.table());
-        ipcRenderer.on('editor:code', () => this.editor.code());
-        ipcRenderer.on('editor:horizontal-rule', () => this.editor.horizontalRule());
-        ipcRenderer.on('editor:image', () => this.editor.image());
+        ipcRenderer.on('application:open-on-right-sidebar', this.onOpenOnRightSidebar.bind(this));
+        // ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
+        // ipcRenderer.on('application:file-modified', this.onFileModified.bind(this));
     }
 
     /**
@@ -79,74 +48,24 @@ class Window extends React.Component {
      * @listens application:file-loaded
      */
     onFileLoaded (event, filePath, content) {
-        this.state.workspaceFileTree.addFile(filePath);
-        this.editor.replaceText(content);
+        const file = {
+            path: filePath,
+            lastSavedContent: content
+        };
 
-        weaki.fileManager.unwatchFileChange(filePath, this.state.currentFile.watchHandle);
-        const newWatchHandle = weaki.fileManager.watchFileChange(filePath, this.onFileChanged.bind(this));
-
-        let file = this.state.openedFiles.find(file => file.path === filePath);
-        if (!file) {
-            file = new File(filePath);
-            this.state.openedFiles.push(file);
-        }
-
-        this.state.currentFile = file;
-        this.state.currentFile.lastSavedContent = content;
-        this.state.currentFile.watchHandle = newWatchHandle;
-        this.state.currentFile.pendingChanges = false;
-
-        this.forceUpdate();
+        this.setState({ currentFile: file });
     }
 
-    /**
-     *
-     */
-    onDirectoryLoaded (event, directory, files) {
-        this.state.workspaceFileTree.addDirectory(directory);
-        for (let file of files) {
-            if (file.isDirectory)
-                this.state.workspaceFileTree.addDirectory(file.path);
-            else
-                this.state.workspaceFileTree.addFile(file.path);
-        }
-
-        this.forceUpdate();
-    }
-
-    /**
-     * The handler of the channel 'application:current-file'.
-     * @param {Object} event - The event descriptor
-     * @param {string} responseChannel - The channel to respond to with the file descriptor
-     */
-    onCurrentFileRequest (event, responseChannel) {
-        const path = this.state.currentFile.path;
-        const content = this.editor.getCurrentText();
-        event.sender.send(responseChannel, path, content);
-    }
-
-    /**
-     * @listens application:file-changed
-     */
-    onFileChanged (filePath, isExternal) {
-        if (filePath !== this.state.currentFile.path)
+    onFileModified (event, filePath, newContent) {
+        if (this.state.currentFile.path !== filePath)
             return;
 
-        if (isExternal) {
-            weaki.fileManager.readFile(filePath)
-                .then(content => {
-                    // This check is here because during the read operation the user
-                    // could have changed files.
-                    if (this.state.currentFile.path === filePath) {
-                        this.editor.replaceText(content);
-                        this.state.currentFile.lastSavedContent = content;
-                        this.forceUpdate();
-                    }
-                });
-        } else {
-            this.state.currentFile.lastSavedContent = this.editor.getCurrentText();
-            this.forceUpdate();
-        }
+        const file = {
+            path: filePath,
+            lastSavedContent: newContent
+        };
+
+        this.setState({ currentFile: file });
     }
 
     /**
@@ -158,43 +77,31 @@ class Window extends React.Component {
         this.forceUpdate();
     }
 
-    /**
-     * The handler of the channel 'editor:close-file'. If no filePath is specified, the current file being edited is
-     * closed.
-     * @param {Object} event - The event descriptor
-     * @param {string} filePath - The path of the file to be closed
-     */
-    onCloseFile (event, filePath) {
-    }
-
     render () {
+        const sidebarRoutes = [];
+        for (let entry of this.sidebarComponents) {
+            const component = React.createElement(entry.component, { file: this.state.currentFile });
+            const route = <Route key={entry.route} path={entry.route} render={() => component} />;
+            sidebarRoutes.push(route);
+        }
+
         return <div id="viewport">
             <base href={this.state.currentFile.path ? path.dirname(this.state.currentFile.path) + path.sep : '.'}/>
             <div id="workspace">
                 <div id="left-sidebar">
-                    <Explorer fileTree={this.state.workspaceFileTree}></Explorer>
+                    <Explorer file={this.state.currentFile}/>
                 </div>
                 <div id="main-panel">
-                    <Toolbar files={this.state.openedFiles}
-                        active={this.state.currentFile}
-                        onClick={file => this.setState({ currentFile: file })} />
-                    <Editor ref={editor => this.editor = editor}
-                        content={this.state.currentFile.lastSavedContent}/>
+                    <Editor onFileChange={file => this.setState({ currentFile: file })}/>
                 </div>
                 <Router history={this.state.rightSidebarHistory}>
                     <div id="right-sidebar">
-                        <Route path='/history' render={() =>
-                            <FileHistory filePath={this.state.currentFile.path}></FileHistory>
-                        }/>
-                        <Route path='/git/commit' render={() => <GitCommit></GitCommit>}/>
-                        <Route path='/preview' render={() =>
-                            <ReactMarkdown source={this.state.currentFile.lastSavedContent}></ReactMarkdown>
-                        }/>
+                        {sidebarRoutes}
                     </div>
                 </Router>
             </div>
             <div id="bottom-bar">
-                <StatusBar filePath={this.state.currentFile.path}></StatusBar>
+                <StatusBar file={this.state.currentFile}/>
             </div>
         </div>;
     }

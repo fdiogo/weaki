@@ -1,0 +1,36 @@
+@import '../../styles/highlight-syntax';
+@import '../../styles/quill';
+
+.text-editor {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    background-color: #1d1f21;
+}
+
+.text-editor-content {
+    display: flex;
+    height: 100%;
+    width: 100%;
+
+    .ql-editor {
+        padding: 0px;
+        height: 100%;
+        width: 100%;
+
+        pre.ql-syntax {
+            margin: 0px;
+        }
+    }
+
+    .ql-syntax {
+        height: auto;
+        min-height: 100%;
+        width: 100%;
+        border-radius: 0px;
+        padding: 10px 10px;
+    }
+}

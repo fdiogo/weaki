@@ -22,21 +22,21 @@ class FileHistory extends React.Component {
             }
         };
 
-        if (props.filePath) {
-            weaki.git.getCommitsForFile(props.filePath)
+        if (props.file.path) {
+            weaki.git.getCommitsForFile(props.file.path)
                     .then((commits) => this.setState({ commits: commits }));
         }
     }
 
     componentWillReceiveProps (nextProps) {
-        if (nextProps.filePath) {
-            weaki.git.getCommitsForFile(nextProps.filePath)
+        if (nextProps.file.path) {
+            weaki.git.getCommitsForFile(nextProps.file.path)
                     .then((commits) => this.setState({ commits: commits }));
         }
     }
 
     onCommitClick (commit) {
-        weaki.executeCommand('git:checkout', commit.hash, this.props.filePath);
+        weaki.executeCommand('git:checkout', commit.hash, this.props.file.path);
     }
 
     render () {

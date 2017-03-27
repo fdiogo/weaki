@@ -1,9 +1,6 @@
 import { ipcRenderer } from 'electron';
 import React from 'react';
-
-const PropTypes = {
-    fileTree: React.PropTypes.object
-};
+import FileTree from '../../file-tree';
 
 /**
  * A component which represents a clickable file tree.
@@ -11,21 +8,42 @@ const PropTypes = {
  */
 class Explorer extends React.Component {
 
-    static get propTypes () {
-        return PropTypes;
-    }
-
     constructor (props) {
         super(props);
         this.state = {
-            fileTree: props.fileTree
+            fileTree: new FileTree()
         };
+
+        ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
+        ipcRenderer.on('application:file-created', this.onFileCreated.bind(this));
+        ipcRenderer.on('application:directory-loaded', this.onDirectoryLoaded.bind(this));
     }
 
-    componentWillReceiveProps (nextProps) {
-        this.setState({
-            fileTree: nextProps.fileTree
-        });
+    /**
+    * Adds the file to the state and sets it as the current.
+    * @param {Object} event - The event descriptor.
+    * @param {string} filePath - The path of the file.
+    * @param {string} content - The content of the file.
+    * @listens application:file-loaded
+    */
+    onFileLoaded (event, filePath, content) {
+        this.state.fileTree.addFile(filePath);
+    }
+
+    onFileCreated (event, filePath) {
+        this.state.fileTree.addFile(filePath);
+    }
+
+    onDirectoryLoaded (event, directory, files) {
+        this.state.fileTree.addDirectory(directory);
+        for (let file of files) {
+            if (file.isDirectory)
+                this.state.fileTree.addDirectory(file.path);
+            else
+                this.state.fileTree.addFile(file.path);
+        }
+
+        this.forceUpdate();
     }
 
     render () {

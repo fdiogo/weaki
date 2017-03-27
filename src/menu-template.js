@@ -103,37 +103,37 @@ class MenuTemplate {
                     {
                         label: 'Strike Through',
                         accelerator: keymap['editor:strike-through'],
-                        click: function () { weaki.executeCommand.bind('editor:strike-through'); }
+                        click: function () { weaki.executeCommand('editor:strike-through'); }
                     },
                     {
                         label: 'Blockquote',
                         accelerator: keymap['editor:blockquote'],
-                        click: function () { weaki.executeCommand.bind('editor:blockquote'); }
+                        click: function () { weaki.executeCommand('editor:blockquote'); }
                     },
                     {
                         label: 'Code',
                         accelerator: keymap['editor:code'],
-                        click: function () { weaki.executeCommand.bind('editor:code'); }
+                        click: function () { weaki.executeCommand('editor:code'); }
                     },
                     {
                         label: 'Horizontal Rule',
                         accelerator: keymap['editor:horizontal-rule'],
-                        click: function () { weaki.executeCommand.bind('editor:horizontal-rule'); }
+                        click: function () { weaki.executeCommand('editor:horizontal-rule'); }
                     },
                     {
                         label: 'Link',
                         accelerator: keymap['editor:link'],
-                        click: function () { weaki.executeCommand.bind('editor:link'); }
+                        click: function () { weaki.executeCommand('editor:link'); }
                     },
                     {
                         label: 'Image',
                         accelerator: keymap['editor:image'],
-                        click: function () { weaki.executeCommand.bind('editor:image'); }
+                        click: function () { weaki.executeCommand('editor:image'); }
                     },
                     {
                         label: 'Unordered List',
                         accelerator: keymap['editor:unordered-list'],
-                        click: function () { weaki.executeCommand.bind('editor:unordered-list'); }
+                        click: function () { weaki.executeCommand('editor:unordered-list'); }
                     },
                     {
                         label: 'Ordered List',
