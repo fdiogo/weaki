@@ -14,9 +14,21 @@ class FileManager {
         this.fileSaves = {};
         this.changeListeners = {};
         this.watcher = chokidar.watch([], { persistent: false });
+
+        // On linux the watcher seems to stop working once there's a 'rename' event.
+        // This temporary fix seems to work.
+        if (process.platform !== 'win32') {
+            this.watcher.on('raw', (event, path, {watchedPath}) => {
+                if (event === 'rename') {
+                    this.watcher.unwatch(watchedPath);
+                    if (this.changeListeners[watchedPath])
+                        this.watcher.add(watchedPath);
+                }
+            });
+        }
+
         this.watcher.on('add', this.onFileAdd.bind(this));
         this.watcher.on('change', this.onFileChange.bind(this));
-        this.watcher.on('unlink', path => console.log(`File ${path} has been removed`));
     }
 
     /**
