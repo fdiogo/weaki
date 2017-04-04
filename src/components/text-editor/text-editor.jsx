@@ -44,6 +44,16 @@ class TextEditor extends React.Component {
                 toolbar: false,
                 syntax: {
                     highlight: text => highlight.highlightAuto(text).value
+                },
+                keyboard: {
+                    bindings: {
+                        'code exit': {
+                            key: 'enter',
+                            collapsed: true,
+                            format: ['code-block'],
+                            handler: () => this.wrap('\n')
+                        }
+                    }
                 }
             }
         });
