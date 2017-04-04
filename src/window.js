@@ -36,36 +36,6 @@ class Window extends React.Component {
         ];
 
         ipcRenderer.on('application:open-on-right-sidebar', this.onOpenOnRightSidebar.bind(this));
-        // ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
-        // ipcRenderer.on('application:file-modified', this.onFileModified.bind(this));
-    }
-
-    /**
-     * Adds the file to the state and sets it as the current.
-     * @param {Object} event - The event descriptor.
-     * @param {string} filePath - The path of the file.
-     * @param {string} content - The content of the file.
-     * @listens application:file-loaded
-     */
-    onFileLoaded (event, filePath, content) {
-        const file = {
-            path: filePath,
-            lastSavedContent: content
-        };
-
-        this.setState({ currentFile: file });
-    }
-
-    onFileModified (event, filePath, newContent) {
-        if (this.state.currentFile.path !== filePath)
-            return;
-
-        const file = {
-            path: filePath,
-            lastSavedContent: newContent
-        };
-
-        this.setState({ currentFile: file });
     }
 
     /**
@@ -92,7 +62,7 @@ class Window extends React.Component {
                     <Explorer file={this.state.currentFile}/>
                 </div>
                 <div id="main-panel">
-                    <Editor onFileChange={file => this.setState({ currentFile: file })}/>
+                    <Editor onChange={file => this.setState({ currentFile: file })}/>
                 </div>
                 <Router history={this.state.rightSidebarHistory}>
                     <div id="right-sidebar">

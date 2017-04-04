@@ -10,8 +10,8 @@ function File (filePath) {
     this.path = filePath;
     this.watchHandle = null;
     this.lastSavedContent = '';
+    this.currentContent = '';
     this.pendingChanges = false;
-    this.cachedContents = null;
 }
 
 class Editor extends React.Component {
@@ -23,6 +23,7 @@ class Editor extends React.Component {
             currentFile: new File()
         };
 
+        // Events
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
         ipcRenderer.on('application:current-file', this.onCurrentFile.bind(this));
 
@@ -58,17 +59,17 @@ class Editor extends React.Component {
             this.state.openedFiles.push(file);
         }
 
-        file.watchHandle = weaki.fileManager.watchFileChange(filePath, this.onFileChanged.bind(this));
-        file.lastSavedContent = content;
+        file.watchHandle = weaki.fileManager.watchFileChange(filePath, this.onFileModified.bind(this));
+        file.lastSavedContent = file.currentContent = content;
         file.pendingChanges = false;
 
-        this.setState({ currentFile: file }, this.fireOnFileChange.bind(this));
+        this.setState({ currentFile: file }, this.fireOnChange.bind(this));
     }
 
     /**
      * @listens application:file-changed
      */
-    onFileChanged (filePath, isExternal) {
+    onFileModified (filePath, isExternal) {
         if (filePath !== this.state.currentFile.path)
             return;
 
@@ -78,14 +79,14 @@ class Editor extends React.Component {
                     // This check is here because during the read operation the user
                     // could have changed files.
                     if (this.state.currentFile.path === filePath) {
-                        this.refs.textEditor.replaceText(content);
+                        this.state.currentFile.currentContent = content;
                         this.state.currentFile.lastSavedContent = content;
-                        this.forceUpdate(this.fireOnFileChange.bind(this));
+                        this.forceUpdate(this.fireOnChange.bind(this));
                     }
                 });
         } else {
-            this.state.currentFile.lastSavedContent = this.refs.textEditor.getCurrentText();
-            this.forceUpdate(this.fireOnFileChange.bind(this));
+            this.state.currentFile.lastSavedContent = this.state.currentFile.currentContent;
+            this.forceUpdate(this.fireOnChange.bind(this));
         }
     }
 
@@ -116,19 +117,24 @@ class Editor extends React.Component {
         if (fileToRemove === this.state.currentFile) {
             const openedFiles = this.state.openedFiles;
             this.state.currentFile = openedFiles.length > 0 ? openedFiles[0] : new File();
-            this.forceUpdate(this.fireOnFileChange.bind(this));
+            this.forceUpdate(this.fireOnChange.bind(this));
         } else
             this.forceUpdate();
     }
 
     onTabClick (file) {
         if (file !== this.state.currentFile)
-            this.setState({ currentFile: file }, this.fireOnFileChange.bind(this));
+            this.setState({ currentFile: file }, this.fireOnChange.bind(this));
     }
 
-    fireOnFileChange () {
-        if (this.props.onFileChange)
-            this.props.onFileChange(this.state.currentFile);
+    fireOnChange () {
+        if (this.props.onChange)
+            this.props.onChange(this.state.currentFile);
+    }
+
+    onTextChange (text) {
+        this.state.currentFile.currentContent = text;
+        this.forceUpdate(this.fireOnChange.bind(this));
     }
 
     render () {
@@ -138,7 +144,8 @@ class Editor extends React.Component {
                 onClick={this.onTabClick.bind(this)}
                 getTabDisplay={file => <FileTab {...file}/> }/>
             <TextEditor ref="textEditor"
-                content={this.state.currentFile.lastSavedContent} />
+                text={this.state.currentFile.currentContent}
+                onChange={this.onTextChange.bind(this)}/>
         </div>;
     }
 }

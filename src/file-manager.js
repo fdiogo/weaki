@@ -17,7 +17,7 @@ class FileManager {
 
         // On linux the watcher seems to stop working once there's a 'rename' event.
         // This temporary fix seems to work.
-        if (process.platform !== 'win32') {
+        if (process.platform === 'linux') {
             this.watcher.on('raw', (event, path, {watchedPath}) => {
                 if (event === 'rename') {
                     this.watcher.unwatch(watchedPath);

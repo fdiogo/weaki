@@ -48,16 +48,23 @@ class TextEditor extends React.Component {
             }
         });
         this.quill.on('text-change', this.onTextChange.bind(this));
-        this.replaceText(this.props.content);
+        this.replaceText(this.props.text);
+    }
+
+    shouldComponentUpdate () {
+        return false;
     }
 
     componentWillReceiveProps (nextProps) {
-        this.replaceText(nextProps.content);
+        if (nextProps.text === this.getCurrentText())
+            return;
+
+        this.replaceText(nextProps.text);
     }
 
     onTextChange (delta, oldDelta, source) {
         if (this.props.onChange)
-            this.props.onChange(delta);
+            this.props.onChange(this.getCurrentText());
     }
 
     /**
