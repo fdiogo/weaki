@@ -8,11 +8,11 @@
     background-color: $primary-color;
     color: $font-color;
     overflow-y: auto;
+}
 
-    h1 {
-        margin: 0px;
-        text-align: center;
-    }
+.file-history-title {
+    margin: 0px;
+    text-align: center;
 }
 
 .file-history-commit {

@@ -8,29 +8,18 @@
     height: 100%;
     padding: 0px;
     margin: 0px;
-    background-color: #1d1f21;
+
+    pre {
+        margin: 0px;
+    }
+}
+
+.text-editor:focus {
+    outline: none;
 }
 
 .text-editor-content {
     display: flex;
     height: 100%;
     width: 100%;
-
-    .ql-editor {
-        padding: 0px;
-        height: 100%;
-        width: 100%;
-
-        pre.ql-syntax {
-            margin: 0px;
-        }
-    }
-
-    .ql-syntax {
-        height: auto;
-        min-height: 100%;
-        width: 100%;
-        border-radius: 0px;
-        padding: 10px 10px;
-    }
 }

@@ -49,7 +49,7 @@ class FileHistory extends React.Component {
         }
 
         return <ul className='file-history'>
-            <h1>File History</h1>
+            <h2 className='file-history-title'>File History</h2>
             {commitItems}
         </ul>;
     }

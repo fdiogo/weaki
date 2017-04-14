@@ -4,6 +4,8 @@ import path from 'path';
 import TextEditor from '../text-editor/text-editor';
 import Tabs from '../tabs/tabs';
 
+import ReferenceDecorator from '../../decorators/reference-decorator';
+
 const weaki = remote.getGlobal('instance');
 
 function File (filePath) {
@@ -41,6 +43,8 @@ class Editor extends React.Component {
         ipcRenderer.on('editor:code', () => this.refs.textEditor.code());
         ipcRenderer.on('editor:horizontal-rule', () => this.refs.textEditor.horizontalRule());
         ipcRenderer.on('editor:image', () => this.refs.textEditor.image());
+
+        this.decorators = [ReferenceDecorator];
     }
 
     /**
@@ -145,7 +149,8 @@ class Editor extends React.Component {
                 getTabDisplay={file => <FileTab {...file}/> }/>
             <TextEditor ref="textEditor"
                 text={this.state.currentFile.currentContent}
-                onChange={this.onTextChange.bind(this)}/>
+                onChange={this.onTextChange.bind(this)}
+                decorators={this.decorators}/>
         </div>;
     }
 }
