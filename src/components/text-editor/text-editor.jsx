@@ -1,6 +1,7 @@
 import React from 'react';
 import highlight from 'highlight.js';
 
+const ENTER_KEYCODE = 13;
 const MAXIMUM_HEADER_LEVEL = 6;
 const MINIMUM_HEADER_LEVEL = 1;
 const LINK_REGEX = new RegExp('^(https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]$', 'i');
@@ -82,13 +83,29 @@ class TextEditor extends React.Component {
         super(props);
         this.state = {
             text: this.props.text,
-            html: '<pre><code></code></pre>'
+            html: this.generateHtml(this.props.text)
         };
 
         highlight.configure({
             useBR: false,
             languages: ['markdown']
         });
+    }
+
+    onInput (event) {
+        const selection = this.getSelection();
+
+        this.setState({
+            text: this.refs.editable.innerText
+        }, () => this.selectText(selection.start, selection.length));
+    }
+
+    onKeyDown (event) {
+        if (event.keyCode === ENTER_KEYCODE) {
+            event.preventDefault();
+            this.wrap('\n');
+            return false;
+        }
     }
 
     componentWillReceiveProps (nextProps) {
@@ -99,17 +116,27 @@ class TextEditor extends React.Component {
         }
     }
 
-    shouldComponentUpdate (nextProps) {
-        return nextProps.text !== this.state.text || this.state.html !== this.refs.editable.innerHTML;
+    shouldComponentUpdate (nextProps, nextState) {
+        if (nextState.text === this.state.text)
+            return false;
+
+        nextState.html = this.generateHtml(nextState.text);
+        if (nextState.html === this.refs.editable.innerHTML)
+            return false;
+
+        console.log('should update');
+        return true;
     }
 
     componentDidUpdate (prevProps, prevState) {
-        const hljsOutput = highlight.highlightAuto(this.state.text).value;
-        const noOrphansOutput = TextEditor.envolveOrphanText(hljsOutput);
-        this.refs.editable.innerHTML = `<pre><code>${noOrphansOutput}</code></pre>`;
-
         if (this.props.onChange && this.state.text !== prevState.text)
             this.props.onChange(this.state.text);
+    }
+
+    generateHtml (text) {
+        const hljsOutput = highlight.highlightAuto(text).value;
+        const noOrphansOutput = TextEditor.envolveOrphanText(hljsOutput);
+        return `<pre><code>${noOrphansOutput}</code></pre>`;
     }
 
     /**
@@ -211,23 +238,6 @@ class TextEditor extends React.Component {
         this.setState({
             text: `${before}${prepend}${selected}${append}${after}`
         }, () => this.selectText(before.length + prepend.length, selected.length));
-    }
-
-    onInput (event) {
-        const selection = this.getSelection();
-
-        this.setState({
-            text: this.refs.editable.innerText
-        }, () => this.selectText(selection.start, selection.length));
-    }
-
-    onKeyDown (event) {
-        if (event.keyCode === 13) {
-            event.preventDefault();
-            event.stopPropagation();
-            this.wrap('\n');
-            return false;
-        }
     }
 
     /**
