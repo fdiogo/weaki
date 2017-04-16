@@ -1,10 +1,13 @@
 import React from 'react';
+import Decorator from './decorator';
 
-class ReferenceDecorator extends React.Component {
+class ReferenceDecorator extends Decorator {
 
     render () {
-        return <span class="reference">{this.props.text}</span>;
+        return <span className="reference">{this.props.text}</span>;
     }
 }
+
+ReferenceDecorator.regex = /file/ig;
 
 export default ReferenceDecorator;

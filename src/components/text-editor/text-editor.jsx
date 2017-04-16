@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import highlight from 'highlight.js';
 
 const ENTER_KEYCODE = 13;
@@ -24,9 +25,10 @@ class TextEditor extends React.Component {
     static getNodeAtCharIndex (rootNode, charIndex) {
         const textNodes = TextEditor.getTextNodes(rootNode);
         let charCount = 0;
-        let node;
-        for (let textNode of textNodes) {
-            charCount += textNode.length;
+        let node = textNodes[0];
+        for (let i = 0; i < textNodes.length; i++) {
+            node = textNodes[i];
+            charCount += node.length;
             if (charCount > charIndex)
                 break;
         }
@@ -79,11 +81,29 @@ class TextEditor extends React.Component {
         return noOrphansOutput;
     }
 
+    static generateDecorations (text, decorators) {
+        const decorations = [];
+        for (let decorator of decorators) {
+            for (let match; (match = decorator.regex.exec(text)) !== null;) {
+                decorations.push({
+                    start: match.index,
+                    length: match[0].length,
+                    text: match[0],
+                    decorator: decorator,
+                    instance: null
+                });
+            }
+        }
+
+        return decorations;
+    }
+
     constructor (props) {
         super(props);
         this.state = {
             text: this.props.text,
-            html: this.generateHtml(this.props.text)
+            html: this.generateHtml(this.props.text),
+            decorations: TextEditor.generateDecorations(this.props.text, this.props.decorators)
         };
 
         highlight.configure({
@@ -120,23 +140,55 @@ class TextEditor extends React.Component {
         if (nextState.text === this.state.text)
             return false;
 
+        nextState.decorations = TextEditor.generateDecorations(nextState.text, nextProps.decorators);
         nextState.html = this.generateHtml(nextState.text);
         if (nextState.html === this.refs.editable.innerHTML)
             return false;
 
-        console.log('should update');
         return true;
     }
 
     componentDidUpdate (prevProps, prevState) {
+        for (let decoration of this.state.decorations) {
+            const node = Array.from(this.refs.editable.getElementsByClassName('decorator'))
+                                .find(el => el.innerText === decoration.text);
+            if (!decoration.instance)
+                decoration.instance = React.createElement(decoration.decorator, { text: decoration.text });
+
+            ReactDOM.render(decoration.instance, node);
+        }
+
         if (this.props.onChange && this.state.text !== prevState.text)
             this.props.onChange(this.state.text);
     }
 
+    getNodeForText (start = 0, length = this.state.text.length) {
+        const startNode = TextEditor.getNodeAtCharIndex(this.refs.editable, start);
+        const endNode = TextEditor.getNodeAtCharIndex(this.refs.editable, start + length - 1);
+        if (startNode === endNode)
+            return startNode;
+
+        return this.refs.editable;
+    }
+
     generateHtml (text) {
-        const hljsOutput = highlight.highlightAuto(text).value;
-        const noOrphansOutput = TextEditor.envolveOrphanText(hljsOutput);
-        return `<pre><code>${noOrphansOutput}</code></pre>`;
+        let output = highlight.highlightAuto(text).value;
+        output = TextEditor.envolveOrphanText(output);
+
+        for (let decorator of this.props.decorators) {
+            let match;
+            let index = 0;
+            while ((match = decorator.regex.exec(output.substring(index))) !== null) {
+                const before = output.substring(0, match.index);
+                const matched = match[0];
+                const decoratedMatch = `<span class="decorator">${matched}</div>`;
+                const after = output.substring(match.index + matched.length);
+                output = `${before}${decoratedMatch}${after}`;
+                index = match.index + decoratedMatch.length;
+            }
+        }
+
+        return `<pre><code>${output}</code></pre>`;
     }
 
     /**
