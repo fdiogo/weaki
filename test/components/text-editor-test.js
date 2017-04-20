@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import TextEditor from '../../src/components/text-editor/text-editor';
 import jsdom from 'mocha-jsdom';
 
-describe('TextEditor', function () {
+describe.only('TextEditor', function () {
     jsdom({ skipWindowCheck: true });
 
     describe('.generateTree()', function () {
@@ -19,27 +19,27 @@ describe('TextEditor', function () {
         });
 
         it('create child nodes for decorators', function () {
-            const text = 'hello sir';
+            const text = '**bold** _italic_';
             const decorators = [
                 {
-                    regex: new RegExp('sir', 'ig'),
-                    getClass: match => 'person'
+                    regex: /\*\*.*\*\*/ig,
+                    getClass: match => 'bold'
                 },
                 {
-                    regex: new RegExp('hell', 'ig'),
-                    getClass: match => 'red'
+                    regex: /_.*_/ig,
+                    getClass: match => 'italic'
                 }
             ];
             const instance = TestUtils.renderIntoDocument(<TextEditor text={text} decorators={decorators}/>);
             const root = instance.generateTree();
-            const personMatch = root.children[0];
-            const colorMatch = root.children[1];
+            const boldMatch = root.children[0];
+            const italicMatch = root.children[1];
 
             expect(root.children.length).to.equal(2);
-            expect(personMatch.class).to.equal('person');
-            expect(personMatch.start).to.equal(6);
-            expect(colorMatch.class).to.equal('red');
-            expect(colorMatch.start).to.equal(0);
+            expect(boldMatch.class).to.equal('bold');
+            expect(boldMatch.start).to.equal(0);
+            expect(italicMatch.class).to.equal('italic');
+            expect(italicMatch.start).to.equal(9);
         });
 
         it('allow nested decorations', function () {
@@ -53,6 +53,37 @@ describe('TextEditor', function () {
                     regex: new RegExp('link', 'ig'),
                     getClass: match => 'reference'
                 }
+            ];
+            const instance = TestUtils.renderIntoDocument(<TextEditor text={text} decorators={decorators}/>);
+            const root = instance.generateTree();
+            const imageMatch = root.children[0];
+            const referenceMatch = imageMatch.children[0];
+
+            expect(root.start).to.equal(0);
+            expect(root.length).to.equal(text.length);
+            expect(root.children.length).to.equal(1);
+            expect(imageMatch.class).to.equal('image');
+            expect(imageMatch.start).to.equal(0);
+            expect(imageMatch.length).to.equal(text.length);
+            expect(imageMatch.children.length).to.equal(1);
+            expect(referenceMatch.class).to.equal('reference');
+            expect(referenceMatch.start).to.equal(text.indexOf('link'));
+            expect(referenceMatch.length).to.equal('link'.length);
+            expect(referenceMatch.children.length).to.equal(0);
+        });
+
+        it('move child nodes on new parent', function () {
+            const text = '![name](link)';
+            const decorators = [
+                {
+                    regex: new RegExp('link', 'ig'),
+                    getClass: match => 'reference'
+                },
+                {
+                    regex: /!\[.*\]\(.*\)/ig,
+                    getClass: match => 'image'
+                }
+
             ];
             const instance = TestUtils.renderIntoDocument(<TextEditor text={text} decorators={decorators}/>);
             const root = instance.generateTree();

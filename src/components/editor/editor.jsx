@@ -44,7 +44,10 @@ class Editor extends React.Component {
         ipcRenderer.on('editor:horizontal-rule', () => this.refs.textEditor.horizontalRule());
         ipcRenderer.on('editor:image', () => this.refs.textEditor.image());
 
-        this.decorators = [ReferenceDecorator];
+        this.decorators = [{
+            regex: new RegExp('link', 'ig'),
+            getClass: match => 'reference'
+        }];
     }
 
     /**
