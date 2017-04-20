@@ -1,109 +1,62 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import keycode from 'keycode';
 import highlight from 'highlight.js';
 
-const ENTER_KEYCODE = 13;
-const MAXIMUM_HEADER_LEVEL = 6;
-const MINIMUM_HEADER_LEVEL = 1;
-const LINK_REGEX = new RegExp('^(https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]$', 'i');
-const TABLE_TEMPLATE = `
-<table>
-    <tr>
-        <th> Column Title </th>
-    </tr>
-    <tr>
-        <td> *DATA* </td>
-    </tr>
-</table>
-`;
+function getMatches (regex, string) {
+    const matches = [];
+
+    if (regex.flags.indexOf('g') === -1) {
+        const match = regex.exec(string);
+        if (match) matches.push(match);
+    } else {
+        let match;
+        while ((match = regex.exec(string)) !== null)
+            matches.push(match);
+    }
+
+    return matches;
+}
+
+class TextNode {
+    constructor (className, start, length) {
+        this.class = className;
+        this.start = start;
+        this.length = length;
+        this.children = [];
+    }
+
+    addChild (node) {
+        this.children.push(node);
+    }
+}
 
 /**
  * The React component that represents the application's editor.
  */
 class TextEditor extends React.Component {
 
-    static getNodeAtCharIndex (rootNode, charIndex) {
-        const textNodes = TextEditor.getTextNodes(rootNode);
-        let charCount = 0;
-        let node = textNodes[0];
-        for (let i = 0; i < textNodes.length; i++) {
-            node = textNodes[i];
-            charCount += node.length;
-            if (charCount > charIndex)
+    static findNode (root, start, length) {
+        let bestMatch = root;
+
+        while (bestMatch.children.length > 0) {
+            const betterNode = bestMatch.children.find(child => {
+                return child.start <= start && child.start + child.length >= start + length;
+            });
+
+            if (betterNode)
+                bestMatch = betterNode;
+            else
                 break;
         }
 
-        return node;
-    }
-
-    static getTextNodes (rootNode) {
-        const nodes = [];
-        for (let child of rootNode.childNodes) {
-            if (child.nodeType === 3)
-                nodes.push(child);
-            else
-                nodes.push.apply(nodes, TextEditor.getTextNodes(child));
-        }
-
-        return nodes;
-    }
-
-    static envolveOrphanText (html) {
-        let noOrphansOutput = '';
-        let open = 0;
-        let inTag = false;
-        let inOrphan = false;
-        for (let i = 0; i < html.length; i++) {
-            if (html.charAt(i) === '<') {
-                inTag = true;
-                if (html.charAt(i + 1) === '/')
-                    open--;
-                else {
-                    if (inOrphan) {
-                        noOrphansOutput = noOrphansOutput.concat('</span>');
-                        inOrphan = false;
-                    }
-                    open++;
-                }
-            } else if (html.charAt(i) === '>')
-                inTag = false;
-            else if (!inTag && !inOrphan && open === 0) {
-                noOrphansOutput = noOrphansOutput.concat('<span>');
-                inOrphan = true;
-            }
-
-            noOrphansOutput = noOrphansOutput.concat(html.charAt(i));
-        }
-
-        if (inOrphan)
-            noOrphansOutput = noOrphansOutput.concat('</span>');
-
-        return noOrphansOutput;
-    }
-
-    static generateDecorations (text, decorators) {
-        const decorations = [];
-        for (let decorator of decorators) {
-            for (let match; (match = decorator.regex.exec(text)) !== null;) {
-                decorations.push({
-                    start: match.index,
-                    length: match[0].length,
-                    text: match[0],
-                    decorator: decorator,
-                    instance: null
-                });
-            }
-        }
-
-        return decorations;
+        return bestMatch;
     }
 
     constructor (props) {
         super(props);
         this.state = {
             text: this.props.text,
-            html: this.generateHtml(this.props.text),
-            decorations: TextEditor.generateDecorations(this.props.text, this.props.decorators)
+            html: this.props.text
         };
 
         highlight.configure({
@@ -112,16 +65,60 @@ class TextEditor extends React.Component {
         });
     }
 
-    onInput (event) {
-        const selection = this.getSelection();
-
+    componentDidMount () {
         this.setState({
-            text: this.refs.editable.innerText
-        }, () => this.selectText(selection.start, selection.length));
+            tree: this.generateTree()
+        });
+    }
+
+    componentWillUpdate (nextProps, nextState) {
+        const html = this.generateHtml(nextState.tree);
+        nextState.html = `<pre><code>${html}</code></pre>`;
+    }
+
+    generateTree () {
+        const root = new TextNode('text-editor-root', 0, this.state.text.length);
+
+        for (let decorator of this.props.decorators) {
+            const matches = getMatches(decorator.regex, this.state.text);
+            for (let match of matches) {
+                const parent = TextEditor.findNode(root, match.index, match[0].length);
+                const className = decorator.getClass(match);
+                const newNode = new TextNode(className, match.index, match[0].length);
+                parent.addChild(newNode);
+            }
+        }
+
+        return root;
+    }
+
+    generateHtml (node) {
+        let html = `<span class="${node.class}">`;
+        let index = 0;
+        for (let child of node.children) {
+            html += this.state.text.substr(index, child.start);
+            html += this.generateHtml(child);
+            index = child.start + child.length;
+        }
+
+        html += `${this.state.text.substring(index, node.start + node.length)}</span>`;
+        return html;
+    }
+
+    findNode (start = 0, length = this.state.text.length) {
+        return TextEditor.findNode(this.state.tree, start, length);
+    }
+
+    onInput (event) {
+        // const selection = this.getSelection();
+        //
+        // this.setState({
+        //     text: this.refs.editable.innerText
+        // }, () => this.selectText(selection.start, selection.length));
     }
 
     onKeyDown (event) {
-        if (event.keyCode === ENTER_KEYCODE) {
+        if (event.keyCode === keycode('enter')) {
             event.preventDefault();
             this.wrap('\n');
             return false;
@@ -136,268 +133,12 @@ class TextEditor extends React.Component {
         }
     }
 
-    shouldComponentUpdate (nextProps, nextState) {
-        if (nextState.text === this.state.text)
-            return false;
-
-        nextState.decorations = TextEditor.generateDecorations(nextState.text, nextProps.decorators);
-        nextState.html = this.generateHtml(nextState.text);
-        if (nextState.html === this.refs.editable.innerHTML)
-            return false;
-
-        return true;
-    }
-
-    componentDidUpdate (prevProps, prevState) {
-        for (let decoration of this.state.decorations) {
-            const node = Array.from(this.refs.editable.getElementsByClassName('decorator'))
-                                .find(el => el.innerText === decoration.text);
-            if (!decoration.instance)
-                decoration.instance = React.createElement(decoration.decorator, { text: decoration.text });
-
-            ReactDOM.render(decoration.instance, node);
-        }
-
-        if (this.props.onChange && this.state.text !== prevState.text)
-            this.props.onChange(this.state.text);
-    }
-
-    getNodeForText (start = 0, length = this.state.text.length) {
-        const startNode = TextEditor.getNodeAtCharIndex(this.refs.editable, start);
-        const endNode = TextEditor.getNodeAtCharIndex(this.refs.editable, start + length - 1);
-        if (startNode === endNode)
-            return startNode;
-
-        return this.refs.editable;
-    }
-
-    generateHtml (text) {
-        let output = highlight.highlightAuto(text).value;
-        output = TextEditor.envolveOrphanText(output);
-
-        for (let decorator of this.props.decorators) {
-            let match;
-            let index = 0;
-            while ((match = decorator.regex.exec(output.substring(index))) !== null) {
-                const before = output.substring(0, match.index);
-                const matched = match[0];
-                const decoratedMatch = `<span class="decorator">${matched}</div>`;
-                const after = output.substring(match.index + matched.length);
-                output = `${before}${decoratedMatch}${after}`;
-                index = match.index + decoratedMatch.length;
-            }
-        }
-
-        return `<pre><code>${output}</code></pre>`;
-    }
-
     /**
      * Fetches the editor's current content.
      * @returns {string} The current content.
      */
     getCurrentText () {
         return this.state.text;
-    }
-
-    /**
-     * Verifies if there's a text selection.
-     * @returns {boolean} True if there is a text selection.
-     */
-    isTextSelected () {
-        const selection = this.getSelection();
-        return selection.length > 0;
-    }
-
-    /**
-     * Fetches the currently selected text.
-     * @returns {string} The currently selected text.
-     */
-    getSelectedText () {
-        const selection = this.getSelection();
-
-        return this.state.text.substr(selection.start, selection.length);
-    }
-
-    getSelection () {
-        const selection = window.getSelection();
-        const textNodes = TextEditor.getTextNodes(this.refs.editable);
-
-        let selectionStart = 0;
-        let selectionLength = 0;
-        let i = 0;
-        for (; i < textNodes.length && textNodes[i] !== selection.baseNode; i++)
-            selectionStart += textNodes[i].length;
-
-        selectionStart += selection.baseOffset;
-
-        for (; i < textNodes.length && textNodes[i] !== selection.focusNode; i++)
-            selectionLength += textNodes[i].length;
-
-        if (selection.baseNode !== selection.focusNode)
-            selectionLength += selection.focusOffset;
-
-        return {
-            start: selectionStart,
-            length: selectionLength
-        };
-    }
-
-    selectText (start = 0, length = this.state.text.length) {
-        const textNodes = TextEditor.getTextNodes(this.refs.editable);
-        let foundStart = false;
-        let charCount = 0;
-        let endCharCount, startNode, startOffset, endNode, endOffset;
-
-        for (let textNode of textNodes) {
-            endCharCount = charCount + textNode.length;
-            if (!foundStart && start >= charCount && (start < endCharCount || (start === endCharCount))) {
-                startNode = textNode;
-                startOffset = start - charCount;
-                foundStart = true;
-            }
-            if (foundStart && start + length <= endCharCount) {
-                endNode = textNode;
-                endOffset = start + length - charCount;
-                break;
-            }
-            charCount = endCharCount;
-        }
-
-        if (!startNode || !endNode)
-            return;
-
-        const range = document.createRange();
-        range.selectNodeContents(this.refs.editable);
-        range.setStart(startNode, startOffset);
-        range.setEnd(endNode, endOffset);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
-    }
-
-    /**
-     * Inserts a markdown wrapper, e.g **text** for bold, at the current carret's position or wraps the currently
-     * selected text.
-     * @param {string} [prepend=''] - The text to prepend.
-     * @param {string} [append=''] - The text to append.
-     */
-    wrap (prepend = '', append = '') {
-        const selection = this.getSelection();
-        const before = this.state.text.substring(0, selection.start);
-        const selected = this.state.text.substr(selection.start, selection.length);
-        const after = this.state.text.substring(selection.start + selection.length);
-
-        this.setState({
-            text: `${before}${prepend}${selected}${append}${after}`
-        }, () => this.selectText(before.length + prepend.length, selected.length));
-    }
-
-    /**
-     * Turns the text bold.
-     */
-    bold () {
-        this.wrap('**', '**');
-    }
-
-    /**
-     * Turns the text italic.
-     */
-    italic () {
-        this.wrap('_', '_');
-    }
-
-    /**
-     * Underlines the text.
-     */
-    underline () {
-        this.wrap('__', '__');
-    }
-
-    /**
-     * Strikes through the text.
-     */
-    strikeThrough () {
-        this.wrap('<s>', '</s>');
-    }
-
-    /**
-     * Creats a link.
-     */
-    link () {
-        if (this.isTextSelected()) {
-            const selectedText = this.getSelectedText();
-            if (selectedText.includes('/') || LINK_REGEX.test(selectedText))
-                this.wrap('[Link Name](', ')');
-            else
-                this.wrap('[', '](URI)');
-        } else
-            this.wrap('[Link Name](URI)');
-    }
-
-    /**
-     * Creats an image.
-     */
-    image () {
-        if (this.isTextSelected()) {
-            const selectedText = this.getSelectedText();
-            if (selectedText.includes('/') || LINK_REGEX.test(selectedText))
-                this.wrap('![Image Name](', ' "Title")');
-            else
-                this.wrap('![', '](URI "Title")');
-        } else
-            this.wrap('![Image Name](URI "Title")');
-    }
-
-    /**
-     * Creates a header.
-     * @param {number} [level=1] - The header level (between 1 and 6).
-     */
-    header (level = MINIMUM_HEADER_LEVEL) {
-        if (level < MINIMUM_HEADER_LEVEL) level = MINIMUM_HEADER_LEVEL;
-        else if (level > MAXIMUM_HEADER_LEVEL) level = MAXIMUM_HEADER_LEVEL;
-
-        const headerWrapper = '#'.repeat(level);
-        this.wrap(`${headerWrapper} `);
-    }
-
-    /**
-     * Creates an unordered list.
-     */
-    unorderedList () {
-        this.wrap('* ');
-    }
-
-    /**
-     * Creates an ordered list.
-     */
-    orderedList () {
-        this.wrap('1. ');
-    }
-
-    /**
-     * Creates a blockquote.
-     */
-    blockquote () {
-        this.wrap('> ');
-    }
-
-    /**
-     * Creates a span of code.
-     */
-    code () {
-        this.wrap('`', '`');
-    }
-
-    /**
-     * Creates a horizontal rule.
-     */
-    horizontalRule () {
-        this.wrap('', '\n***\n');
-    }
-
-    table () {
-        const tableParts = TABLE_TEMPLATE.split('*DATA*');
-        this.wrap(tableParts[0], tableParts[1]);
     }
 
     render () {
