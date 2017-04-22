@@ -1,4 +1,5 @@
 import React from 'react';
+import Delta from 'quill-delta';
 import highlight from 'highlight.js';
 
 function getMatches (regex, string) {
@@ -17,103 +18,19 @@ function getMatches (regex, string) {
 }
 
 /**
- * @class TextNode
- */
-class TextNode {
-    constructor (className, start, length) {
-        this.class = className;
-        this.start = start;
-        this.length = length;
-        this.children = [];
-        this.domNode = null;
-    }
-
-    addChild (node) {
-        this.children.push(node);
-    }
-
-    removeChild (node) {
-        const index = this.children.indexOf(node);
-        this.children.splice(index, 1);
-    }
-
-    /**
-     * Compares this node against another. Checks the classes of all the nodes in the tree.
-     * Ignores the start index and length of the nodes.
-     * This is useful to know when a new update is required to the DOM.
-     * @param {TextNode} node - The node to compare against.
-     * @returns {boolean} Wether the nodes are identical in decorations.
-     */
-    compareDecorations (node) {
-        if (this.children.length !== node.children.length ||
-            this.class !== node.class)
-            return false;
-
-        for (let i = 0; i < this.children.length; i++) {
-            let thisChild = this.children[i];
-            let otherChild = node.children[i];
-            if (thisChild.compareDecorations(otherChild) === false)
-                return false;
-        }
-
-        return true;
-    }
-}
-
-/**
  * The React component that represents the application's editor.
  */
 class TextEditor extends React.Component {
-
-    static findNode (root, start, length) {
-        let bestMatch = root;
-
-        while (bestMatch.children.length > 0) {
-            const betterNode = bestMatch.children.find(child => {
-                return child.start <= start && child.start + child.length >= start + length;
-            });
-
-            if (betterNode)
-                bestMatch = betterNode;
-            else
-                break;
-        }
-
-        return bestMatch;
-    }
-
-    static insertNode (root, className, start, length) {
-        const parent = TextEditor.findNode(root, start, length);
-        const newNode = new TextNode(className, start, length);
-
-        parent.children
-            .filter(child => child.start > start && child.start + child.length < start + length)
-            .forEach(child => {
-                parent.removeChild(child);
-                newNode.addChild(child);
-            });
-
-        parent.addChild(newNode);
-    }
-
-    static generateHtml (node, text) {
-        let html = `<span class="${node.class}">`;
-        let index = 0;
-        for (let child of node.children) {
-            html += text.substr(node.start + index, node.start + child.start);
-            html += this.generateHtml(child, text);
-            index = child.start + child.length;
-        }
-
-        html += `${text.substring(node.start + index, node.start + index + node.length)}</span>`;
-        return html;
-    }
 
     constructor (props) {
         super(props);
         this.state = {
             text: this.props.text,
-            html: `<pre><code>${this.props.text}</code></pre>`
+            selection: {
+                start: 0,
+                end: 0
+            },
+            html: ''
         };
 
         highlight.configure({
@@ -122,99 +39,94 @@ class TextEditor extends React.Component {
         });
     }
 
+    componentDidMount () {
+        this.forceUpdate();
+    }
+
+    componentWillUpdate (nextProps, nextState) {
+        const selection = nextState.selection;
+        const reverse = selection.start > selection.end;
+
+        let delta = new Delta().insert(nextState.text);
+        let cursorDelta = new Delta().retain(selection.end).insert({ cursor: '' }, { 'blinking-cursor': true });
+        let selectionDelta;
+        if (reverse) {
+            selectionDelta = new Delta().retain(selection.end)
+                                        .retain(selection.start - selection.end, { selected: true });
+        } else {
+            selectionDelta = new Delta().retain(selection.start)
+                                        .retain(selection.end - selection.start, { selected: true });
+        }
+
+        const matches = getMatches(/\[.*\]/ig, nextState.text);
+        for (let match of matches) {
+            const decoratorDelta = new Delta().retain(match.index).retain(match[0].length, { reference: true });
+            delta = delta.compose(decoratorDelta);
+        }
+
+        delta = delta.compose(selectionDelta);
+        delta = delta.compose(cursorDelta);
+
+        let html = '';
+        for (let op of delta.ops) {
+            const classes = Object.keys(op.attributes || {});
+            let text = op.insert;
+            if (op.insert.hasOwnProperty('cursor'))
+                text = op.insert.cursor;
+            html += `<span class="${classes.join(' ')}">${text}</span>`;
+        }
+
+        nextState.html = html;
+    }
+
     componentWillReceiveProps (nextProps) {
         if (nextProps.hasOwnProperty('text')) {
             this.setState({
-                text: nextProps.text,
-                tree: this.generateTree(nextProps.text, nextProps.decorators)
+                text: nextProps.text
             });
         }
     }
 
-    componentDidMount () {
-        this.setState({
-            tree: this.generateTree()
-        });
-    }
-
-    componentWillUpdate (nextProps, nextState) {
-        const html = TextEditor.generateHtml(nextState.tree, nextState.text);
-        nextState.html = `<pre><code>${html}</code></pre>`;
-    }
-
-    componentDidUpdate () {
-        const editorDOMNode = this.refs.editable;
-        const preDOMNode = editorDOMNode.childNodes[0];
-        const codeDOMNode = preDOMNode.childNodes[0];
-        const rootDOMNode = codeDOMNode.childNodes[0];
-
-        let rootNode = this.state.tree;
-        rootNode.domNode = rootDOMNode;
-        this.updateDOMReferences(rootNode);
-        this.setSelection(this.state.text.length, 0);
-    }
-
-    generateTree (text = this.state.text, decorators = this.props.decorators) {
-        const root = new TextNode('text-editor-root', 0, text.length);
-
-        for (let decorator of decorators) {
-            const matches = getMatches(decorator.regex, text);
-            for (let match of matches) {
-                const className = decorator.getClass(match);
-                const start = match.index;
-                const length = match[0].length;
-                TextEditor.insertNode(root, className, start, length);
-            }
-        }
-
-        return root;
-    }
-
-    findNode (start = 0, length = 0) {
-        return TextEditor.findNode(this.state.tree, start, length);
-    }
-
-    insertNode (className, start, length) {
-        TextEditor.insertNode(this.state.tree, className, start, length);
-        this.forceUpdate();
-    }
-
-    updateDOMReferences (root) {
-        root.children.forEach((childNode, index) => {
-            childNode.domNode = root.domNode.childNodes[index];
-            this.updateDOMReferences(childNode);
-        });
-    }
-
-    onInput (event) {
-        const newText = this.refs.editable.innerText;
-        this.setState({
-            text: newText,
-            tree: this.generateTree(newText)
-        });
+    onKeyPress (event) {
+        this.insertText(String.fromCodePoint(event.which));
     }
 
     onKeyDown (event) {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            this.wrap('\n');
-            return false;
+        switch (event.key) {
+            case 'Enter':
+                event.preventDefault();
+                this.insertText('\n');
+                break;
+            case 'Backspace':
+                this.deleteText();
+                break;
+            case 'ArrowRight':
+                if (event.shiftKey) this.moveSelection(+1);
+                else this.moveCaret(+1);
+                break;
+            case 'ArrowLeft':
+                if (event.shiftKey) this.moveSelection(-1);
+                else this.moveCaret(-1);
+                break;
+            case 'ArrowUp':
+                event.preventDefault();
+                if (event.shiftKey) this.moveSelection(0, -1);
+                else this.moveCaret(0, -1);
+                break;
+            case 'ArrowDown':
+                event.preventDefault();
+                if (event.shiftKey) this.moveSelection(0, +1);
+                else this.moveCaret(0, +1);
+                break;
+            case 'End':
+                if (event.shiftKey) this.moveSelectionToLineEnd();
+                else this.moveToLineEnd();
+                break;
+            case 'Home':
+                if (event.shiftKey) this.moveSelectionToLineStart();
+                else this.moveToLineStart();
+                break;
         }
-    }
-
-    setSelection (start, length) {
-        const range = document.createRange();
-        const startNode = this.findNode(start);
-        const startOffset = start - startNode.start;
-        const endNode = this.findNode(start + length);
-        const endOffset = start + length - endNode.start;
-
-        range.selectNodeContents(this.refs.editable);
-        range.setStart(startNode.domNode, startOffset);
-        range.setEnd(endNode.domNode, endOffset);
-        const selection = window.getSelection();
-        selection.removeAllRanges();
-        selection.addRange(range);
     }
 
     /**
@@ -222,16 +134,192 @@ class TextEditor extends React.Component {
      * @returns {string} The current content.
      */
     getCurrentText () {
-        return this.state.text;
+        return this.state.lines.join('\n');
+    }
+
+    getSelection () {
+        return this.state.selection;
+    }
+
+    moveSelection (xOffset = 0, yOffset = 0) {
+        const index = this.getIndexFromOffset(xOffset, yOffset);
+        this.setState({
+            selection: {
+                start: this.state.selection.start,
+                end: index
+            }
+        });
+    }
+
+    moveCaret (xOffset = 0, yOffset = 0) {
+        const index = this.getIndexFromOffset(xOffset, yOffset);
+        this.setState({
+            selection: {
+                start: index,
+                end: index
+            }
+        });
+    }
+
+    getIndexFromOffset (xOffset = 0, yOffset = 0) {
+        const selection = this.state.selection;
+        let index = 0;
+        if (yOffset === 0)
+            index = Math.max(0, Math.min(this.state.text.length, selection.end + xOffset));
+        else {
+            const lines = this.state.text.split('\n');
+
+            let y = 0;
+            while (y < lines.length && index + lines[y].length + 1 <= selection.end) {
+                index += lines[y].length + 1;
+                y += 1;
+            }
+
+            const x = selection.end - index;
+            const wantedY = Math.max(0, Math.min(lines.length - 1, y + yOffset));
+            const sign = Math.sign(yOffset);
+            if (sign > 0) {
+                while (y < wantedY) {
+                    index += lines[y].length + 1;
+                    y += 1;
+                }
+            } else {
+                while (y > wantedY) {
+                    y -= 1;
+                    index -= lines[y].length + 1;
+                }
+            }
+
+            index += Math.max(0, Math.min(lines[y].length, x));
+        }
+
+        return index;
+    }
+
+    getCurrentLineStartIndex () {
+        const selection = this.state.selection;
+        const index = this.state.text.substring(0, selection.end).lastIndexOf('\n');
+        let newOffset;
+        if (index === -1)
+            newOffset = 0;
+        else
+            newOffset = index + 1;
+
+        return newOffset;
+    }
+
+    getCurrentLineEndIndex () {
+        const selection = this.state.selection;
+        const index = this.state.text.substring(selection.end).indexOf('\n');
+        let newOffset;
+        if (index === -1)
+            newOffset = this.state.text.length;
+        else
+            newOffset = selection.end + index;
+
+        return newOffset;
+    }
+
+    moveToLineEnd () {
+        const index = this.getCurrentLineEndIndex();
+
+        this.setState({
+            selection: {
+                start: index,
+                end: index
+            }
+        });
+    }
+
+    moveToLineStart () {
+        const index = this.getCurrentLineStartIndex();
+
+        this.setState({
+            selection: {
+                start: index,
+                end: index
+            }
+        });
+    }
+
+    moveSelectionToLineEnd () {
+        const index = this.getCurrentLineEndIndex();
+
+        this.setState({
+            selection: {
+                start: this.state.selection.start,
+                end: index
+            }
+        });
+    }
+
+    moveSelectionToLineStart () {
+        const index = this.getCurrentLineStartIndex();
+
+        this.setState({
+            selection: {
+                start: this.state.selection.start,
+                end: index
+            }
+        });
+    }
+
+    insertText (prepend = '', append = '') {
+        const selection = this.getSelection();
+        const before = this.state.text.substring(0, selection.start);
+        const selected = this.state.text.substring(selection.start, selection.end);
+        const after = this.state.text.substring(selection.end);
+
+        const alteredText = `${before}${prepend}${selected}${append}${after}`;
+        this.setState({
+            text: alteredText,
+            selection: {
+                start: selection.start + prepend.length,
+                end: selection.end + prepend.length
+            }
+        });
+    }
+
+    deleteText () {
+        const selection = this.state.selection;
+        const collapsed = selection.start === selection.end;
+        const reversed = selection.start > selection.end;
+
+        let before, after;
+        if (collapsed && this.state.text.length > 0) {
+            before = this.state.text.substring(0, selection.start - 1);
+            after = this.state.text.substring(selection.end);
+        } else {
+            before = this.state.text.substring(0, reversed ? selection.end : selection.start);
+            after = this.state.text.substring(reversed ? selection.start : selection.end);
+        }
+
+        let newIndex;
+        if (collapsed)
+            newIndex = Math.max(0, selection.end - 1);
+        else if (reversed)
+            newIndex = selection.end;
+        else
+            newIndex = selection.start;
+
+        this.setState({
+            text: before + after,
+            selection: {
+                start: newIndex,
+                end: newIndex
+            }
+        });
     }
 
     render () {
-        return <div ref="editable"
-            className="text-editor hljs"
-            contentEditable
-            dangerouslySetInnerHTML={{__html: this.state.html}}
-            onInput={this.onInput.bind(this)}
+        return <div className="text-editor hljs"
+            tabIndex="0"
+            onKeyPress={this.onKeyPress.bind(this)}
             onKeyDown={this.onKeyDown.bind(this)}>
+            <pre>
+                <code dangerouslySetInnerHTML={{__html: this.state.html}}>
+                </code>
+            </pre>
         </div>;
     }
 }

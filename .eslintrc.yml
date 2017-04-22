@@ -13,7 +13,7 @@ rules:
   semi: ['error', 'always']
   no-undef: 'error'
   no-var: 'error'
-  indent: ['error', 4]
+  indent: ['error', 4, { "SwitchCase": 1 }]
   curly: ['error', 'multi-or-nest']
   no-return-assign: 'off'
   no-trailing-spaces: 'off'
