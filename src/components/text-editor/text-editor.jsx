@@ -22,6 +22,10 @@ function getMatches (regex, string) {
  */
 class TextEditor extends React.Component {
 
+    static normalizeText (text) {
+        return text.replace(/(\r\n|\r)/, '\n');
+    }
+
     constructor (props) {
         super(props);
         this.state = {
@@ -44,6 +48,7 @@ class TextEditor extends React.Component {
     }
 
     componentWillUpdate (nextProps, nextState) {
+        nextState.text = TextEditor.normalizeText(nextState.text);
         const selection = nextState.selection;
         const reverse = selection.start > selection.end;
 
@@ -69,7 +74,7 @@ class TextEditor extends React.Component {
 
         let html = '';
         for (let op of delta.ops) {
-            const classes = Object.keys(op.attributes || {});
+            const classes = Object.keys(op.attributes || { 'text-block': true });
             let text = op.insert;
             if (op.insert.hasOwnProperty('cursor'))
                 text = op.insert.cursor;
@@ -82,7 +87,7 @@ class TextEditor extends React.Component {
     componentWillReceiveProps (nextProps) {
         if (nextProps.hasOwnProperty('text')) {
             this.setState({
-                text: nextProps.text
+                text: nextProps.text.normalize()
             });
         }
     }
@@ -119,10 +124,12 @@ class TextEditor extends React.Component {
                 else this.moveCaret(0, +1);
                 break;
             case 'End':
+                event.preventDefault();
                 if (event.shiftKey) this.moveSelectionToLineEnd();
                 else this.moveToLineEnd();
                 break;
             case 'Home':
+                event.preventDefault();
                 if (event.shiftKey) this.moveSelectionToLineStart();
                 else this.moveToLineStart();
                 break;
