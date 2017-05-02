@@ -17,6 +17,24 @@ function getMatches (regex, string) {
     return matches;
 }
 
+function getAccelerator (event) {
+    let accelerator = '';
+    if (event.ctrlKey)
+        accelerator += 'Ctrl+';
+    if (event.shiftKey)
+        accelerator += 'Shift+';
+    if (event.altKey)
+        accelerator += 'Alt+';
+
+    accelerator += event.key.substring(0, 1).toUpperCase() + event.key.substring(1);
+    accelerator = accelerator.replace(/Arrow/g, '');
+    accelerator = accelerator.replace(/\+(Shift$|Control$|Alt$)/g, '');
+    console.log(accelerator);
+    return accelerator;
+}
+
+const DELIMITER_REGEX = /(\w\s)|(\s\w)/g;
+
 /**
  * The React component that represents the application's editor.
  */
@@ -28,6 +46,7 @@ class TextEditor extends React.Component {
 
     constructor (props) {
         super(props);
+        this.keyMapper = this.props.keyMapper || new DefaultKeyMapper(this);
         this.state = {
             text: this.props.text,
             selection: {
@@ -93,79 +112,17 @@ class TextEditor extends React.Component {
     }
 
     onKeyPress (event) {
-        this.insertText(String.fromCodePoint(event.which));
+        const accelerator = getAccelerator(event);
+        const handled = this.keyMapper.onKeyPress(event, accelerator);
+        if (handled)
+            event.preventDefault();
     }
 
     onKeyDown (event) {
-        switch (event.key) {
-            case 'Enter':
-                event.preventDefault();
-                this.insertText('\n');
-                break;
-            case 'Backspace':
-                this.deleteText();
-                break;
-            case 'ArrowRight':
-                if (event.shiftKey) this.moveSelection(+1);
-                else this.moveCaret(+1);
-                break;
-            case 'ArrowLeft':
-                if (event.shiftKey) this.moveSelection(-1);
-                else this.moveCaret(-1);
-                break;
-            case 'ArrowUp':
-                event.preventDefault();
-                if (event.shiftKey) this.moveSelection(0, -1);
-                else this.moveCaret(0, -1);
-                break;
-            case 'ArrowDown':
-                event.preventDefault();
-                if (event.shiftKey) this.moveSelection(0, +1);
-                else this.moveCaret(0, +1);
-                break;
-            case 'End':
-                event.preventDefault();
-                if (event.shiftKey) this.moveSelectionToLineEnd();
-                else this.moveToLineEnd();
-                break;
-            case 'Home':
-                event.preventDefault();
-                if (event.shiftKey) this.moveSelectionToLineStart();
-                else this.moveToLineStart();
-                break;
-        }
-    }
-
-    /**
-     * Fetches the editor's current content.
-     * @returns {string} The current content.
-     */
-    getCurrentText () {
-        return this.state.lines.join('\n');
-    }
-
-    getSelection () {
-        return this.state.selection;
-    }
-
-    moveSelection (xOffset = 0, yOffset = 0) {
-        const index = this.getIndexFromOffset(xOffset, yOffset);
-        this.setState({
-            selection: {
-                start: this.state.selection.start,
-                end: index
-            }
-        });
-    }
-
-    moveCaret (xOffset = 0, yOffset = 0) {
-        const index = this.getIndexFromOffset(xOffset, yOffset);
-        this.setState({
-            selection: {
-                start: index,
-                end: index
-            }
-        });
+        const accelerator = getAccelerator(event);
+        const handled = this.keyMapper.onKeyDown(event, accelerator);
+        if (handled)
+            event.preventDefault();
     }
 
     getIndexFromOffset (xOffset = 0, yOffset = 0) {
@@ -203,6 +160,30 @@ class TextEditor extends React.Component {
         return index;
     }
 
+    getNextDelimiterIndex () {
+        const selection = this.state.selection;
+        const text = this.state.text.substring(selection.end);
+        let nextTokenIndex = text.search(DELIMITER_REGEX);
+        if (nextTokenIndex === -1)
+            nextTokenIndex = this.state.text.length;
+        else
+            nextTokenIndex = selection.end + nextTokenIndex + 1;
+
+        return nextTokenIndex;
+    }
+
+    getPreviousDelimiterIndex () {
+        const selection = this.state.selection;
+        const text = this.state.text.substring(0, selection.end).split('').reverse().join('');
+        let nextTokenIndex = text.search(DELIMITER_REGEX);
+        if (nextTokenIndex === -1)
+            nextTokenIndex = 0;
+        else
+            nextTokenIndex = selection.end - nextTokenIndex - 1;
+
+        return nextTokenIndex;
+    }
+
     getCurrentLineStartIndex () {
         const selection = this.state.selection;
         const index = this.state.text.substring(0, selection.end).lastIndexOf('\n');
@@ -225,6 +206,40 @@ class TextEditor extends React.Component {
             newOffset = selection.end + index;
 
         return newOffset;
+    }
+
+    /**
+     * Fetches the editor's current content.
+     * @returns {string} The current content.
+     */
+    getCurrentText () {
+        return this.state.text;
+    }
+
+    getSelection () {
+        return this.state.selection;
+    }
+
+    setSelection (start = 0, end = this.state.text.length) {
+        start = Math.max(0, Math.min(this.state.text.length, start));
+        end = Math.max(0, Math.min(this.state.text.length, end));
+
+        this.setState({
+            selection: {
+                start: start,
+                end: end
+            }
+        });
+    }
+
+    moveSelection (xOffset = 0, yOffset = 0) {
+        const index = this.getIndexFromOffset(xOffset, yOffset);
+        this.setSelection(this.state.selection.start, index);
+    }
+
+    moveCaret (xOffset = 0, yOffset = 0) {
+        const index = this.getIndexFromOffset(xOffset, yOffset);
+        this.setSelection(index, index);
     }
 
     moveToLineEnd () {
@@ -269,6 +284,28 @@ class TextEditor extends React.Component {
                 end: index
             }
         });
+    }
+
+    moveCaretNextDelimiter () {
+        const tokenIndex = this.getNextDelimiterIndex();
+        this.setSelection(tokenIndex, tokenIndex);
+    }
+
+    moveCaretPreviousDelimiter () {
+        const tokenIndex = this.getPreviousDelimiterIndex();
+        this.setSelection(tokenIndex, tokenIndex);
+    }
+
+    moveSelectionNextDelimiter () {
+        const selection = this.state.selection;
+        const tokenIndex = this.getNextDelimiterIndex();
+        this.setSelection(selection.start, tokenIndex);
+    }
+
+    moveSelectionPreviousDelimiter () {
+        const selection = this.state.selection;
+        const tokenIndex = this.getPreviousDelimiterIndex();
+        this.setSelection(selection.start, tokenIndex);
     }
 
     insertText (prepend = '', append = '') {
@@ -334,12 +371,62 @@ class TextEditor extends React.Component {
 TextEditor.propTypes = {
     text: React.PropTypes.string.isRequired,
     onChange: React.PropTypes.func.isRequired,
-    decorators: React.PropTypes.array
+    decorators: React.PropTypes.array,
+    keyMapper: React.PropTypes.object,
+    tokens: React.PropTypes.object
 };
 
 TextEditor.defaultProps = {
     text: '',
     decorators: []
 };
+
+class DefaultKeyMapper {
+
+    constructor (editor) {
+        this.editor = editor;
+        this.keyDownActions = {};
+        this.keyUpActions = {};
+
+        this.keyDownActions = {
+            'Enter':            () => this.editor.insertText('\n'),
+            'Backspace':        () => this.editor.deleteText(),
+            'Right':            () => this.editor.moveCaret(+1),
+            'Shift+Right':      () => this.editor.moveSelection(+1),
+            'Ctrl+Right':       () => this.editor.moveCaretNextDelimiter(),
+            'Ctrl+Shift+Right': () => this.editor.moveSelectionNextDelimiter(),
+            'Left':             () => this.editor.moveCaret(-1),
+            'Shift+Left':       () => this.editor.moveSelection(-1),
+            'Ctrl+Left':        () => this.editor.moveCaretPreviousDelimiter(),
+            'Ctrl+Shift+Left':  () => this.editor.moveSelectionPreviousDelimiter(),
+            'Up':               () => this.editor.moveCaret(0, -1),
+            'Shift+Up':         () => this.editor.moveSelection(0, -1),
+            'Down':             () => this.editor.moveCaret(0, +1),
+            'Shift+Down':       () => this.editor.moveSelection(0, +1),
+            'End':              () => this.editor.moveToLineEnd(),
+            'Shift+End':        () => this.editor.moveSelectionToLineEnd(),
+            'Home':             () => this.editor.moveToLineStart(),
+            'Shift+Home':       () => this.editor.moveSelectionToLineStart()
+        };
+    }
+
+    onKeyPress (event, accelerator) {
+        this.editor.insertText(String.fromCodePoint(event.which));
+    }
+
+    onKeyDown (event, accelerator) {
+        const action = this.keyDownActions[accelerator];
+        if (!action)
+            return false;
+
+        action();
+        return true;
+    }
+
+    onKeyUp (event, accelerator) {
+
+    }
+
+}
 
 export default TextEditor;
