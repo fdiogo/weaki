@@ -29,7 +29,6 @@ function getAccelerator (event) {
     accelerator += event.key.substring(0, 1).toUpperCase() + event.key.substring(1);
     accelerator = accelerator.replace(/Arrow/g, '');
     accelerator = accelerator.replace(/\+(Shift$|Control$|Alt$)/g, '');
-    console.log(accelerator);
     return accelerator;
 }
 
@@ -121,7 +120,7 @@ class TextEditor extends React.Component {
     onKeyDown (event) {
         const accelerator = getAccelerator(event);
         const handled = this.keyMapper.onKeyDown(event, accelerator);
-        if (handled)
+        if (handled || event.key === 'Tab')
             event.preventDefault();
     }
 
@@ -390,6 +389,7 @@ class DefaultKeyMapper {
 
         this.keyDownActions = {
             'Enter':            () => this.editor.insertText('\n'),
+            'Tab':              () => this.editor.insertText('  '),
             'Backspace':        () => this.editor.deleteText(),
             'Right':            () => this.editor.moveCaret(+1),
             'Shift+Right':      () => this.editor.moveSelection(+1),
