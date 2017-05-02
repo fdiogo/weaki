@@ -46,6 +46,9 @@ class TextEditor extends React.Component {
     constructor (props) {
         super(props);
         this.keyMapper = this.props.keyMapper || new DefaultKeyMapper(this);
+        this.past = [];
+        this.future = [];
+        this.lastTextInsertTime = Date.now();
         this.state = {
             text: this.props.text,
             selection: {
@@ -59,10 +62,6 @@ class TextEditor extends React.Component {
             useBR: false,
             languages: ['markdown']
         });
-    }
-
-    componentDidMount () {
-        this.forceUpdate();
     }
 
     componentWillUpdate (nextProps, nextState) {
@@ -104,8 +103,13 @@ class TextEditor extends React.Component {
 
     componentWillReceiveProps (nextProps) {
         if (nextProps.hasOwnProperty('text')) {
+            const text = nextProps.text.normalize();
+            if (text === this.state.text)
+                return;
+
+            this.past.push(this.state);
             this.setState({
-                text: nextProps.text.normalize()
+                text: text
             });
         }
     }
@@ -308,6 +312,14 @@ class TextEditor extends React.Component {
     }
 
     insertText (prepend = '', append = '') {
+        const currentTime = Date.now();
+        const timeout = currentTime - this.lastTextInsertTime;
+        this.lastTextInsertTime = currentTime;
+        this.future.splice(0, this.future.length);
+
+        if (timeout >= this.props.historyTimeout)
+            this.past.push(this.state);
+
         const selection = this.getSelection();
         const before = this.state.text.substring(0, selection.start);
         const selected = this.state.text.substring(selection.start, selection.end);
@@ -354,6 +366,26 @@ class TextEditor extends React.Component {
         });
     }
 
+    undo () {
+        if (this.past.length === 0)
+            return;
+
+        const currentState = this.state;
+        const previousState = this.past.pop();
+        this.future.push(currentState);
+        this.setState(previousState);
+    }
+
+    redo () {
+        if (this.future.length === 0)
+            return;
+
+        const currentState = this.state;
+        const nextState = this.future.pop();
+        this.past.push(currentState);
+        this.setState(nextState);
+    }
+
     render () {
         return <div className="text-editor hljs"
             tabIndex="0"
@@ -372,12 +404,13 @@ TextEditor.propTypes = {
     onChange: React.PropTypes.func.isRequired,
     decorators: React.PropTypes.array,
     keyMapper: React.PropTypes.object,
-    tokens: React.PropTypes.object
+    historyTimeout: React.PropTypes.number
 };
 
 TextEditor.defaultProps = {
     text: '',
-    decorators: []
+    decorators: [],
+    historyTimeout: 300
 };
 
 class DefaultKeyMapper {
@@ -406,7 +439,9 @@ class DefaultKeyMapper {
             'End':              () => this.editor.moveToLineEnd(),
             'Shift+End':        () => this.editor.moveSelectionToLineEnd(),
             'Home':             () => this.editor.moveToLineStart(),
-            'Shift+Home':       () => this.editor.moveSelectionToLineStart()
+            'Shift+Home':       () => this.editor.moveSelectionToLineStart(),
+            'Ctrl+Z':           () => this.editor.undo(),
+            'Ctrl+Y':           () => this.editor.redo()
         };
     }
 
