@@ -5,7 +5,7 @@ import { expect } from 'chai';
 import TextEditor from '../../src/components/text-editor/text-editor';
 import jsdom from 'mocha-jsdom';
 
-describe.only('TextEditor', function () {
+describe.skip('TextEditor', function () {
     jsdom({ skipWindowCheck: true });
 
     describe('.generateTree()', function () {
