@@ -3,12 +3,9 @@
 .explorer-tree {
     word-break: keep-all;
     height: 100%;
-    width: 300px;
+    width: 100%;
     margin: 0px;
     padding: 0px;
-    overflow-y: auto;
-    overflow-x: hidden;
-    resize: horizontal;
     background-color: $primary-color;
     color: $font-color;
     -webkit-user-select: none;

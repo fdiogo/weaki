@@ -5,6 +5,7 @@
 
 html, body, #root {
     height: 100%;
+    width: 100%;
     padding: 0px;
     margin: 0px;
     overflow: hidden;
@@ -25,6 +26,13 @@ html, body, #root {
         #left-sidebar, #main-panel, #right-sidebar {
             height: 100%;
             flex-grow: 1;
+            min-width: 200px;
+        }
+
+        #left-sidebar {
+            overflow-y: auto;
+            overflow-x: hidden;
+            resize: horizontal;
         }
 
         #main-panel {

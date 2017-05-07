@@ -1,8 +1,4 @@
-import React from 'react';
-
-class Decorator extends React.Component {
+class Decorator {
 }
-
-Decorator.regex = new RegExp();
 
 export default Decorator;

@@ -1,3 +1,4 @@
+/* eslint-env browser */
 import React from 'react';
 import Delta from 'quill-delta';
 import highlight from 'highlight.js';

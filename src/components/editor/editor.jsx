@@ -4,7 +4,7 @@ import path from 'path';
 import TextEditor from '../text-editor/text-editor';
 import Tabs from '../tabs/tabs';
 
-import ReferenceDecorator from '../../decorators/reference-decorator';
+import ImageDecorator from '../../decorators/image-decorator';
 
 const weaki = remote.getGlobal('instance');
 
@@ -44,15 +44,7 @@ class Editor extends React.Component {
         ipcRenderer.on('editor:horizontal-rule', () => this.refs.textEditor.horizontalRule());
         ipcRenderer.on('editor:image', () => this.refs.textEditor.image());
 
-        this.decorators = [{
-            regex: new RegExp('link', 'ig'),
-            getClass: match => 'reference',
-            getPopup: match => {
-                const el = document.createElement('span');
-                el.innerHTML = 'hello';
-                return el;
-            }
-        }];
+        this.decorators = [ImageDecorator];
     }
 
     /**

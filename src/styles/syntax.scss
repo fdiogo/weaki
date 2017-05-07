@@ -1,5 +1,9 @@
 @import 'theme';
 
-.reference {
+.reference, .image-link {
     color: #ae81ff;
+}
+
+.image-link-valid {
+    text-decoration: underline;
 }

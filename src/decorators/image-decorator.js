@@ -1,22 +1,22 @@
 /* eslint-env browser */
 import Decorator from './decorator';
 
-class ReferenceDecorator extends Decorator {
+class ImageDecorator extends Decorator {
 
     static getClass (match) {
-        return 'reference';
+        return 'image-link';
     }
 
     static getPopup (match) {
-        const reference = match[1];
+        const reference = match[2];
         const img = new Image();
         img.style.display = 'none';
         img.src = reference;
-        img.onload = () => img.style.display = 'inline';
+        img.onload = () => img.style.display = 'initial';
 
         return img;
     }
 }
 
-ReferenceDecorator.regex = /\[(.*)\]/g;
-export default ReferenceDecorator;
+ImageDecorator.regex = /!\[([^\]]*)\]\(([^)]*)\)/g;
+export default ImageDecorator;
