@@ -1,6 +1,7 @@
 /* eslint-env browser */
 import React from 'react';
 import Delta from 'quill-delta';
+import { clipboard } from 'electron';
 import highlight from 'highlight.js';
 
 function getMatches (regex, string) {
@@ -262,6 +263,13 @@ class TextEditor extends React.Component {
         return this.state.selection;
     }
 
+    getSelectedText () {
+        const selection = this.state.selection;
+        const text = this.state.text;
+
+        return text.substring(selection.start, selection.end);
+    }
+
     setSelection (start = 0, end = this.state.text.length) {
         start = Math.max(0, Math.min(this.state.text.length, start));
         end = Math.max(0, Math.min(this.state.text.length, end));
@@ -405,6 +413,26 @@ class TextEditor extends React.Component {
         });
     }
 
+    copy () {
+        const selectedText = this.getSelectedText();
+        clipboard.writeText(selectedText);
+    }
+
+    cut () {
+        const selection = this.state.selection;
+        if (selection.start === selection.end)
+            return;
+
+        const selectedText = this.getSelectedText();
+        this.deleteText();
+        clipboard.writeText(selectedText);
+    }
+
+    paste () {
+        const copiedText = clipboard.readText();
+        this.insertText(copiedText);
+    }
+
     undo () {
         if (this.past.length === 0)
             return;
@@ -481,7 +509,10 @@ class DefaultKeyMapper {
             'Home':             () => this.editor.moveToLineStart(),
             'Shift+Home':       () => this.editor.moveSelectionToLineStart(),
             'Ctrl+Z':           () => this.editor.undo(),
-            'Ctrl+Y':           () => this.editor.redo()
+            'Ctrl+Y':           () => this.editor.redo(),
+            'Ctrl+C':           () => this.editor.copy(),
+            'Ctrl+X':           () => this.editor.cut(),
+            'Ctrl+V':           () => this.editor.paste()
         };
     }
 
