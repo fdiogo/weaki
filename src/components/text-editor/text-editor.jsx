@@ -70,35 +70,73 @@ class TextEditor extends React.Component {
         const reverse = selection.start > selection.end;
 
         let delta = new Delta().insert(nextState.text);
-        let cursorDelta = new Delta().retain(selection.end).insert({ cursor: '' }, { 'blinking-cursor': true });
+        let cursorDelta = new Delta().retain(selection.end).insert({ cursor: '' }, { 'class-blinking-cursor': true });
         let selectionDelta;
         if (reverse) {
             selectionDelta = new Delta().retain(selection.end)
-                                        .retain(selection.start - selection.end, { selected: true });
+                                        .retain(selection.start - selection.end, { 'class-selected': true });
         } else {
             selectionDelta = new Delta().retain(selection.start)
-                                        .retain(selection.end - selection.start, { selected: true });
+                                        .retain(selection.end - selection.start, { 'class-selected': true });
         }
 
-        const matches = getMatches(/\[.*\]/ig, nextState.text);
-        for (let match of matches) {
-            const decoratorDelta = new Delta().retain(match.index).retain(match[0].length, { reference: true });
-            delta = delta.compose(decoratorDelta);
+        for (let decorator of this.props.decorators) {
+            const matches = getMatches(decorator.regex, nextState.text);
+            for (let match of matches) {
+                const attributes = {};
+                if (decorator.getClass) {
+                    const className = 'class-' + decorator.getClass(match);
+                    attributes[className] = true;
+                }
+
+                if (decorator.getPopup)
+                    attributes.popup = decorator.getPopup(match);
+
+                const decoratorDelta = new Delta().retain(match.index)
+                                                  .retain(match[0].length, attributes);
+                delta = delta.compose(decoratorDelta);
+            }
         }
 
         delta = delta.compose(selectionDelta);
         delta = delta.compose(cursorDelta);
 
+        let domElements = [];
         let html = '';
         for (let op of delta.ops) {
-            const classes = Object.keys(op.attributes || { 'text-block': true });
+            op.attributes = op.attributes || { 'class-text-block': true };
+            const classes = Object.keys(op.attributes)
+                                    .filter(prop => prop.indexOf('class-') === 0)
+                                    .map(prop => prop.substring('class-'.length));
             let text = op.insert;
             if (op.insert.hasOwnProperty('cursor'))
                 text = op.insert.cursor;
+
+            const element = document.createElement('span');
+            element.className = classes.join(' ');
+            element.innerHTML = text;
+            if (op.attributes.popup) {
+                const popupElement = document.createElement('span');
+                popupElement.className = 'popup';
+
+                if (typeof op.attributes.popup === 'string')
+                    popupElement.innerHTML = op.attributes.popup;
+                else if (op.attributes.popup instanceof HTMLElement)
+                    popupElement.appendChild(op.attributes.popup);
+
+                element.addEventListener('mouseover', () => element.appendChild(popupElement));
+                element.addEventListener('mouseleave', () => element.removeChild(popupElement));
+            }
+
+            domElements.push(element);
             html += `<span class="${classes.join(' ')}">${text}</span>`;
         }
 
         nextState.html = html;
+        while (this.refs.root.hasChildNodes())
+            this.refs.root.removeChild(this.refs.root.lastChild);
+
+        domElements.forEach(el => this.refs.root.appendChild(el));
     }
 
     componentWillReceiveProps (nextProps) {
@@ -392,7 +430,8 @@ class TextEditor extends React.Component {
             onKeyPress={this.onKeyPress.bind(this)}
             onKeyDown={this.onKeyDown.bind(this)}>
             <pre>
-                <code dangerouslySetInnerHTML={{__html: this.state.html}}>
+                <code ref="root">
+
                 </code>
             </pre>
         </div>;

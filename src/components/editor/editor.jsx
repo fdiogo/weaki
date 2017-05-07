@@ -46,7 +46,12 @@ class Editor extends React.Component {
 
         this.decorators = [{
             regex: new RegExp('link', 'ig'),
-            getClass: match => 'reference'
+            getClass: match => 'reference',
+            getPopup: match => {
+                const el = document.createElement('span');
+                el.innerHTML = 'hello';
+                return el;
+            }
         }];
     }
 
