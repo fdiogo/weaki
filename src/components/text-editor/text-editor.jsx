@@ -141,6 +141,11 @@ class TextEditor extends React.Component {
         domElements.forEach(el => this.refs.root.appendChild(el));
     }
 
+    componentDidUpdate (prevProps, prevState) {
+        if (this.props.onChange && prevState.text !== this.state.text)
+            this.props.onChange(this.state.text);
+    }
+
     componentWillReceiveProps (nextProps) {
         if (nextProps.hasOwnProperty('text')) {
             const text = nextProps.text.normalize();
