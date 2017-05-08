@@ -45,6 +45,83 @@ class TextEditor extends React.Component {
         return text.replace(/(\r\n|\r)/, '\n');
     }
 
+    static generateDelta (text, selection, decorators) {
+        const isReverseSelection = selection.start > selection.end;
+
+        let delta = new Delta().insert(text);
+        let cursorDelta = new Delta().retain(selection.end).insert({ cursor: '' }, { 'class-blinking-cursor': true });
+
+        let selectionStart = isReverseSelection ? selection.end : selection.start;
+        let selectionLength = isReverseSelection ? selection.start - selection.end : selection.end - selection.start;
+        let selectionDelta = new Delta().retain(selectionStart).retain(selectionLength, { 'class-selected': true });
+
+        delta = delta.compose(selectionDelta);
+        delta = delta.compose(cursorDelta);
+
+        for (let decorator of decorators) {
+            const matches = getMatches(decorator.regex, text);
+            for (let match of matches) {
+                const attributes = {};
+                const className = decorator.getClass ? 'class-' + decorator.getClass(match) : 'class-decorator';
+                attributes[className] = true;
+
+                if (decorator.getPopup)
+                    attributes.popup = decorator.getPopup(match);
+
+                if (decorator.events) {
+                    attributes.events = {};
+                    Object.entries(decorator.events)
+                            .map(([eventName, callback]) => [eventName, callback.bind(null, match)])
+                            .forEach(([eventName, callback]) => attributes.events[eventName] = callback);
+                }
+
+                const decoratorDelta = new Delta().retain(match.index).retain(match[0].length, attributes);
+                delta = delta.compose(decoratorDelta);
+            }
+        }
+
+        return delta;
+    }
+
+    static generateDOMElements (delta) {
+        let domElements = [];
+        for (let op of delta.ops) {
+            op.attributes = op.attributes || { 'class-text-block': true };
+            const classes = Object.keys(op.attributes)
+                                    .filter(prop => prop.indexOf('class-') === 0)
+                                    .map(prop => prop.substring('class-'.length));
+            let text = op.insert;
+            if (op.insert.hasOwnProperty('cursor'))
+                text = op.insert.cursor;
+
+            const element = document.createElement('span');
+            element.className = classes.join(' ');
+            element.innerHTML = text;
+
+            if (op.attributes.events) {
+                Object.entries(op.attributes.events)
+                        .forEach(([eventName, callback]) => element.addEventListener(eventName, callback));
+            }
+
+            if (op.attributes.popup) {
+                const popupElement = document.createElement('span');
+                popupElement.className = 'popup';
+
+                if (typeof op.attributes.popup === 'string')
+                    popupElement.innerHTML = op.attributes.popup;
+                else if (op.attributes.popup instanceof HTMLElement)
+                    popupElement.appendChild(op.attributes.popup);
+
+                element.addEventListener('mouseover', () => element.appendChild(popupElement));
+                element.addEventListener('mouseleave', () => element.removeChild(popupElement));
+            }
+
+            domElements.push(element);
+        }
+
+        return domElements;
+    }
+
     constructor (props) {
         super(props);
         this.keyMapper = this.props.keyMapper || new DefaultKeyMapper(this);
@@ -68,73 +145,9 @@ class TextEditor extends React.Component {
 
     componentWillUpdate (nextProps, nextState) {
         nextState.text = TextEditor.normalizeText(nextState.text);
-        const selection = nextState.selection;
-        const reverse = selection.start > selection.end;
+        let delta = TextEditor.generateDelta(nextState.text, nextState.selection, nextProps.decorators);
+        let domElements = TextEditor.generateDOMElements(delta);
 
-        let delta = new Delta().insert(nextState.text);
-        let cursorDelta = new Delta().retain(selection.end).insert({ cursor: '' }, { 'class-blinking-cursor': true });
-        let selectionDelta;
-        if (reverse) {
-            selectionDelta = new Delta().retain(selection.end)
-                                        .retain(selection.start - selection.end, { 'class-selected': true });
-        } else {
-            selectionDelta = new Delta().retain(selection.start)
-                                        .retain(selection.end - selection.start, { 'class-selected': true });
-        }
-
-        for (let decorator of this.props.decorators) {
-            const matches = getMatches(decorator.regex, nextState.text);
-            for (let match of matches) {
-                const attributes = {};
-                if (decorator.getClass) {
-                    const className = 'class-' + decorator.getClass(match);
-                    attributes[className] = true;
-                }
-
-                if (decorator.getPopup)
-                    attributes.popup = decorator.getPopup(match);
-
-                const decoratorDelta = new Delta().retain(match.index)
-                                                  .retain(match[0].length, attributes);
-                delta = delta.compose(decoratorDelta);
-            }
-        }
-
-        delta = delta.compose(selectionDelta);
-        delta = delta.compose(cursorDelta);
-
-        let domElements = [];
-        let html = '';
-        for (let op of delta.ops) {
-            op.attributes = op.attributes || { 'class-text-block': true };
-            const classes = Object.keys(op.attributes)
-                                    .filter(prop => prop.indexOf('class-') === 0)
-                                    .map(prop => prop.substring('class-'.length));
-            let text = op.insert;
-            if (op.insert.hasOwnProperty('cursor'))
-                text = op.insert.cursor;
-
-            const element = document.createElement('span');
-            element.className = classes.join(' ');
-            element.innerHTML = text;
-            if (op.attributes.popup) {
-                const popupElement = document.createElement('span');
-                popupElement.className = 'popup';
-
-                if (typeof op.attributes.popup === 'string')
-                    popupElement.innerHTML = op.attributes.popup;
-                else if (op.attributes.popup instanceof HTMLElement)
-                    popupElement.appendChild(op.attributes.popup);
-
-                element.addEventListener('mouseover', () => element.appendChild(popupElement));
-                element.addEventListener('mouseleave', () => element.removeChild(popupElement));
-            }
-
-            domElements.push(element);
-            html += `<span class="${classes.join(' ')}">${text}</span>`;
-        }
-
-        nextState.html = html;
         while (this.refs.root.hasChildNodes())
             this.refs.root.removeChild(this.refs.root.lastChild);
 
@@ -148,7 +161,7 @@ class TextEditor extends React.Component {
 
     componentWillReceiveProps (nextProps) {
         if (nextProps.hasOwnProperty('text')) {
-            const text = nextProps.text.normalize();
+            const text = TextEditor.normalizeText(nextProps.text);
             if (text === this.state.text)
                 return;
 

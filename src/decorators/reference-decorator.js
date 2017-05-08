@@ -1,5 +1,9 @@
 /* eslint-env browser */
+import path from 'path';
+import highlight from 'highlight.js';
 import Decorator from './decorator';
+
+import JavascriptCrawler from '../crawlers/javascript-crawler';
 
 class ReferenceDecorator extends Decorator {
 
@@ -8,15 +12,45 @@ class ReferenceDecorator extends Decorator {
     }
 
     static getPopup (match) {
-        const reference = match[1];
-        const img = new Image();
-        img.style.display = 'none';
-        img.src = reference;
-        img.onload = () => img.style.display = 'inline';
+        const section = match[2];
+        if (!section)
+            return null;
 
-        return img;
+        const popupElement = document.createElement('code');
+        popupElement.style.display = 'none';
+
+        const filename = match[1];
+        let base = null;
+
+        const baseElements = document.getElementsByTagName('base');
+        if (baseElements.length > 0)
+            base = baseElements[0].href.replace('file://', '');
+
+        let filePath = path.isAbsolute(filename) || !base ? filename : path.join(base, filename);
+        let crawler = null;
+        switch (path.extname(filePath)) {
+            case '.js':
+            case '.jsx':
+                crawler = new JavascriptCrawler(filePath);
+                break;
+            default:
+                crawler = new JavascriptCrawler(filePath);
+        }
+
+        crawler.load()
+            .then(function () {
+                const code = crawler.getSection(section);
+                if (!code)
+                    return;
+
+                const highlightedCode = highlight.highlight('javascript', code).value;
+                popupElement.innerHTML = highlightedCode;
+                popupElement.style.display = 'initial';
+            });
+
+        return popupElement;
     }
 }
 
-ReferenceDecorator.regex = /\[(.*)\]/g;
+ReferenceDecorator.regex = /\[([^\]@]*)(?:@([^\]]*))?\]/g;
 export default ReferenceDecorator;

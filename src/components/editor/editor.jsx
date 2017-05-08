@@ -5,6 +5,7 @@ import TextEditor from '../text-editor/text-editor';
 import Tabs from '../tabs/tabs';
 
 import ImageDecorator from '../../decorators/image-decorator';
+import ReferenceDecorator from '../../decorators/reference-decorator';
 
 const weaki = remote.getGlobal('instance');
 
@@ -44,7 +45,7 @@ class Editor extends React.Component {
         ipcRenderer.on('editor:horizontal-rule', () => this.refs.textEditor.horizontalRule());
         ipcRenderer.on('editor:image', () => this.refs.textEditor.image());
 
-        this.decorators = [ImageDecorator];
+        this.decorators = [ImageDecorator, ReferenceDecorator];
     }
 
     /**
