@@ -46,5 +46,5 @@ class ReferenceDecorator extends Decorator {
     }
 }
 
-ReferenceDecorator.regex = /\[([^\]@]*)(?:@([^\]#]*))?(?:#([A-Za-z0-9]*))?\]/g;
+ReferenceDecorator.regex = /\[([^\]@]*)(?:@([^\]#]*))?(?:#([A-Za-z0-9~^]*))?\]/g;
 export default ReferenceDecorator;

@@ -49,15 +49,12 @@ class TextEditor extends React.Component {
         const isReverseSelection = selection.start > selection.end;
 
         let delta = new Delta().insert(text);
-        let cursorDelta = new Delta().retain(selection.end).insert({ cursor: '' }, { 'class-blinking-cursor': true });
 
         let selectionStart = isReverseSelection ? selection.end : selection.start;
         let selectionLength = isReverseSelection ? selection.start - selection.end : selection.end - selection.start;
         let selectionDelta = new Delta().retain(selectionStart).retain(selectionLength, { 'class-selected': true });
 
         delta = delta.compose(selectionDelta);
-        delta = delta.compose(cursorDelta);
-
         for (let decorator of decorators) {
             const matches = getMatches(decorator.regex, text);
             for (let match of matches) {
@@ -83,20 +80,32 @@ class TextEditor extends React.Component {
         return delta;
     }
 
-    static generateDOMElements (delta) {
+    static generateDOMElements (delta, cursorIndex) {
+        const cursor = document.createElement('span');
+        cursor.className = 'blinking-cursor';
+        cursor.innerHTML = '<span></span>';
+
+        let characterCount = 0;
         let domElements = [];
         for (let op of delta.ops) {
             op.attributes = op.attributes || { 'class-text-block': true };
+            const text = op.insert;
+            const element = document.createElement('span');
             const classes = Object.keys(op.attributes)
                                     .filter(prop => prop.indexOf('class-') === 0)
                                     .map(prop => prop.substring('class-'.length));
-            let text = op.insert;
-            if (op.insert.hasOwnProperty('cursor'))
-                text = op.insert.cursor;
 
-            const element = document.createElement('span');
             element.className = classes.join(' ');
-            element.innerHTML = text;
+            if (cursorIndex >= characterCount && cursorIndex <= characterCount + text.length) {
+                const beforeCursor = document.createTextNode(text.substring(0, cursorIndex - characterCount));
+                const afterCursor = document.createTextNode(text.substring(cursorIndex - characterCount));
+                element.appendChild(beforeCursor);
+                element.appendChild(cursor);
+                element.appendChild(afterCursor);
+            } else
+                element.innerHTML = text;
+
+            characterCount += text.length;
 
             if (op.attributes.events) {
                 Object.entries(op.attributes.events)
@@ -146,7 +155,7 @@ class TextEditor extends React.Component {
     componentWillUpdate (nextProps, nextState) {
         nextState.text = TextEditor.normalizeText(nextState.text);
         let delta = TextEditor.generateDelta(nextState.text, nextState.selection, nextProps.decorators);
-        let domElements = TextEditor.generateDOMElements(delta);
+        let domElements = TextEditor.generateDOMElements(delta, nextState.selection.end);
 
         while (this.refs.root.hasChildNodes())
             this.refs.root.removeChild(this.refs.root.lastChild);

@@ -35,9 +35,15 @@
 }
 
 .blinking-cursor {
+    display: inline;
     margin-left: -1px;
     border-left: 1px solid white;
     animation: 1s blink step-end infinite;
+
+    span {
+        display: inline-flex;
+        width: 0px;
+    }
 }
 
 @-webkit-keyframes "blink" {
