@@ -11,6 +11,7 @@ import rimraf from 'rimraf';
 class FileManager {
 
     constructor () {
+        this.workspace = null;
         this.fileSaves = {};
         this.changeListeners = {};
         this.watcher = chokidar.watch([], { persistent: false });
@@ -31,12 +32,24 @@ class FileManager {
         this.watcher.on('change', this.onFileChange.bind(this));
     }
 
+    setWorkspace (directory) {
+        this.workspace = directory;
+    }
+
+    resolvePath (filename) {
+        if (path.isAbsolute(filename) === false && this.workspace)
+            return path.join(this.workspace, filename);
+
+        return filename;
+    }
+
     /**
      * Reads the content of a file.
      * @param {string} filePath - The path of the file.
      * @returns {Promise.<String, Error>} - A promise to the content of the file.
      */
     readFile (filePath) {
+        filePath = this.resolvePath(filePath);
         return new Promise(function (resolve, reject) {
             fs.readFile(filePath, 'utf8', (err, data) => {
                 if (err) reject(new Error(err));
@@ -52,6 +65,7 @@ class FileManager {
      * @returns {Promise<Object[], Error>} A promise to the stats of the files.
      */
     readDirectory (directory, recursive) {
+        directory = this.resolvePath(directory);
         const readdir = new Promise((resolve, reject) => {
             fs.readdir(directory, (err, files) => {
                 if (err) {
@@ -85,6 +99,7 @@ class FileManager {
      * @returns {Promise.<void,Error>} A promise to the operation.
      */
     removeDirectory (directory, recursive) {
+        directory = this.resolvePath(directory);
         return new Promise(function (resolve, reject) {
             const remove = recursive ? rimraf : fs.rmdir;
             remove(directory, err => {
@@ -100,6 +115,7 @@ class FileManager {
      * @returns {Promise.<String, Error>} - A promise to the generated folder name.
      */
     makeTemporaryDirectory (prefix) {
+        prefix = this.resolvePath(prefix);
         return new Promise((resolve, reject) => {
             fs.mkdtemp(prefix, (err, folderName) => {
                 if (err) reject(new Error(err));
@@ -115,6 +131,7 @@ class FileManager {
      * @returns {Promise.<Object, Error>} A promise to the stats of the object at path.
      */
     getStats (path) {
+        path = this.resolvePath(path);
         return new Promise(function (resolve, reject) {
             fs.stat(path, function (error, stat) {
                 if (error) {
@@ -135,6 +152,7 @@ class FileManager {
      * @returns {Promise.<void,Error>} A promise to the operation.
      */
     writeFile (filePath, content) {
+        filePath = this.resolvePath(filePath);
         if (!this.fileSaves[filePath])
             this.fileSaves[filePath] = new Set();
 
@@ -160,6 +178,7 @@ class FileManager {
      * @returns {Promise.<void,Error>} A promise to the operation.
      */
     createFile (filePath, content = '') {
+        filePath = this.resolvePath(filePath);
         return this.exists(filePath)
             .then(exists => new Promise(function (resolve, reject) {
                 if (exists)
@@ -181,6 +200,7 @@ class FileManager {
      * @returns {Promise.<Boolean>} A promise to the answer.
      */
     exists (path) {
+        path = this.resolvePath(path);
         return new Promise(function (resolve, reject) {
             fs.access(path, err => {
                 if (err) resolve(false);
@@ -202,6 +222,7 @@ class FileManager {
      * @returns {Object} - The listener handler.
      */
     watchFileChange (filePath, callback) {
+        filePath = this.resolvePath(filePath);
         if (!this.changeListeners[filePath]) {
             this.changeListeners[filePath] = new Set();
             this.fileSaves[filePath] = new Set();
@@ -217,6 +238,7 @@ class FileManager {
      * @returns {Object} The listener handler.
      */
     watchFileAdd (directory, callback) {
+        directory = this.resolvePath(directory);
         if (!this.addListeners)
             this.addListeners = new Set();
 
@@ -233,6 +255,7 @@ class FileManager {
      * @param {Object} handle - The object returned by {@link FileManager.watchFileChange}
      */
     unwatchFileChange (filePath, handle) {
+        filePath = this.resolvePath(filePath);
         const listeners = this.changeListeners[filePath];
         if (!listeners || listeners.has(handle) === false)
             return;
@@ -260,6 +283,7 @@ class FileManager {
      * @fires application:file-changed
      */
     onFileChange (filePath) {
+        filePath = this.resolvePath(filePath);
         if (!this.changeListeners[filePath])
             return;
 
@@ -284,6 +308,7 @@ class FileManager {
     }
 
     onFileAdd (filePath) {
+        filePath = this.resolvePath(filePath);
         if (!this.addListeners)
             return;
 

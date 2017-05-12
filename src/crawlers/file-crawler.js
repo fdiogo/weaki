@@ -4,14 +4,20 @@ const weaki = remote.getGlobal('instance');
 
 class FileCrawler {
 
-    constructor (filePath) {
+    constructor (filePath, commitHash) {
         this.filePath = filePath;
+        this.commitHash = commitHash;
         this.content = null;
     }
 
     load () {
-        return weaki.fileManager.readFile(this.filePath)
-                                .then(content => this.content = content);
+        if (!this.commitHash) {
+            return weaki.fileManager.readFile(this.filePath)
+                .then(content => this.content = content);
+        } else {
+            return weaki.git.getFileVersion(this.filePath, this.commitHash)
+                .then(content => this.content = content);
+        }
     }
 
     getSection (name) {

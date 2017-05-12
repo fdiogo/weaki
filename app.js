@@ -56,7 +56,8 @@ class Weaki {
             .then(files => {
                 files.forEach(file => file.isDirectory = file.isDirectory());
                 this.mainWindow.webContents.send('application:directory-loaded', directory, files);
-            });
+            })
+            .then(() => this.fileManager.setWorkspace(directory));
     }
 
     /**

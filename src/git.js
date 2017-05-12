@@ -128,6 +128,21 @@ class Git {
     }
 
     /**
+     * Obtains the contents of a file at a specific commit.
+     * @param {string} filePath - The path of the file.
+     * @param {string} [commitHash = 'HEAD'] - The commit's hash.
+     * @returns {Promise.<String, Error>} A promise to the file's content.
+     */
+    getFileVersion (filePath, commitHash = 'HEAD') {
+        return new Promise((resolve, reject) => {
+            this.gitInterface.show([`${commitHash}:${filePath}`], function (err, data) {
+                if (err) reject(new Error(err));
+                else resolve(data);
+            });
+        });
+    }
+
+    /**
      * Tests a directory as a git repository.
      * @returns {Promise.<boolean>} A promise to the answer.
      */

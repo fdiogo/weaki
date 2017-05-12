@@ -12,29 +12,23 @@ class ReferenceDecorator extends Decorator {
     }
 
     static getPopup (match) {
+        const filename = match[1];
         const section = match[2];
+        const commit = match[3];
         if (!section)
             return null;
 
         const popupElement = document.createElement('code');
         popupElement.style.display = 'none';
 
-        const filename = match[1];
-        let base = null;
-
-        const baseElements = document.getElementsByTagName('base');
-        if (baseElements.length > 0)
-            base = baseElements[0].href.replace('file://', '');
-
-        let filePath = path.isAbsolute(filename) || !base ? filename : path.join(base, filename);
         let crawler = null;
-        switch (path.extname(filePath)) {
+        switch (path.extname(filename)) {
             case '.js':
             case '.jsx':
-                crawler = new JavascriptCrawler(filePath);
+                crawler = new JavascriptCrawler(filename, commit);
                 break;
             default:
-                crawler = new JavascriptCrawler(filePath);
+                crawler = new JavascriptCrawler(filename, commit);
         }
 
         crawler.load()
@@ -52,5 +46,5 @@ class ReferenceDecorator extends Decorator {
     }
 }
 
-ReferenceDecorator.regex = /\[([^\]@]*)(?:@([^\]]*))?\]/g;
+ReferenceDecorator.regex = /\[([^\]@]*)(?:@([^\]#]*))?(?:#([A-Za-z0-9]*))?\]/g;
 export default ReferenceDecorator;

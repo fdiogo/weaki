@@ -38,8 +38,14 @@ class JavascriptCrawler extends FileCrawler {
 
         if (node === AST.program)
             return null;
-        
-        return this.content.substring(node.start, node.end);
+
+        let section = '';
+        if (node.leadingComments && node.leadingComments.length > 0)
+            section += `/*${node.leadingComments.map(comment => comment.value).join('')}*/\n`;
+
+        section += this.content.substring(node.start, node.end);
+
+        return section;
     }
 
 }
