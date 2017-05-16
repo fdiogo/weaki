@@ -34,7 +34,7 @@ function getAccelerator (event) {
     return accelerator;
 }
 
-const DELIMITER_REGEX = /(\w\s)|(\s\w)/g;
+const DELIMITER_REGEX = /(?!^)\b/g;
 
 /**
  * The React component that represents the application's editor.
@@ -237,7 +237,7 @@ class TextEditor extends React.Component {
         if (nextTokenIndex === -1)
             nextTokenIndex = this.state.text.length;
         else
-            nextTokenIndex = selection.end + nextTokenIndex + 1;
+            nextTokenIndex = selection.end + nextTokenIndex;
 
         return nextTokenIndex;
     }
@@ -249,7 +249,7 @@ class TextEditor extends React.Component {
         if (nextTokenIndex === -1)
             nextTokenIndex = 0;
         else
-            nextTokenIndex = selection.end - nextTokenIndex - 1;
+            nextTokenIndex = selection.end - nextTokenIndex;
 
         return nextTokenIndex;
     }
@@ -451,6 +451,23 @@ class TextEditor extends React.Component {
         });
     }
 
+    deleteWord () {
+        const selection = this.state.selection;
+        const index = this.getPreviousDelimiterIndex();
+
+        const length = selection.end - index;
+        const before = this.state.text.substring(0, index);
+        const after = this.state.text.substring(selection.end);
+
+        this.setState({
+            text: before + after,
+            selection: {
+                start: selection.start - length,
+                end: selection.end - length
+            }
+        });
+    }
+
     replaceText (replacementText = '') {
         this.tryUpdatePast();
         this.clearFuture();
@@ -515,7 +532,7 @@ class TextEditor extends React.Component {
 
     paste () {
         const copiedText = clipboard.readText();
-        this.insertText(copiedText);
+        this.replaceText(copiedText);
     }
 
     undo () {
@@ -577,6 +594,7 @@ class DefaultKeyMapper {
             'Enter':            () => this.editor.insertText('\n'),
             'Tab':              () => this.editor.insertText('  '),
             'Backspace':        () => this.editor.deleteText(),
+            'Ctrl+Backspace':   () => this.editor.isTextSelected() ? this.editor.deleteText() : this.editor.deleteWord(),
             'Right':            () => this.editor.moveCaret(+1),
             'Shift+Right':      () => this.editor.moveSelection(+1),
             'Ctrl+Right':       () => this.editor.moveCaretNextDelimiter(),
