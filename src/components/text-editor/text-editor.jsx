@@ -286,6 +286,10 @@ class TextEditor extends React.Component {
         return this.state.text;
     }
 
+    isTextSelected () {
+        return this.state.selection.start !== this.state.selection.end;
+    }
+
     getSelection () {
         return this.state.selection;
     }
@@ -305,6 +309,15 @@ class TextEditor extends React.Component {
             selection: {
                 start: start,
                 end: end
+            }
+        });
+    }
+
+    selectAll () {
+        this.setState({
+            selection: {
+                start: 0,
+                end: this.state.text.length
             }
         });
     }
@@ -386,13 +399,8 @@ class TextEditor extends React.Component {
     }
 
     insertText (prepend = '', append = '') {
-        const currentTime = Date.now();
-        const timeout = currentTime - this.lastTextInsertTime;
-        this.lastTextInsertTime = currentTime;
-        this.future.splice(0, this.future.length);
-
-        if (timeout >= this.props.historyTimeout)
-            this.past.push(this.state);
+        this.tryUpdatePast();
+        this.clearFuture();
 
         const selection = this.getSelection();
         const before = this.state.text.substring(0, selection.start);
@@ -410,6 +418,9 @@ class TextEditor extends React.Component {
     }
 
     deleteText () {
+        this.tryUpdatePast();
+        this.clearFuture();
+
         const selection = this.state.selection;
         const collapsed = selection.start === selection.end;
         const reversed = selection.start > selection.end;
@@ -438,6 +449,53 @@ class TextEditor extends React.Component {
                 end: newIndex
             }
         });
+    }
+
+    replaceText (replacementText = '') {
+        this.tryUpdatePast();
+        this.clearFuture();
+
+        const selection = this.state.selection;
+        const isSelectionReversed = selection.start > selection.end;
+
+        let start;
+        let end;
+        if (isSelectionReversed) {
+            start = selection.end;
+            end = selection.start;
+        } else {
+            start = selection.start;
+            end = selection.end;
+        }
+
+        const before = this.state.text.substring(0, start);
+        const after = this.state.text.substring(end);
+
+        const newText = before + replacementText + after;
+        this.setState({
+            text: newText,
+            selection: {
+                start: start + replacementText.length,
+                end: start + replacementText.length
+            }
+        });
+    }
+
+    tryUpdatePast () {
+        const currentTime = Date.now();
+        const timeout = currentTime - this.lastTextInsertTime;
+        this.lastTextInsertTime = currentTime;
+
+        if (timeout >= this.props.historyTimeout)
+            this.updatePast();
+    }
+
+    updatePast () {
+        this.past.push(this.state);
+    }
+
+    clearFuture () {
+        this.future.splice(0, this.future.length);
     }
 
     copy () {
@@ -539,12 +597,13 @@ class DefaultKeyMapper {
             'Ctrl+Y':           () => this.editor.redo(),
             'Ctrl+C':           () => this.editor.copy(),
             'Ctrl+X':           () => this.editor.cut(),
-            'Ctrl+V':           () => this.editor.paste()
+            'Ctrl+V':           () => this.editor.paste(),
+            'Ctrl+A':           () => this.editor.selectAll()
         };
     }
 
     onKeyPress (event, accelerator) {
-        this.editor.insertText(String.fromCodePoint(event.which));
+        this.editor.replaceText(String.fromCodePoint(event.which));
     }
 
     onKeyDown (event, accelerator) {
