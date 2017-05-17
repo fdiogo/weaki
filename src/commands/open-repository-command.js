@@ -25,9 +25,12 @@ class OpenRepositoryCommand extends Command {
  */
 function openRepository (directory) {
     let promise;
-    if (!directory)
-        promise = getDirectory().then(directory => weaki.openRepository(directory));
-    else
+    if (!directory) {
+        promise = getDirectory().then(directory => {
+            if (directory)
+                weaki.openRepository(directory);
+        });
+    } else
         promise = weaki.openRepository(directory);
 
     return promise.catch(error => dialog.showErrorBox('Error', error));
@@ -44,7 +47,7 @@ function getDirectory () {
             properties: ['openDirectory']
         }, function (directories) {
             if (!directories || directories.length === 0)
-                reject('No directory selected!');
+                resolve(null);
             else {
                 const directory = directories[0];
                 weaki.git.isRepository(directory)

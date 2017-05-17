@@ -11,8 +11,10 @@ class OpenFileCommand extends Command {
 function openFile (filePath) {
     if (!filePath) {
         return getFilePath()
-                .then(readFile)
-                .then(send);
+                .then(filePath => {
+                    if (filePath)
+                        return readFile(filePath).then(send);
+                });
     } else {
         return readFile(filePath)
                 .then(send);
@@ -26,7 +28,7 @@ function getFilePath () {
             defaultPath: app.getPath('desktop')
         }, files => {
             if (files === undefined)
-                reject('No file was selected!');
+                resolve(null);
             else if (files.length !== 1)
                 reject('You can only select one file!');
             else

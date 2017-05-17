@@ -86,7 +86,7 @@ class Weaki {
         return command.execute()
                 .then(result => {
                     if (commandArguments.length === 0)
-                        console.log(`Executed '${selector} with no arguments!`);
+                        console.log(`Executed '${selector}' with no arguments!`);
                     else
                         console.log(`Executed '${selector}' with arguments ${commandArguments}`);
 
