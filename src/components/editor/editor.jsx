@@ -78,6 +78,7 @@ class Editor extends React.Component {
         if (filePath !== this.state.currentFile.path)
             return;
 
+        this.state.currentFile.pendingChanges = false;
         if (isExternal) {
             weaki.fileManager.readFile(filePath)
                 .then(content => {
@@ -138,7 +139,14 @@ class Editor extends React.Component {
     }
 
     onTextChange (text) {
-        this.state.currentFile.currentContent = text;
+        const currentFile = this.state.currentFile;
+        currentFile.currentContent = text;
+
+        if (currentFile.currentContent !== currentFile.lastSavedContent)
+            currentFile.pendingChanges = true;
+        else
+            currentFile.pendingChanges = false;
+
         this.forceUpdate(this.fireOnChange.bind(this));
     }
 
@@ -158,7 +166,10 @@ class Editor extends React.Component {
 
 class FileTab extends React.Component {
     render () {
-        return <span>{path.basename(this.props.path)}</span>;
+        return <span className="editor-tab">
+            <span className="editor-tab-name">{path.basename(this.props.path)}</span>
+            { this.props.pendingChanges ? <span className="octicon-white octicon-primitive-dot"></span> : null }
+        </span>;
     }
 }
 

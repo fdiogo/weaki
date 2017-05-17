@@ -6,6 +6,28 @@
     padding: 0px;
     margin: 0px;
     background-color: #1d1f21;
+
+    .tabs-tab {
+        width: 180px;
+    }
+}
+
+.editor-tab {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    .editor-tab-name {
+        flex-shrink: 1;
+        overflow-x: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .octicon {
+        flex-shrink: 0;
+        margin-left: 6px;
+    }
 }
 
 .editor-buttons {
