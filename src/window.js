@@ -11,6 +11,7 @@ import StatusBar from './components/status-bar/status-bar';
 import GitCommit from './components/git-commit/git-commit';
 import FileHistory from './components/file-history/file-history';
 import Preview from './components/preview/preview';
+import Resizable from './components/resizable/resizable';
 
 /**
  * This React component represents the main window of the application
@@ -59,14 +60,18 @@ class Window extends React.Component {
             <base href={this.state.currentFile.path ? path.dirname(this.state.currentFile.path) + path.sep : '.'}/>
             <div id="workspace">
                 <div id="left-sidebar">
-                    <Explorer file={this.state.currentFile}/>
+                    <Resizable right>
+                        <Explorer file={this.state.currentFile}/>
+                    </Resizable>
                 </div>
                 <div id="main-panel">
                     <Editor onChange={file => this.setState({ currentFile: file })}/>
                 </div>
                 <Router history={this.state.rightSidebarHistory}>
                     <div id="right-sidebar">
-                        {sidebarRoutes}
+                        <Resizable left>
+                            {sidebarRoutes}
+                        </Resizable>
                     </div>
                 </Router>
             </div>

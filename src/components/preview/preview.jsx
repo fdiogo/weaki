@@ -4,7 +4,7 @@ import ReactMarkdown from 'react-markdown';
 class Preview extends React.Component {
 
     render () {
-        return <ReactMarkdown source={this.props.file.currentContent || ''} />;
+        return <ReactMarkdown className="markdown-preview" source={this.props.file.currentContent || ''} />;
     }
 
 }

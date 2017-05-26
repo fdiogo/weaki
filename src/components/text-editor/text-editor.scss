@@ -11,6 +11,10 @@
     margin: 0px;
     cursor: text;
 
+    ::-webkit-scrollbar {
+        cursor: pointer;
+    }
+
     pre {
         height: 100%;
         width: 100%;

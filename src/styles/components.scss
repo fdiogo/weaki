@@ -1,8 +1,10 @@
 @import '../components/editor/editor';
 @import '../components/explorer/explorer';
-@import '../components/status-bar/status-bar';
-@import '../components/image/image';
 @import '../components/file-history/file-history';
 @import '../components/git-commit/git-commit';
+@import '../components/image/image';
+@import '../components/preview/preview';
+@import '../components/status-bar/status-bar';
 @import '../components/tabs/tabs';
 @import '../components/text-editor/text-editor';
+@import '../components/resizable/resizable';

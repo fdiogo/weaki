@@ -25,20 +25,14 @@ html, body, #root {
 
         #left-sidebar, #main-panel, #right-sidebar {
             height: 100%;
-            flex-grow: 1;
-            min-width: 200px;
-        }
-
-        #left-sidebar {
-            overflow-y: auto;
-            overflow-x: hidden;
-            resize: horizontal;
         }
 
         #main-panel {
             display: flex;
             flex-direction: column;
             width: 100%;
+            flex-shrink: 1;
+            flex-grow: 1;
         }
     }
 

@@ -1,0 +1,23 @@
+@import '../../styles/theme';
+
+.resizable {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.resizable-content {
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+}
+
+.resizable-horizontal {
+    width: 4px;
+    height: 100%;
+    cursor: col-resize;
+    background-color: $primary-highlight-color;
+}
