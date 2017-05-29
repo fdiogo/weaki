@@ -80,55 +80,84 @@ class TextEditor extends React.Component {
         return delta;
     }
 
-    static generateDOMElements (delta, cursorIndex) {
-        const cursor = document.createElement('span');
-        cursor.className = 'blinking-cursor';
-        cursor.innerHTML = '<span></span>';
-
+    static generateTextNodes (delta, cursorIndex) {
         let characterCount = 0;
-        let domElements = [];
+        let textNodes = [];
         for (let op of delta.ops) {
+            const node = {
+                text: op.insert,
+                start: characterCount,
+                end: characterCount + op.insert.length,
+                element: document.createElement('span')
+            };
+
+            if (cursorIndex >= characterCount && cursorIndex <= characterCount + node.text.length)
+                TextEditor.attachCursor(node, cursorIndex - node.start);
+            else
+                node.element.innerHTML = node.text;
+
             op.attributes = op.attributes || { 'class-text-block': true };
-            const text = op.insert;
-            const element = document.createElement('span');
-            const classes = Object.keys(op.attributes)
-                                    .filter(prop => prop.indexOf('class-') === 0)
-                                    .map(prop => prop.substring('class-'.length));
-
-            element.className = classes.join(' ');
-            if (cursorIndex >= characterCount && cursorIndex <= characterCount + text.length) {
-                const beforeCursor = document.createTextNode(text.substring(0, cursorIndex - characterCount));
-                const afterCursor = document.createTextNode(text.substring(cursorIndex - characterCount));
-                element.appendChild(beforeCursor);
-                element.appendChild(cursor);
-                element.appendChild(afterCursor);
-            } else
-                element.innerHTML = text;
-
-            characterCount += text.length;
+            node.element.className = Object.keys(op.attributes)
+                                        .filter(prop => prop.indexOf('class-') === 0)
+                                        .map(prop => prop.substring('class-'.length))
+                                        .join('');
 
             if (op.attributes.events) {
                 Object.entries(op.attributes.events)
-                        .forEach(([eventName, callback]) => element.addEventListener(eventName, callback));
+                        .forEach(([eventName, callback]) => node.element.addEventListener(eventName, callback));
             }
 
-            if (op.attributes.popup) {
-                const popupElement = document.createElement('span');
-                popupElement.className = 'popup';
+            if (op.attributes.popup)
+                TextEditor.attachPopup(node, op.attributes.popup);
 
-                if (typeof op.attributes.popup === 'string')
-                    popupElement.innerHTML = op.attributes.popup;
-                else if (op.attributes.popup instanceof HTMLElement)
-                    popupElement.appendChild(op.attributes.popup);
-
-                element.addEventListener('mouseover', () => element.appendChild(popupElement));
-                element.addEventListener('mouseleave', () => element.removeChild(popupElement));
-            }
-
-            domElements.push(element);
+            textNodes.push(node);
+            characterCount += node.text.length;
         }
 
-        return domElements;
+        return textNodes;
+    }
+
+    static attachPopup (node, popup) {
+        const popupElement = document.createElement('span');
+        popupElement.className = 'popup';
+
+        if (typeof popup === 'string')
+            popupElement.innerHTML = popup;
+        else if (popup instanceof HTMLElement)
+            popupElement.appendChild(popup);
+
+        node.element.addEventListener('mouseover', () => node.element.appendChild(popupElement));
+        node.element.addEventListener('mouseleave', () => node.element.removeChild(popupElement));
+    }
+
+    static attachCursor (node, index) {
+        const textBeforeCursor = node.text.substring(0, index);
+        const textAfterCursor = node.text.substring(index);
+
+        const nodeBeforeCursor = {
+            text: textBeforeCursor,
+            start: node.start,
+            end: node.start + textBeforeCursor.length,
+            element: document.createTextNode(textBeforeCursor)
+        };
+
+        const nodeAfterCursor = {
+            text: textAfterCursor,
+            start: node.start + textBeforeCursor.length,
+            end: node.end,
+            element: document.createTextNode(textAfterCursor)
+        };
+
+        const cursorElement = document.createElement('span');
+        cursorElement.className = 'blinking-cursor';
+        cursorElement.innerHTML = '<span></span>';
+
+        node.element.appendChild(nodeBeforeCursor.element);
+        node.element.appendChild(cursorElement);
+        node.element.appendChild(nodeAfterCursor.element);
+        node.cursor = index;
+        node.beforeCursor = nodeBeforeCursor;
+        node.afterCursor = nodeAfterCursor;
     }
 
     constructor (props) {
@@ -139,6 +168,7 @@ class TextEditor extends React.Component {
         this.lastTextInsertTime = Date.now();
         this.state = {
             text: this.props.text,
+            textNodes: [],
             selection: {
                 start: 0,
                 end: 0
@@ -153,14 +183,18 @@ class TextEditor extends React.Component {
     }
 
     componentWillUpdate (nextProps, nextState) {
-        nextState.text = TextEditor.normalizeText(nextState.text);
-        let delta = TextEditor.generateDelta(nextState.text, nextState.selection, nextProps.decorators);
-        let domElements = TextEditor.generateDOMElements(delta, nextState.selection.end);
+        const text = TextEditor.normalizeText(nextState.text);
+        const delta = TextEditor.generateDelta(text, nextState.selection, nextProps.decorators);
+        const textNodes = TextEditor.generateTextNodes(delta, nextState.selection.end);
+
+        nextState.text = text;
+        nextState.delta = delta;
+        nextState.textNodes = textNodes;
 
         while (this.refs.root.hasChildNodes())
             this.refs.root.removeChild(this.refs.root.lastChild);
 
-        domElements.forEach(el => this.refs.root.appendChild(el));
+        textNodes.forEach(node => this.refs.root.appendChild(node.element));
     }
 
     componentDidUpdate (prevProps, prevState) {
@@ -193,6 +227,51 @@ class TextEditor extends React.Component {
         const handled = this.keyMapper.onKeyDown(event, accelerator);
         if (handled || event.key === 'Tab')
             event.preventDefault();
+    }
+
+    onMouseDown (event) {
+
+    }
+
+    onMouseMove (event) {
+
+    }
+
+    onMouseUp (event) {
+        const selection = document.getSelection();
+        const focusElement = selection.focusNode;
+        const anchorElement = selection.anchorNode;
+        if (!focusElement || !anchorElement)
+            return;
+
+        const focusTextNode = this.getTextNodeFromElement(focusElement);
+        const anchorTextNode = this.getTextNodeFromElement(anchorElement);
+        if (!focusTextNode || !anchorTextNode)
+            return;
+
+        const focusIndex = focusTextNode.start + selection.focusOffset;
+        const anchorIndex = anchorTextNode.start + selection.anchorOffset;
+        this.setSelection(anchorIndex, focusIndex);
+    }
+
+    getTextNodeFromElement (element) {
+        const originalElement = element;
+        while (element.nodeType === 3)
+            element = element.parentNode;
+
+        for (let node of this.state.textNodes) {
+            if (node === element)
+                return node;
+
+            if (node.hasOwnProperty('cursor')) {
+                if (originalElement === node.beforeCursor.element)
+                    return node.beforeCursor;
+                else if (originalElement === node.afterCursor.element)
+                    return node.afterCursor;
+            }
+        }
+
+        return null;
     }
 
     getIndexFromOffset (xOffset = 0, yOffset = 0) {
@@ -313,6 +392,9 @@ class TextEditor extends React.Component {
         });
     }
 
+    /**
+     * Selects all the text in the editor.
+     */
     selectAll () {
         this.setState({
             selection: {
@@ -559,10 +641,12 @@ class TextEditor extends React.Component {
         return <div className="text-editor hljs"
             tabIndex="0"
             onKeyPress={this.onKeyPress.bind(this)}
-            onKeyDown={this.onKeyDown.bind(this)}>
+            onKeyDown={this.onKeyDown.bind(this)}
+            onMouseDown={this.onMouseDown.bind(this)}
+            onMouseMove={this.onMouseMove.bind(this)}
+            onMouseUp={this.onMouseUp.bind(this)}>
             <pre>
                 <code ref="root">
-
                 </code>
             </pre>
         </div>;

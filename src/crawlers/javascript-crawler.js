@@ -30,7 +30,7 @@ class JavascriptCrawler extends FileCrawler {
                     break;
                 } else if (child.type === 'FunctionDeclaration' || child.type === 'ClassMethod') {
                     node = child;
-                    children = child.bod;
+                    children = child.body;
                     break;
                 }
             }
