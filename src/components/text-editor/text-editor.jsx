@@ -1,8 +1,11 @@
 /* eslint-env browser */
 import React from 'react';
+import ReactDOM from 'react-dom';
 import Delta from 'quill-delta';
 import { clipboard } from 'electron';
 import highlight from 'highlight.js';
+
+import ContentAssist from '../content-assist/content-assist';
 
 function getMatches (regex, string) {
     const matches = [];
@@ -84,6 +87,8 @@ class TextEditor extends React.Component {
         let characterCount = 0;
         let textNodes = [];
         for (let op of delta.ops) {
+            op.attributes = op.attributes || { 'class-text-block': true };
+
             const node = {
                 text: op.insert,
                 start: characterCount,
@@ -91,12 +96,7 @@ class TextEditor extends React.Component {
                 element: document.createElement('span')
             };
 
-            if (cursorIndex >= characterCount && cursorIndex <= characterCount + node.text.length)
-                TextEditor.attachCursor(node, cursorIndex - node.start);
-            else
-                node.element.innerHTML = node.text;
-
-            op.attributes = op.attributes || { 'class-text-block': true };
+            node.element.innerHTML = node.text;
             node.element.className = Object.keys(op.attributes)
                                         .filter(prop => prop.indexOf('class-') === 0)
                                         .map(prop => prop.substring('class-'.length))
@@ -130,7 +130,7 @@ class TextEditor extends React.Component {
         node.element.addEventListener('mouseleave', () => node.element.removeChild(popupElement));
     }
 
-    static attachCursor (node, index) {
+    static attachCursor (node, cursor, index) {
         const textBeforeCursor = node.text.substring(0, index);
         const textAfterCursor = node.text.substring(index);
 
@@ -148,12 +148,11 @@ class TextEditor extends React.Component {
             element: document.createTextNode(textAfterCursor)
         };
 
-        const cursorElement = document.createElement('span');
-        cursorElement.className = 'blinking-cursor';
-        cursorElement.innerHTML = '<span></span>';
+        while (node.element.hasChildNodes())
+            node.element.removeChild(node.element.lastChild);
 
         node.element.appendChild(nodeBeforeCursor.element);
-        node.element.appendChild(cursorElement);
+        node.element.appendChild(cursor);
         node.element.appendChild(nodeAfterCursor.element);
         node.cursor = index;
         node.beforeCursor = nodeBeforeCursor;
@@ -169,6 +168,7 @@ class TextEditor extends React.Component {
         this.state = {
             text: this.props.text,
             textNodes: [],
+            suggestions: [],
             selection: {
                 start: 0,
                 end: 0
@@ -187,9 +187,35 @@ class TextEditor extends React.Component {
         const delta = TextEditor.generateDelta(text, nextState.selection, nextProps.decorators);
         const textNodes = TextEditor.generateTextNodes(delta, nextState.selection.end);
 
+        const cursor = this.generateCursor();
+        const node = textNodes.find(node => nextState.selection.end >= node.start && nextState.selection.end <= node.end);
+        if (node)
+            TextEditor.attachCursor(node, cursor, nextState.selection.end - node.start);
+
         nextState.text = text;
         nextState.delta = delta;
         nextState.textNodes = textNodes;
+        nextState.suggestions = [];
+
+        const textBeforeCursor = nextState.text.substring(0, nextState.selection.end);
+        const textAfterCursor = nextState.text.substring(nextState.selection.end);
+        const matches = textBeforeCursor.match(/\b\w+$/gi);
+        const lastWord = matches ? matches[0] : null;
+        if (lastWord && 'hello!'.indexOf(lastWord) === 0) {
+            nextState.suggestions.push({
+                type: 0,
+                text: 'hello!',
+                action: () => this.setState({ text: textBeforeCursor.replace(lastWord, 'hello!') + textAfterCursor })
+            });
+        }
+
+        if (lastWord && 'hey!'.indexOf(lastWord) === 0) {
+            nextState.suggestions.push({
+                type: 0,
+                text: 'hey!',
+                action: () => this.setState({ text: textBeforeCursor.replace(lastWord, 'hey!') + textAfterCursor })
+            });
+        }
 
         while (this.refs.root.hasChildNodes())
             this.refs.root.removeChild(this.refs.root.lastChild);
@@ -229,14 +255,6 @@ class TextEditor extends React.Component {
             event.preventDefault();
     }
 
-    onMouseDown (event) {
-
-    }
-
-    onMouseMove (event) {
-
-    }
-
     onMouseUp (event) {
         const selection = document.getSelection();
         const focusElement = selection.focusNode;
@@ -252,6 +270,22 @@ class TextEditor extends React.Component {
         const focusIndex = focusTextNode.start + selection.focusOffset;
         const anchorIndex = anchorTextNode.start + selection.anchorOffset;
         this.setSelection(anchorIndex, focusIndex);
+    }
+
+    generateCursor () {
+        const cursor = document.createElement('span');
+        cursor.className = 'blinking-cursor';
+
+        if (this.state.suggestions.length === 0)
+            return cursor;
+
+        const popup = document.createElement('span');
+        popup.className = 'popup';
+
+        ReactDOM.render(<ContentAssist suggestions={this.state.suggestions}/>, popup);
+
+        cursor.appendChild(popup);
+        return cursor;
     }
 
     getTextNodeFromElement (element) {
@@ -642,8 +676,6 @@ class TextEditor extends React.Component {
             tabIndex="0"
             onKeyPress={this.onKeyPress.bind(this)}
             onKeyDown={this.onKeyDown.bind(this)}
-            onMouseDown={this.onMouseDown.bind(this)}
-            onMouseMove={this.onMouseMove.bind(this)}
             onMouseUp={this.onMouseUp.bind(this)}>
             <pre>
                 <code ref="root">
