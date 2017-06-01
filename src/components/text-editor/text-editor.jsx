@@ -159,6 +159,50 @@ class TextEditor extends React.Component {
         node.afterCursor = nodeAfterCursor;
     }
 
+    static getCurrentLine (state) {
+        if (!state || !state.selection || !state.text)
+            return null;
+
+        const selection = state.selection;
+        const text = state.text;
+
+        let startIndex = text.substring(0, selection.end).lastIndexOf('\n') + 1;
+        let endIndex = text.substring(selection.end).indexOf('\n');
+        if (endIndex === -1)
+            endIndex = text.length;
+        else
+            endIndex += selection.end;
+
+        return {
+            start: startIndex,
+            end: endIndex,
+            text: text.substring(startIndex, endIndex)
+        };
+    }
+
+    static getCurrentWord (state) {
+        if (!state || !state.selection)
+            return null;
+
+        const cursorIndex = state.selection.end;
+        const text = state.text;
+
+        let startIndex = text.substring(0, cursorIndex).search(/\W[^\W]*$/) + 1;
+        startIndex = Math.min(startIndex, text.length - 1);
+
+        let endIndex = text.substring(cursorIndex).search(/\W/);
+        if (endIndex === -1)
+            endIndex = text.length;
+        else
+            endIndex = Math.max(cursorIndex, Math.min(endIndex + cursorIndex, text.length));
+
+        return {
+            start: startIndex,
+            end: endIndex,
+            text: text.substring(startIndex, endIndex)
+        };
+    }
+
     constructor (props) {
         super(props);
         this.keyMapper = this.props.keyMapper || new DefaultKeyMapper(this);
@@ -182,6 +226,10 @@ class TextEditor extends React.Component {
         });
     }
 
+    shouldComponentUpdate (nextProps, nextState) {
+        return nextProps !== this.props || nextState !== this.state;
+    }
+
     componentWillUpdate (nextProps, nextState) {
         const text = TextEditor.normalizeText(nextState.text);
         const delta = TextEditor.generateDelta(text, nextState.selection, nextProps.decorators);
@@ -197,6 +245,19 @@ class TextEditor extends React.Component {
         nextState.textNodes = textNodes;
         nextState.suggestions = [];
 
+        const textDescriptor = {
+            currentLine: TextEditor.getCurrentLine(nextState),
+            currentWord: TextEditor.getCurrentWord(nextState),
+            allText: text
+        };
+
+        for (let suggestor of this.props.suggestors) {
+            const suggestion = suggestor(textDescriptor);
+            if (suggestion)
+                nextState.suggestions.push(suggestion);
+        }
+
+        /*
         const textBeforeCursor = nextState.text.substring(0, nextState.selection.end);
         const textAfterCursor = nextState.text.substring(nextState.selection.end);
         const matches = textBeforeCursor.match(/\b\w+$/gi);
@@ -216,6 +277,7 @@ class TextEditor extends React.Component {
                 action: () => this.setState({ text: textBeforeCursor.replace(lastWord, 'hey!') + textAfterCursor })
             });
         }
+        */
 
         while (this.refs.root.hasChildNodes())
             this.refs.root.removeChild(this.refs.root.lastChild);
@@ -397,6 +459,29 @@ class TextEditor extends React.Component {
      */
     getCurrentText () {
         return this.state.text;
+    }
+
+    /**
+     * @typedef {object} Excerpt
+     * @property {number} start The start index of the excerpt.
+     * @property {number} end The end index of the excerpt.
+     * @property {string} text The excerpt's content.
+     */
+
+    /**
+     * Obtains the entire line of text on the cursor.
+     * @returns {Excerpt} The current line.
+     */
+    getCurrentLine () {
+        return TextEditor.getCurrentLine(this.state);
+    }
+
+    /**
+     * Obtains the current word on the cursor.
+     * @returns {Excerpt} The current word.
+     */
+    getCurrentWord () {
+        return TextEditor.getCurrentWord(this.state);
     }
 
     isTextSelected () {
@@ -696,6 +781,7 @@ TextEditor.propTypes = {
 TextEditor.defaultProps = {
     text: '',
     decorators: [],
+    suggestors: [],
     historyTimeout: 300
 };
 

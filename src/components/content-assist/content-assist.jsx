@@ -27,11 +27,11 @@ class ContentAssist extends React.Component {
 class Suggestion extends React.Component {
 
     render () {
-        let className = 'content-assist-suggestion';
+        let classes = ['content-assist-suggestion'];
         if (this.props.selected)
-            className += '-selected';
+            classes.push('content-assist-suggestion-selected');
 
-        return <div className={className} onClick={this.props.action}>
+        return <div className={classes.join(' ')} onClick={this.props.action}>
             <span className="octicon-white octicon-git-branch"></span>
             {this.props.text}
         </div>;

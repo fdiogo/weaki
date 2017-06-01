@@ -2,12 +2,15 @@
 
 .content-assist {
 
-}
+    .content-assist-suggestion {
+        cursor: pointer;
 
-.content-assist-suggestion {
+        &:hover {
+            background-color: lighten($primary-highlight-color, 20%);
+        }
+    }
 
-}
-
-.content-assist-suggestion-selected {
-    background-color: $primary-highlight-color;
+    .content-assist-suggestion-selected {
+        background-color: $primary-highlight-color;
+    }
 }

@@ -26,6 +26,27 @@ class Editor extends React.Component {
             currentFile: new File()
         };
 
+        this.suggestors = [
+            (textDescriptor) => {
+                const index = 'hello'.indexOf(textDescriptor.currentWord.text);
+                if (index === 0) {
+                    return {
+                        type: 0,
+                        text: 'hello'
+                    };
+                }
+            },
+            (textDescriptor) => {
+                const index = 'hey'.indexOf(textDescriptor.currentWord.text);
+                if (index === 0) {
+                    return {
+                        type: 0,
+                        text: 'hey'
+                    };
+                }
+            }
+        ];
+
         // Events
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
         ipcRenderer.on('application:current-file', this.onCurrentFile.bind(this));
@@ -159,7 +180,8 @@ class Editor extends React.Component {
             <TextEditor ref="textEditor"
                 text={this.state.currentFile.currentContent}
                 onChange={this.onTextChange.bind(this)}
-                decorators={this.decorators}/>
+                decorators={this.decorators}
+                suggestors={this.suggestors}/>
         </div>;
     }
 }
