@@ -187,10 +187,10 @@ class TextEditor extends React.Component {
         const cursorIndex = state.selection.end;
         const text = state.text;
 
-        let startIndex = text.substring(0, cursorIndex).search(/\W[^\W]*$/) + 1;
+        let startIndex = text.substring(0, cursorIndex).search(/\s[^\s]*$/) + 1;
         startIndex = Math.min(startIndex, text.length - 1);
 
-        let endIndex = text.substring(cursorIndex).search(/\W/);
+        let endIndex = text.substring(cursorIndex).search(/(?!^)\S/);
         if (endIndex === -1)
             endIndex = text.length;
         else
@@ -252,9 +252,11 @@ class TextEditor extends React.Component {
         };
 
         for (let suggestor of this.props.suggestors) {
-            const suggestion = suggestor(textDescriptor);
-            if (suggestion)
-                nextState.suggestions.push(suggestion);
+            const suggestions = suggestor.getSuggestions(textDescriptor);
+            if (!suggestions || suggestions.length < 1)
+                continue;
+
+            nextState.suggestions.push(...suggestions);
         }
 
         /*

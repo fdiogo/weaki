@@ -57,7 +57,10 @@ class Weaki {
                 files.forEach(file => file.isDirectory = file.isDirectory());
                 this.mainWindow.webContents.send('application:directory-loaded', directory, files);
             })
-            .then(() => this.fileManager.setWorkspace(directory));
+            .then(() => {
+                this.fileManager.setWorkspace(directory);
+                this.mainWindow.webContents.send('application:workspace-changed', directory);
+            });
     }
 
     /**
@@ -160,9 +163,9 @@ function launchMainWindow () {
     return mainWindow;
 }
 
-function onFileAdd (filePath) {
-    this.mainWindow.webContents.send('application:file-created', filePath);
-}
+// function onFileAdd (filePath) {
+//     this.mainWindow.webContents.send('application:file-created', filePath);
+// }
 
 const instance = new Weaki();
 global.instance = instance;

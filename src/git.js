@@ -115,6 +115,19 @@ class Git {
     }
 
     /**
+     * Obtains all the commits for the current repository.
+     * @returns {Promise.<Object[], Error>} A promise to the repository commits.
+     */
+    getCommits () {
+        return new Promise((resolve, reject) => {
+            this.gitInterface.log(function (err, data) {
+                if (err) reject(new Error(err));
+                else resolve(data);
+            });
+        });
+    }
+
+    /**
      * Obtains all the commits where a specific file was changed.
      * @returns {Promise.<Object, Error>} A promise to the commits.
      */

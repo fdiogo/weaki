@@ -6,6 +6,7 @@ import Tabs from '../tabs/tabs';
 
 import ImageDecorator from '../../decorators/image-decorator';
 import ReferenceDecorator from '../../decorators/reference-decorator';
+import GitCommitSuggestor from '../../content-suggestors/git-commit-suggestor';
 
 const weaki = remote.getGlobal('instance');
 
@@ -26,26 +27,28 @@ class Editor extends React.Component {
             currentFile: new File()
         };
 
-        this.suggestors = [
-            (textDescriptor) => {
-                const index = 'hello'.indexOf(textDescriptor.currentWord.text);
-                if (index === 0) {
-                    return {
-                        type: 0,
-                        text: 'hello'
-                    };
-                }
-            },
-            (textDescriptor) => {
-                const index = 'hey'.indexOf(textDescriptor.currentWord.text);
-                if (index === 0) {
-                    return {
-                        type: 0,
-                        text: 'hey'
-                    };
-                }
-            }
-        ];
+        this.suggestors = [new GitCommitSuggestor()];
+
+        // this.suggestors = [
+        //     (textDescriptor) => {
+        //         const index = 'hello'.indexOf(textDescriptor.currentWord.text);
+        //         if (index === 0) {
+        //             return {
+        //                 type: 0,
+        //                 text: 'hello'
+        //             };
+        //         }
+        //     },
+        //     (textDescriptor) => {
+        //         const index = 'hey'.indexOf(textDescriptor.currentWord.text);
+        //         if (index === 0) {
+        //             return {
+        //                 type: 0,
+        //                 text: 'hey'
+        //             };
+        //         }
+        //     }
+        // ];
 
         // Events
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
