@@ -1,5 +1,6 @@
 /* eslint-env browser */
 import React from 'react';
+import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
 import Delta from 'quill-delta';
 import { clipboard } from 'electron';
@@ -773,11 +774,11 @@ class TextEditor extends React.Component {
 }
 
 TextEditor.propTypes = {
-    text: React.PropTypes.string.isRequired,
-    onChange: React.PropTypes.func.isRequired,
-    decorators: React.PropTypes.array,
-    keyMapper: React.PropTypes.object,
-    historyTimeout: React.PropTypes.number
+    text: PropTypes.string.isRequired,
+    onChange: PropTypes.func.isRequired,
+    decorators: PropTypes.array,
+    keyMapper: PropTypes.object,
+    historyTimeout: PropTypes.number
 };
 
 TextEditor.defaultProps = {
