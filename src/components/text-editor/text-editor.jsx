@@ -1,12 +1,14 @@
 /* eslint-env browser */
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactDOM from 'react-dom';
-import Delta from 'quill-delta';
 import { clipboard } from 'electron';
 import highlight from 'highlight.js';
+import TextEditorNode from './text-editor-node';
 
-import ContentAssist from '../content-assist/content-assist';
+import SelectionDecorator from '../../decorators/selection-decorator';
+import CursorDecorator from '../../decorators/cursor-decorator/cursor-decorator';
+
+const DELIMITER_REGEX = /(?!^)\b/g;
 
 function getMatches (regex, string) {
     const matches = [];
@@ -38,8 +40,6 @@ function getAccelerator (event) {
     return accelerator;
 }
 
-const DELIMITER_REGEX = /(?!^)\b/g;
-
 /**
  * The React component that represents the application's editor.
  */
@@ -49,115 +49,31 @@ class TextEditor extends React.Component {
         return text.replace(/(\r\n|\r)/, '\n');
     }
 
-    static generateDelta (text, selection, decorators) {
-        const isReverseSelection = selection.start > selection.end;
+    static generateDOM (text, selection, decorators, suggestions) {
+        const editorNodeRoot = new TextEditorNode(0, text.length, 'span');
 
-        let delta = new Delta().insert(text);
+        let selectionStart = selection.start;
+        let selectionEnd = selection.end;
+        if (selection.start > selection.end) {
+            selectionStart = selection.end;
+            selectionEnd = selection.start;
+        }
 
-        let selectionStart = isReverseSelection ? selection.end : selection.start;
-        let selectionLength = isReverseSelection ? selection.start - selection.end : selection.end - selection.start;
-        let selectionDelta = new Delta().retain(selectionStart).retain(selectionLength, { 'class-selected': true });
-
-        delta = delta.compose(selectionDelta);
         for (let decorator of decorators) {
             const matches = getMatches(decorator.regex, text);
             for (let match of matches) {
-                const attributes = {};
-                const className = decorator.getClass ? 'class-' + decorator.getClass(match) : 'class-decorator';
-                attributes[className] = true;
-
-                if (decorator.getPopup)
-                    attributes.popup = decorator.getPopup(match);
-
-                if (decorator.events) {
-                    attributes.events = {};
-                    Object.entries(decorator.events)
-                            .map(([eventName, callback]) => [eventName, callback.bind(null, match)])
-                            .forEach(([eventName, callback]) => attributes.events[eventName] = callback);
-                }
-
-                const decoratorDelta = new Delta().retain(match.index).retain(match[0].length, attributes);
-                delta = delta.compose(decoratorDelta);
+                const start = match.index;
+                const end = start + match[0].length;
+                editorNodeRoot.tryInsert(new TextEditorNode(start, end, decorator, { match: match }));
             }
         }
 
-        return delta;
-    }
+        const selectionNode = new TextEditorNode(selectionStart, selectionEnd, SelectionDecorator);
+        const cursorNode = new TextEditorNode(selection.end, selection.end, CursorDecorator, { suggestions: suggestions });
+        editorNodeRoot.tryInsert(selectionNode);
+        selectionNode.tryInsert(cursorNode);
 
-    static generateTextNodes (delta, cursorIndex) {
-        let characterCount = 0;
-        let textNodes = [];
-        for (let op of delta.ops) {
-            op.attributes = op.attributes || { 'class-text-block': true };
-
-            const node = {
-                text: op.insert,
-                start: characterCount,
-                end: characterCount + op.insert.length,
-                element: document.createElement('span')
-            };
-
-            node.element.innerHTML = node.text;
-            node.element.className = Object.keys(op.attributes)
-                                        .filter(prop => prop.indexOf('class-') === 0)
-                                        .map(prop => prop.substring('class-'.length))
-                                        .join('');
-
-            if (op.attributes.events) {
-                Object.entries(op.attributes.events)
-                        .forEach(([eventName, callback]) => node.element.addEventListener(eventName, callback));
-            }
-
-            if (op.attributes.popup)
-                TextEditor.attachPopup(node, op.attributes.popup);
-
-            textNodes.push(node);
-            characterCount += node.text.length;
-        }
-
-        return textNodes;
-    }
-
-    static attachPopup (node, popup) {
-        const popupElement = document.createElement('span');
-        popupElement.className = 'popup';
-
-        if (typeof popup === 'string')
-            popupElement.innerHTML = popup;
-        else if (popup instanceof HTMLElement)
-            popupElement.appendChild(popup);
-
-        node.element.addEventListener('mouseover', () => node.element.appendChild(popupElement));
-        node.element.addEventListener('mouseleave', () => node.element.removeChild(popupElement));
-    }
-
-    static attachCursor (node, cursor, index) {
-        const textBeforeCursor = node.text.substring(0, index);
-        const textAfterCursor = node.text.substring(index);
-
-        const nodeBeforeCursor = {
-            text: textBeforeCursor,
-            start: node.start,
-            end: node.start + textBeforeCursor.length,
-            element: document.createTextNode(textBeforeCursor)
-        };
-
-        const nodeAfterCursor = {
-            text: textAfterCursor,
-            start: node.start + textBeforeCursor.length,
-            end: node.end,
-            element: document.createTextNode(textAfterCursor)
-        };
-
-        while (node.element.hasChildNodes())
-            node.element.removeChild(node.element.lastChild);
-
-        node.element.appendChild(nodeBeforeCursor.element);
-        node.element.appendChild(cursor);
-        node.element.appendChild(nodeAfterCursor.element);
-        node.cursor = index;
-        node.beforeCursor = nodeBeforeCursor;
-        node.afterCursor = nodeAfterCursor;
+        return editorNodeRoot.render(text);
     }
 
     static getCurrentLine (state) {
@@ -212,13 +128,12 @@ class TextEditor extends React.Component {
         this.lastTextInsertTime = Date.now();
         this.state = {
             text: this.props.text,
-            textNodes: [],
+            dom: null,
             suggestions: [],
             selection: {
                 start: 0,
                 end: 0
-            },
-            html: ''
+            }
         };
 
         highlight.configure({
@@ -233,17 +148,7 @@ class TextEditor extends React.Component {
 
     componentWillUpdate (nextProps, nextState) {
         const text = TextEditor.normalizeText(nextState.text);
-        const delta = TextEditor.generateDelta(text, nextState.selection, nextProps.decorators);
-        const textNodes = TextEditor.generateTextNodes(delta, nextState.selection.end);
-
-        const cursor = this.generateCursor();
-        const node = textNodes.find(node => nextState.selection.end >= node.start && nextState.selection.end <= node.end);
-        if (node)
-            TextEditor.attachCursor(node, cursor, nextState.selection.end - node.start);
-
         nextState.text = text;
-        nextState.delta = delta;
-        nextState.textNodes = textNodes;
         nextState.suggestions = [];
 
         const textDescriptor = {
@@ -260,32 +165,7 @@ class TextEditor extends React.Component {
             nextState.suggestions.push(...suggestions);
         }
 
-        /*
-        const textBeforeCursor = nextState.text.substring(0, nextState.selection.end);
-        const textAfterCursor = nextState.text.substring(nextState.selection.end);
-        const matches = textBeforeCursor.match(/\b\w+$/gi);
-        const lastWord = matches ? matches[0] : null;
-        if (lastWord && 'hello!'.indexOf(lastWord) === 0) {
-            nextState.suggestions.push({
-                type: 0,
-                text: 'hello!',
-                action: () => this.setState({ text: textBeforeCursor.replace(lastWord, 'hello!') + textAfterCursor })
-            });
-        }
-
-        if (lastWord && 'hey!'.indexOf(lastWord) === 0) {
-            nextState.suggestions.push({
-                type: 0,
-                text: 'hey!',
-                action: () => this.setState({ text: textBeforeCursor.replace(lastWord, 'hey!') + textAfterCursor })
-            });
-        }
-        */
-
-        while (this.refs.root.hasChildNodes())
-            this.refs.root.removeChild(this.refs.root.lastChild);
-
-        textNodes.forEach(node => this.refs.root.appendChild(node.element));
+        nextState.dom = TextEditor.generateDOM(text, nextState.selection, nextProps.decorators, nextState.suggestions);
     }
 
     componentDidUpdate (prevProps, prevState) {
@@ -320,57 +200,34 @@ class TextEditor extends React.Component {
             event.preventDefault();
     }
 
-    onMouseUp (event) {
+    onMouseUp () {
+        this.updateSelectionFromNative();
+    }
+
+    onDoubleClick () {
+        this.updateSelectionFromNative();
+    }
+
+    updateSelectionFromNative () {
         const selection = document.getSelection();
-        const focusElement = selection.focusNode;
-        const anchorElement = selection.anchorNode;
+        let focusElement = selection.focusNode;
+        let anchorElement = selection.anchorNode;
         if (!focusElement || !anchorElement)
             return;
 
-        const focusTextNode = this.getTextNodeFromElement(focusElement);
-        const anchorTextNode = this.getTextNodeFromElement(anchorElement);
-        if (!focusTextNode || !anchorTextNode)
+        while (focusElement !== this.refs.container && (!focusElement.dataset || !focusElement.dataset.start))
+            focusElement = focusElement.parentElement;
+
+        while (anchorElement !== this.refs.container && (!anchorElement.dataset || !anchorElement.dataset.start))
+            anchorElement = anchorElement.parentElement;
+
+        if (focusElement === this.refs.container || anchorElement === this.refs.container)
             return;
 
-        const focusIndex = focusTextNode.start + selection.focusOffset;
-        const anchorIndex = anchorTextNode.start + selection.anchorOffset;
+        const focusIndex = parseInt(focusElement.dataset.start) + selection.focusOffset;
+        const anchorIndex = parseInt(anchorElement.dataset.start) + selection.anchorOffset;
+        selection.empty();
         this.setSelection(anchorIndex, focusIndex);
-    }
-
-    generateCursor () {
-        const cursor = document.createElement('span');
-        cursor.className = 'blinking-cursor';
-
-        if (this.state.suggestions.length === 0)
-            return cursor;
-
-        const popup = document.createElement('span');
-        popup.className = 'popup';
-
-        ReactDOM.render(<ContentAssist suggestions={this.state.suggestions}/>, popup);
-
-        cursor.appendChild(popup);
-        return cursor;
-    }
-
-    getTextNodeFromElement (element) {
-        const originalElement = element;
-        while (element.nodeType === 3)
-            element = element.parentNode;
-
-        for (let node of this.state.textNodes) {
-            if (node === element)
-                return node;
-
-            if (node.hasOwnProperty('cursor')) {
-                if (originalElement === node.beforeCursor.element)
-                    return node.beforeCursor;
-                else if (originalElement === node.afterCursor.element)
-                    return node.afterCursor;
-            }
-        }
-
-        return null;
     }
 
     getIndexFromOffset (xOffset = 0, yOffset = 0) {
@@ -761,12 +618,15 @@ class TextEditor extends React.Component {
 
     render () {
         return <div className="text-editor hljs"
+            ref="container"
             tabIndex="0"
             onKeyPress={this.onKeyPress.bind(this)}
             onKeyDown={this.onKeyDown.bind(this)}
-            onMouseUp={this.onMouseUp.bind(this)}>
+            onMouseUp={this.onMouseUp.bind(this)}
+            onDoubleClick={this.onDoubleClick.bind(this)}>
             <pre>
-                <code ref="root">
+                <code>
+                    {this.state.dom}
                 </code>
             </pre>
         </div>;

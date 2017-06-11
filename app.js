@@ -4,8 +4,11 @@ import url from 'url';
 
 import Git from './src/git';
 import FileManager from './src/file-manager';
+import FileInterpreter from './src/file-interpreter';
 import CommandRegistry from './src/command-registry';
 import MenuTemplate from './src/menu-template';
+
+import JavascriptInterpreter from './src/code-interpreters/javascript-interpreter';
 
 // Commands
 import OpenFileCommand from './src/commands/open-file-command';
@@ -44,6 +47,7 @@ class Weaki {
             registerChannelListeners.call(this);
             this.git = new Git();
             this.fileManager = new FileManager();
+            this.fileInterpreter = new FileInterpreter(this.fileManager, [JavascriptInterpreter]);
             this.mainWindow = launchMainWindow.call(this);
         });
 

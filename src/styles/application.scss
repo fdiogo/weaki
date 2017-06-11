@@ -17,16 +17,19 @@
     cursor: pointer;
 }
 
-.octicon, .glyphicon {
+.octicon, .glyphicon, .icon {
+    display: inline-block;
+    fill: currentColor;
     height: 16px;
     width: 16px;
     background-repeat: no-repeat;
     background-size: 16px 16px;
+    vertical-align: text-top;
+}
 
-    &-white {
-        @extend .octicon;
-        filter: invert(1);
-    }
+.octicon-white {
+    @extend .octicon;
+    filter: invert(1);
 }
 
 .octicon-bold {
@@ -95,4 +98,8 @@
 
 .glyphicon-table {
     background-image: url("../../assets/glyphicon-table.png");
+}
+
+.icon-javascript {
+    background-image: url("../../assets/javascript.png");
 }

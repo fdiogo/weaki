@@ -7,6 +7,7 @@ import Tabs from '../tabs/tabs';
 import ImageDecorator from '../../decorators/image-decorator';
 import ReferenceDecorator from '../../decorators/reference-decorator';
 import GitCommitSuggestor from '../../content-suggestors/git-commit-suggestor';
+import JavascriptSuggestor from '../../content-suggestors/javascript-suggestor';
 
 const weaki = remote.getGlobal('instance');
 
@@ -27,28 +28,8 @@ class Editor extends React.Component {
             currentFile: new File()
         };
 
-        this.suggestors = [new GitCommitSuggestor()];
-
-        // this.suggestors = [
-        //     (textDescriptor) => {
-        //         const index = 'hello'.indexOf(textDescriptor.currentWord.text);
-        //         if (index === 0) {
-        //             return {
-        //                 type: 0,
-        //                 text: 'hello'
-        //             };
-        //         }
-        //     },
-        //     (textDescriptor) => {
-        //         const index = 'hey'.indexOf(textDescriptor.currentWord.text);
-        //         if (index === 0) {
-        //             return {
-        //                 type: 0,
-        //                 text: 'hey'
-        //             };
-        //         }
-        //     }
-        // ];
+        this.suggestors = [new GitCommitSuggestor(), new JavascriptSuggestor()];
+        this.decorators = [ReferenceDecorator];
 
         // Events
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
@@ -68,8 +49,6 @@ class Editor extends React.Component {
         ipcRenderer.on('editor:code', () => this.refs.textEditor.code());
         ipcRenderer.on('editor:horizontal-rule', () => this.refs.textEditor.horizontalRule());
         ipcRenderer.on('editor:image', () => this.refs.textEditor.image());
-
-        this.decorators = [ImageDecorator, ReferenceDecorator];
     }
 
     /**

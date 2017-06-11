@@ -10,7 +10,7 @@ class GitCommitSuggestor {
     static commitToSuggestion (commit) {
         const smallHash = commit.hash.substring(commit.hash.length - 1 - 5);
         return {
-            type: 0,
+            icon: 'octicon-white octicon-git-branch',
             text: `${smallHash} ${commit.message}`
         };
     }

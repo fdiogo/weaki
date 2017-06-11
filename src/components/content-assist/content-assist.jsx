@@ -32,7 +32,7 @@ class Suggestion extends React.Component {
             classes.push('content-assist-suggestion-selected');
 
         return <div className={classes.join(' ')} onClick={this.props.action}>
-            <span className="octicon-white octicon-git-branch"></span>
+            <span className={this.props.icon}></span>
             {this.props.text}
         </div>;
     }
@@ -46,13 +46,8 @@ ContentAssist.defaultProps = {
     suggestions: []
 };
 
-Suggestion.Type = {
-    CODE: 0,
-    GIT: 1
-};
-
 Suggestion.PropTypes = {
-    type: PropTypes.number,
+    icon: PropTypes.string,
     text: PropTypes.string,
     action: PropTypes.func,
     selected: PropTypes.bool

@@ -1,0 +1,15 @@
+.cursor {
+    display: inline;
+    margin-left: -1px;
+    border-left: 1px solid white;
+    animation: 1s blink step-end infinite;
+}
+
+@-webkit-keyframes "blink" {
+    from, to {
+        border-color: white;
+    }
+    50% {
+        border-color: transparent;
+    }
+}
