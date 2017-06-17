@@ -5,7 +5,7 @@ import { clipboard } from 'electron';
 import highlight from 'highlight.js';
 import TextEditorNode from './text-editor-node';
 
-import SelectionDecorator from '../../decorators/selection-decorator';
+import SelectionDecorator from '../../decorators/selection-decorator/selection-decorator';
 import CursorDecorator from '../../decorators/cursor-decorator/cursor-decorator';
 
 const DELIMITER_REGEX = /(?!^)\b/g;
@@ -129,7 +129,6 @@ class TextEditor extends React.Component {
         this.state = {
             text: this.props.text,
             dom: null,
-            suggestions: [],
             selection: {
                 start: 0,
                 end: 0
@@ -143,7 +142,10 @@ class TextEditor extends React.Component {
     }
 
     shouldComponentUpdate (nextProps, nextState) {
-        return nextProps !== this.props || nextState !== this.state;
+        if (nextState !== this.state)
+            return true;
+
+        return false;
     }
 
     componentWillUpdate (nextProps, nextState) {
@@ -215,11 +217,17 @@ class TextEditor extends React.Component {
         if (!focusElement || !anchorElement)
             return;
 
-        while (focusElement !== this.refs.container && (!focusElement.dataset || !focusElement.dataset.start))
+        while (focusElement && focusElement !== this.refs.container && (!focusElement.dataset || !focusElement.dataset.start))
             focusElement = focusElement.parentElement;
 
-        while (anchorElement !== this.refs.container && (!anchorElement.dataset || !anchorElement.dataset.start))
+        if (!focusElement)
+            return;
+
+        while (anchorElement && anchorElement !== this.refs.container && (!anchorElement.dataset || !anchorElement.dataset.start))
             anchorElement = anchorElement.parentElement;
+
+        if (!anchorElement)
+            return;
 
         if (focusElement === this.refs.container || anchorElement === this.refs.container)
             return;

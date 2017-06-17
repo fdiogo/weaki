@@ -1,7 +1,7 @@
 /* eslint-env browser */
-import Decorator from './decorator';
+import Decorator from '../decorator';
 import React from 'react'; // eslint-disable-line
 
 class SelectionDecorator extends Decorator {}
-SelectionDecorator.defaultProps = { class: 'selected' };
+SelectionDecorator.defaultProps = { className: 'selected' };
 export default SelectionDecorator;

@@ -1,0 +1,10 @@
+.reference {
+    color: #ae81ff;
+
+    &-preview {
+        @extend .reference;
+
+        text-decoration: underline;
+        cursor: pointer;
+    }
+}

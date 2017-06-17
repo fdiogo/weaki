@@ -2,6 +2,7 @@
 import Decorator from '../decorator';
 import ContentAssist from '../../components/content-assist/content-assist';
 import React from 'react'; // eslint-disable-line
+import PropTypes from 'prop-types';
 
 class CursorDecorator extends Decorator {
 
@@ -15,8 +16,12 @@ class CursorDecorator extends Decorator {
 };
 
 CursorDecorator.breakable = false;
+CursorDecorator.propType = {
+    suggestions: PropTypes.array
+};
+
 CursorDecorator.defaultProps = {
-    class: 'cursor',
+    className: 'cursor',
     suggestions: []
 };
 

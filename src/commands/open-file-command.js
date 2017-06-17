@@ -38,6 +38,8 @@ function getFilePath () {
 }
 
 function readFile (filePath) {
+    filePath = weaki.fileManager.resolvePath(filePath);
+
     return weaki.fileManager.readFile(filePath)
                 .then(content => ({path: filePath, content: content}));
 }

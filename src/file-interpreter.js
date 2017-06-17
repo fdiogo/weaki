@@ -83,7 +83,8 @@ class FileInterpreter {
 
             const extensionWithoutDot = extension.substring(1);
             interpreter = this.interpretersByExtension[extensionWithoutDot];
-            fileType = interpreter.fileType;
+            if (interpreter)
+                fileType = interpreter.fileType;
         }
 
         if (!interpreter)

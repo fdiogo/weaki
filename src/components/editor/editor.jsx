@@ -4,8 +4,8 @@ import path from 'path';
 import TextEditor from '../text-editor/text-editor';
 import Tabs from '../tabs/tabs';
 
-import ImageDecorator from '../../decorators/image-decorator';
-import ReferenceDecorator from '../../decorators/reference-decorator';
+import ImageDecorator from '../../decorators/image-decorator/image-decorator';
+import ReferenceDecorator from '../../decorators/reference-decorator/reference-decorator';
 import GitCommitSuggestor from '../../content-suggestors/git-commit-suggestor';
 import JavascriptSuggestor from '../../content-suggestors/javascript-suggestor';
 
@@ -29,7 +29,7 @@ class Editor extends React.Component {
         };
 
         this.suggestors = [new GitCommitSuggestor(), new JavascriptSuggestor()];
-        this.decorators = [ReferenceDecorator];
+        this.decorators = [ReferenceDecorator, ImageDecorator];
 
         // Events
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
@@ -150,7 +150,7 @@ class Editor extends React.Component {
         else
             currentFile.pendingChanges = false;
 
-        this.forceUpdate(this.fireOnChange.bind(this));
+        this.setState({ openedFiles: this.state.openedFiles }, this.fireOnChange.bind(this));
     }
 
     render () {

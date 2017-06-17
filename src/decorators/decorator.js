@@ -6,14 +6,17 @@ class Decorator extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            class: props.class,
-            popupVisible: false
+            popup: null,
+            popupVisible: false,
+            containerProps: {
+                className: this.props.className
+            }
         };
     }
 
-    componentWillReceiveProps (nextProps) {
-        if (nextProps.class !== this.state.class)
-            this.setState({ class: nextProps.class });
+    componentWillUpdate (nextProps, nextState) {
+        if (!nextState.containerProps.hasOwnProperty('className'))
+            nextState.containerProps.className = nextProps.className;
     }
 
     render () {
@@ -21,10 +24,7 @@ class Decorator extends React.Component {
             ? <span className="popup">{this.state.popup}</span>
             : null;
 
-        return <span className={this.state.class}>
-            {this.props.children}
-            {popup}
-        </span>;
+        return React.createElement('span', this.state.containerProps, this.props.children, popup);
     }
 
 }
@@ -33,11 +33,11 @@ Decorator.regex = null;
 Decorator.breakable = true;
 
 Decorator.propTypes = {
-    class: PropTypes.string
+    className: PropTypes.string
 };
 
 Decorator.defaultProps = {
-    class: 'decorator'
+    className: 'decorator'
 };
 
 export default Decorator;
