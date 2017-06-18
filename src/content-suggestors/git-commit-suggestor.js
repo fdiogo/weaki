@@ -23,7 +23,7 @@ class GitCommitSuggestor {
         updateCommits();
     }
 
-    getSuggestions (textDescriptor) {
+    getSuggestions (textDescriptor, editor) {
         const suggestions = [];
         const match = regex.exec(textDescriptor.currentWord.text);
 
@@ -42,7 +42,8 @@ class GitCommitSuggestor {
             if (smallHash.indexOf(inputHash) !== 0)
                 continue;
 
-            suggestions.push(GitCommitSuggestor.commitToSuggestion(commit));
+            const suggestion = GitCommitSuggestor.commitToSuggestion(commit);
+            suggestions.push(suggestion);
         }
 
         return suggestions;

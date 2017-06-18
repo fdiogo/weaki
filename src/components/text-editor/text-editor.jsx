@@ -9,6 +9,7 @@ import SelectionDecorator from '../../decorators/selection-decorator/selection-d
 import CursorDecorator from '../../decorators/cursor-decorator/cursor-decorator';
 
 const DELIMITER_REGEX = /(?!^)\b/g;
+const SUGGESTIONS_TIMEOUT = 500;
 
 function getMatches (regex, string) {
     const matches = [];
@@ -126,6 +127,7 @@ class TextEditor extends React.Component {
         this.past = [];
         this.future = [];
         this.lastTextInsertTime = Date.now();
+        this.lastChangeTime = Date.now();
         this.state = {
             text: this.props.text,
             dom: null,
@@ -142,32 +144,45 @@ class TextEditor extends React.Component {
     }
 
     shouldComponentUpdate (nextProps, nextState) {
-        if (nextState !== this.state)
+        if (nextState !== this.state || nextState.suggestions !== this.state.suggestions)
             return true;
 
         return false;
     }
 
     componentWillUpdate (nextProps, nextState) {
-        const text = TextEditor.normalizeText(nextState.text);
-        nextState.text = text;
-        nextState.suggestions = [];
+        if (nextState.text !== this.state.text)
+            nextState.text = TextEditor.normalizeText(nextState.text);
 
-        const textDescriptor = {
-            currentLine: TextEditor.getCurrentLine(nextState),
-            currentWord: TextEditor.getCurrentWord(nextState),
-            allText: text
-        };
+        const currentTime = Date.now();
+        if (currentTime - this.lastChangeTime > SUGGESTIONS_TIMEOUT) {
+            this.lastSuggestionsUpdate = currentTime;
 
-        for (let suggestor of this.props.suggestors) {
-            const suggestions = suggestor.getSuggestions(textDescriptor);
-            if (!suggestions || suggestions.length < 1)
-                continue;
+            const textDescriptor = {
+                currentLine: TextEditor.getCurrentLine(nextState),
+                currentWord: TextEditor.getCurrentWord(nextState),
+                allText: nextState.text
+            };
 
-            nextState.suggestions.push(...suggestions);
+            Promise.all(this.props.suggestors.map(suggestor => Promise.resolve(suggestor.getSuggestions(textDescriptor, this))))
+                .then(results => {
+                    if (this.state !== nextState)
+                        return;
+
+                    this.state.suggestions = [];
+                    for (let suggestions of results) {
+                        if (!suggestions || suggestions.length < 1)
+                            continue;
+
+                        this.state.suggestions.push(...suggestions);
+                    }
+
+                    this.forceUpdate();
+                });
         }
 
-        nextState.dom = TextEditor.generateDOM(text, nextState.selection, nextProps.decorators, nextState.suggestions);
+        this.lastChangeTime = currentTime;
+        nextState.dom = TextEditor.generateDOM(nextState.text, nextState.selection, nextProps.decorators, nextState.suggestions);
     }
 
     componentDidUpdate (prevProps, prevState) {
@@ -534,6 +549,25 @@ class TextEditor extends React.Component {
                 start: selection.start - length,
                 end: selection.end - length
             }
+        });
+    }
+
+    replaceRange (start, end, text) {
+        this.tryUpdatePast();
+        this.clearFuture();
+
+        const textBefore = this.state.text.substring(0, start);
+        const textAfter = this.state.text.substring(end);
+
+        const selection = this.state.selection;
+        if (selection.end > start && selection.end <= end)
+            selection.end = start + text.length;
+        if (selection.start > start && selection.start <= end)
+            selection.start = start + text.length;
+
+        this.setState({
+            text: textBefore + text + textAfter,
+            selection: selection
         });
     }
 

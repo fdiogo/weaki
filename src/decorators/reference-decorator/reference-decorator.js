@@ -22,7 +22,6 @@ class ReferenceDecorator extends Decorator {
             containerProps: {
                 onClick: this.onClick.bind(this),
                 onMouseMove: this.onMouseMove.bind(this),
-                onMouseEnter: this.onMouseEnter.bind(this),
                 onMouseLeave: this.onMouseLeave.bind(this)
             },
             filename: this.props.match ? this.props.match[1] : null,
@@ -48,16 +47,15 @@ class ReferenceDecorator extends Decorator {
     }
 
     onMouseMove (event) {
-        if (event.ctrlKey)
+        if (event.shiftKey)
             this.state.containerProps.className = 'reference-preview';
         else
             this.state.containerProps.className = 'reference';
 
-        this.forceUpdate();
-    }
+        if (event.ctrlKey)
+            this.state.popupVisible = true;
 
-    onMouseEnter (event) {
-        this.setState({ popupVisible: true });
+        this.forceUpdate();
     }
 
     onMouseLeave (event) {

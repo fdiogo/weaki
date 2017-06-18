@@ -28,8 +28,12 @@ class FileHistory extends React.Component {
         }
     }
 
+    shouldComponentUpdate (nextProps, nextState) {
+        return nextState !== this.state || nextProps.file.path !== this.props.file.path;
+    }
+
     componentWillReceiveProps (nextProps) {
-        if (nextProps.file.path) {
+        if (nextProps.file.path && nextProps.file.path !== this.props.file.path) {
             weaki.git.getCommitsForFile(nextProps.file.path)
                     .then((commits) => this.setState({ commits: commits }));
         }
@@ -40,6 +44,8 @@ class FileHistory extends React.Component {
     }
 
     render () {
+        console.log('File history updated');
+
         const commitItems = [];
         for (let commit of this.state.commits.all) {
             commitItems.push(<FileHistoryCommit {...commit}

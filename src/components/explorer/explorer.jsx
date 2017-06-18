@@ -19,6 +19,10 @@ class Explorer extends React.Component {
         ipcRenderer.on('application:directory-loaded', this.onDirectoryLoaded.bind(this));
     }
 
+    shouldComponentUpdate (nextProps, nextState) {
+        return nextState !== this.state;
+    }
+
     /**
     * Adds the file to the state and sets it as the current.
     * @param {Object} event - The event descriptor.
@@ -47,6 +51,7 @@ class Explorer extends React.Component {
     }
 
     render () {
+        console.log('Explorer updated');
         const rootNode = this.state.fileTree.getWorkspaceNode();
 
         return <ul className='explorer-tree'>

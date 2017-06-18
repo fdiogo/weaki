@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from 'react-dom';
 import PropTypes from 'prop-types';
 
 class ContentAssist extends React.Component {
@@ -10,6 +11,24 @@ class ContentAssist extends React.Component {
         };
     }
 
+    componentDidMount () {
+        ReactDOM.findDOMNode(this.refs.container).focus();
+    }
+
+    componentDidUpdate () {
+        ReactDOM.findDOMNode(this.refs.container).focus();
+    }
+
+    onKeyPress (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (event.which === 'ArrowDown')
+            this.setState({ selected: Math.min(this.props.suggestions.length, this.state.selected + 1) });
+        else if (event.which === 'ArrowDown')
+            this.setState({ selected: Math.max(0, this.state.selected - 1) });
+    }
+
     render () {
         const suggestions = this.props.suggestions.map((suggestion, index) => {
             return <Suggestion {...suggestion}
@@ -17,7 +36,9 @@ class ContentAssist extends React.Component {
                 selected={index === this.state.selected}/>;
         });
 
-        return <span className="content-assist">
+        return <span ref="container"
+            className="content-assist"
+            onKeyPress={this.onKeyPress.bind(this)}>
             {suggestions}
         </span>;
     }
