@@ -209,6 +209,11 @@ class MenuTemplate {
                         click: function () { weaki.executeCommand('application:open-on-right-sidebar', '/history'); }
                     },
                     {
+                        label: 'Templates',
+                        accelerator: keymap['view:templates'],
+                        click: function () { weaki.executeCommand('application:open-on-right-sidebar', '/templates'); }
+                    },
+                    {
                         role: 'toggledevtools',
                         accelerator: keymap['view:toggle-dev-tools']
                     },

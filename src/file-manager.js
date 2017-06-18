@@ -93,6 +93,38 @@ class FileManager {
     }
 
     /**
+     * Creates a directory, optionally overwriting if it already exists.
+     * @param {string} directory - The directory to create.
+     * @param {boolean} force - Whether or not to overwrite if the directory already exists.
+     * @returns {Promise<Object[], Error>} A promise to the operation.
+     */
+    createDirectory (directory, force) {
+        directory = this.resolvePath(directory);
+        return this.exists(directory)
+            .then(exists => {
+                if (exists) {
+                    if (force)
+                        return this.removeDirectory(directory).then(() => true);
+                    else
+                        return false;
+                }
+
+                return true;
+            })
+            .then((canCreate) => {
+                if (!canCreate)
+                    return false;
+
+                return new Promise(function (resolve, reject) {
+                    fs.mkdir(directory, function (err) {
+                        if (err) reject(new Error(err));
+                        else resolve(true);
+                    });
+                });
+            });
+    }
+
+    /**
      * Removes a directory with a recursive option.
      * @param {string} directory - The directory to be removed.
      * @param {boolean} recursive - If the operation should be recursive.

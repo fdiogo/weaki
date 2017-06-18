@@ -11,6 +11,7 @@ import StatusBar from './components/status-bar/status-bar';
 import GitCommit from './components/git-commit/git-commit';
 import FileHistory from './components/file-history/file-history';
 import Preview from './components/preview/preview';
+import PageTemplates from './components/page-templates/page-templates';
 import Resizable from './components/resizable/resizable';
 
 /**
@@ -33,7 +34,8 @@ class Window extends React.Component {
         this.sidebarComponents = [
             { route: '/history', component: FileHistory },
             { route: '/git/commit', component: GitCommit },
-            { route: '/preview', component: Preview }
+            { route: '/preview', component: Preview },
+            { route: '/templates', component: PageTemplates }
         ];
 
         ipcRenderer.on('application:open-on-right-sidebar', this.onOpenOnRightSidebar.bind(this));
@@ -51,7 +53,7 @@ class Window extends React.Component {
     render () {
         const sidebarRoutes = [];
         for (let entry of this.sidebarComponents) {
-            const component = React.createElement(entry.component, { file: this.state.currentFile });
+            const component = React.createElement(entry.component, { file: this.state.currentFile, editor: this.refs.editor });
             const route = <Route key={entry.route} path={entry.route} render={() => component} />;
             sidebarRoutes.push(route);
         }
@@ -65,7 +67,7 @@ class Window extends React.Component {
                     </Resizable>
                 </div>
                 <div id="main-panel">
-                    <Editor onChange={file => this.setState({ currentFile: file })}/>
+                    <Editor ref="editor" onChange={file => this.setState({ currentFile: file })}/>
                 </div>
                 <Router history={this.state.rightSidebarHistory}>
                     <div id="right-sidebar">

@@ -7,6 +7,7 @@
     "view:preview": "CmdOrCtrl+Shift+P",
     "view:git-commit": "CmdOrCtrl+Shift+G",
     "view:file-history": "CmdOrCtrl+Shift+H",
+    "view:templates": "CmdOrCtrl+Shift+T",
     "view:toggle-dev-tools": "CmdOrCtrl+Shift+I",
     "view:reload": "CmdOrCtrl+R",
     "view:reset-zoom": "CmdOrCtrl+0",

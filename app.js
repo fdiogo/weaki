@@ -63,7 +63,8 @@ class Weaki {
             })
             .then(() => {
                 this.fileManager.setWorkspace(directory);
-                this.mainWindow.webContents.send('application:workspace-changed', directory);
+                return this.fileManager.createDirectory('.weaki', false)
+                    .then(() => this.mainWindow.webContents.send('application:workspace-changed', directory));
             });
     }
 
