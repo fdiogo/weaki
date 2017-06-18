@@ -11,6 +11,7 @@ class GitCommitSuggestor {
         const smallHash = commit.hash.substring(commit.hash.length - 1 - 5);
         return {
             icon: 'octicon-white octicon-git-branch',
+            data: smallHash,
             text: `${smallHash} ${commit.message}`
         };
     }
@@ -32,17 +33,28 @@ class GitCommitSuggestor {
 
         const inputHash = match[1];
         if (inputHash.length === 0) {
-            const latestCommits = this.commits.all.slice(0, LATEST_COMMITS_COUNT).map(GitCommitSuggestor.commitToSuggestion);
+            const latestCommits = this.commits.all.slice(0, LATEST_COMMITS_COUNT)
+                .map(GitCommitSuggestor.commitToSuggestion)
+                .map(suggestion => {
+                    const start = textDescriptor.currentWord.start + match.index + 1;
+                    const end = start + inputHash.length;
+                    suggestion.action = () => editor.replaceRange(start, end, suggestion.data);
+                    return suggestion;
+                });
+
             suggestions.push(...latestCommits);
             return suggestions;
         }
 
         for (let commit of this.commits.all) {
             const smallHash = commit.hash.substring(commit.hash.length - 1 - 5);
-            if (smallHash.indexOf(inputHash) !== 0)
+            if (smallHash === inputHash || smallHash.indexOf(inputHash) !== 0)
                 continue;
 
             const suggestion = GitCommitSuggestor.commitToSuggestion(commit);
+            const start = textDescriptor.currentWord.start + match.index + 1;
+            const end = start + inputHash.length;
+            suggestion.action = () => editor.replaceRange(start, end, smallHash);
             suggestions.push(suggestion);
         }
 

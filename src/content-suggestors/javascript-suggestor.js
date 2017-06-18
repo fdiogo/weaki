@@ -1,7 +1,7 @@
 import { remote } from 'electron';
 
 const weaki = remote.getGlobal('instance');
-const regex = /([\w\.]+)@([\w\.]*)]/;
+const regex = /([\w\.]+)@([\w\.]*)]/; //eslint-disable-line
 
 class JavascriptSuggestor {
 
@@ -23,7 +23,7 @@ class JavascriptSuggestor {
             for (let section of file.sections) {
                 if (section.name !== sectionName && section.name.indexOf(sectionName) === 0) {
                     suggestions.push({
-                        icont: 'icon icon-javascript',
+                        icon: 'icon icon-javascript',
                         text: section.name,
                         action: () => editor.replaceRange(sectionStart, sectionEnd, section.name)
                     });

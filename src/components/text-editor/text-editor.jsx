@@ -161,7 +161,11 @@ class TextEditor extends React.Component {
             const textDescriptor = {
                 currentLine: TextEditor.getCurrentLine(nextState),
                 currentWord: TextEditor.getCurrentWord(nextState),
-                allText: nextState.text
+                allText: nextState.text,
+                selection: {
+                    start: this.state.selection.start,
+                    end: this.state.selection.end
+                }
             };
 
             Promise.all(this.props.suggestors.map(suggestor => Promise.resolve(suggestor.getSuggestions(textDescriptor, this))))
@@ -560,9 +564,9 @@ class TextEditor extends React.Component {
         const textAfter = this.state.text.substring(end);
 
         const selection = this.state.selection;
-        if (selection.end > start && selection.end <= end)
+        if (selection.end >= start && selection.end <= end)
             selection.end = start + text.length;
-        if (selection.start > start && selection.start <= end)
+        if (selection.start >= start && selection.start <= end)
             selection.start = start + text.length;
 
         this.setState({
