@@ -50,6 +50,46 @@ class TextEditor extends React.Component {
         return text.replace(/(\r\n|\r)/, '\n');
     }
 
+    static highlightToNodes (text) {
+        const nodes = [];
+
+        const highlighted = highlight.highlightAuto(text);
+        const openRegex = /<span class="([a-z\-]+)"/g; // eslint-disable-line
+        const closeRegex = /<\/span>/g;
+
+        const openers = getMatches(openRegex, highlighted.value);
+        const closers = getMatches(closeRegex, highlighted.value);
+
+        const opened = [];
+        let textOffset = 0;
+        let closerIndex = 0;
+        for (let opener of openers) {
+            let nextCloser = closers[closerIndex];
+            while (nextCloser.index < opener.index) {
+                nextCloser.index -= textOffset;
+                textOffset += nextCloser[0].length;
+                const tagStart = opened.pop();
+                nodes.push(new TextEditorNode(tagStart.index, nextCloser.index, 'span', { className: tagStart[1] }));
+                nextCloser = closers[++closerIndex];
+            }
+
+            opener.index -= textOffset;
+            textOffset += opener[0].length + 1;
+            opened.push(opener);
+        }
+
+        let nextCloser = closers[closerIndex];
+        while (opened.length > 0) {
+            nextCloser.index -= textOffset;
+            textOffset += nextCloser[0].length + 1;
+            const tagStart = opened.pop();
+            nodes.push(new TextEditorNode(tagStart.index, nextCloser.index, 'span', { className: tagStart[1] }));
+            nextCloser[++closerIndex];
+        }
+
+        return nodes;
+    }
+
     static generateDOM (text, selection, decorators, suggestions) {
         const editorNodeRoot = new TextEditorNode(0, text.length, 'span');
 
@@ -59,6 +99,9 @@ class TextEditor extends React.Component {
             selectionStart = selection.end;
             selectionEnd = selection.start;
         }
+
+        const highlightNodes = TextEditor.highlightToNodes(text);
+        highlightNodes.forEach(node => editorNodeRoot.tryInsert(node));
 
         for (let decorator of decorators) {
             const matches = getMatches(decorator.regex, text);
