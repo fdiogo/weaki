@@ -57,15 +57,15 @@ class Weaki {
 
     openRepository (directory) {
         this.git.openRepository(directory)
-            .then(() => this.fileManager.readDirectory(directory, true))
-            .then(files => {
-                files.forEach(file => file.isDirectory = file.isDirectory());
-                this.mainWindow.webContents.send('application:directory-loaded', directory, files);
-            })
             .then(() => {
                 this.fileManager.setWorkspace(directory);
                 return this.fileManager.createDirectory('.weaki', false)
                     .then(() => this.mainWindow.webContents.send('application:workspace-changed', directory));
+            })
+            .then(() => this.fileManager.readDirectory(directory, true))
+            .then(files => {
+                files.forEach(file => file.isDirectory = file.isDirectory());
+                this.mainWindow.webContents.send('application:directory-loaded', directory, files);
             });
     }
 

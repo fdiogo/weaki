@@ -37,7 +37,7 @@ class Editor extends React.Component {
 
         // Events
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
-        ipcRenderer.on('application:current-file', this.onCurrentFile.bind(this));
+        ipcRenderer.on('application:save-request', this.onSaveRequest.bind(this));
 
         // Commands
         ipcRenderer.on('editor:close-file', this.onCloseFile.bind(this));
@@ -104,13 +104,19 @@ class Editor extends React.Component {
     }
 
     /**
-     * The handler of the channel 'application:current-file'.
+     * The handler of the channel 'application:save-request'.
      * @param {Object} event - The event descriptor
      * @param {string} responseChannel - The channel to respond to with the file descriptor
      */
-    onCurrentFile (event, responseChannel) {
-        const path = this.state.currentFile.path;
+    onSaveRequest (event, responseChannel) {
+        const file = this.state.currentFile;
+        const path = file.path;
         const content = this.refs.textEditor.getCurrentText();
+        ipcRenderer.once(responseChannel, (event, path) => {
+            file.path = path;
+            file.pendingChanges = false;
+            this.forceUpdate();
+        });
         event.sender.send(responseChannel, path, content);
     }
 

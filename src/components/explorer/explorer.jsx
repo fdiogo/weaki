@@ -17,6 +17,7 @@ class Explorer extends React.Component {
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
         ipcRenderer.on('application:file-created', this.onFileCreated.bind(this));
         ipcRenderer.on('application:directory-loaded', this.onDirectoryLoaded.bind(this));
+        ipcRenderer.on('application:workspace-changed', this.state.fileTree.clear.bind(this.state.fileTree));
     }
 
     shouldComponentUpdate (nextProps, nextState) {

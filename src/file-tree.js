@@ -104,7 +104,7 @@ class FileTree {
                     node = childNode;
             }
         }
-        
+
         return node;
     }
 
@@ -144,6 +144,13 @@ class FileTree {
     getWorkspaceRelativePath (node) {
         const workspaceNode = this.getWorkspaceNode();
         return path.relative(workspaceNode.fullPath, node.fullPath);
+    }
+
+    /**
+     * Clears the entire tree.
+     */
+    clear () {
+        this.root.clear();
     }
 
     /**
@@ -218,6 +225,14 @@ class FileTreeNode {
      */
     getChild (childName) {
         return this.children[childName] || null;
+    }
+
+    /**
+     * Clears the node's children.
+     */
+    clear () {
+        Object.keys(this.children).forEach(childName => this.children[childName].clear());
+        this.children = {};
     }
 
 }

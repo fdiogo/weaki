@@ -27,15 +27,17 @@ class SaveFileCommand extends Command {
     static saveFile (path, content) {
         if (!path || !content) {
             return SaveFileCommand.getCurrentFile()
-                .then(file => {
-                    if (!file.path)
-                        return SaveFileCommand.getSavePath().then(path => { file.path = path; return file; });
+                .then(descriptor => {
+                    if (!descriptor.path)
+                        return SaveFileCommand.getSavePath().then(path => { descriptor.path = path; return descriptor; });
                     else
-                        return file;
+                        return descriptor;
                 })
-                .then(file => {
-                    if (file.path)
-                        weaki.fileManager.writeFile(file.path, file.content);
+                .then(descriptor => {
+                    if (descriptor.path) {
+                        weaki.fileManager.writeFile(descriptor.path, descriptor.content);
+                        weaki.mainWindow.webContents.send(descriptor.responseChannel, descriptor.path);
+                    }
                 });
         }
 
@@ -45,7 +47,8 @@ class SaveFileCommand extends Command {
     static getSavePath () {
         return new Promise(function (resolve, reject) {
             dialog.showSaveDialog(weaki.mainWindow, {
-                title: 'Save As...'
+                title: 'Save As...',
+                defaultPath: weaki.fileManager.workspace
             }, function (filePath) {
                 resolve(filePath);
             });
@@ -60,9 +63,13 @@ class SaveFileCommand extends Command {
     static getCurrentFile () {
         return new Promise(function (resolve, reject) {
             const requestNumber = fileRequests++;
-            const responseChannel = `application:current-file@${requestNumber}`;
-            ipcMain.once(responseChannel, (event, path, content) => resolve({path: path, content: content}));
-            weaki.mainWindow.webContents.send('application:current-file', responseChannel);
+            const responseChannel = `application:save-request@${requestNumber}`;
+            ipcMain.once(responseChannel, (event, path, content) => resolve({
+                path: path,
+                content: content,
+                responseChannel: responseChannel
+            }));
+            weaki.mainWindow.webContents.send('application:save-request', responseChannel);
         });
     }
 
