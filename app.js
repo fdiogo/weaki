@@ -51,7 +51,7 @@ class Weaki {
             this.projectConfig = {};
             this.git = new Git();
             this.fileManager = new FileManager();
-            this.fileInterpreter = new FileInterpreter(this.fileManager, [JavascriptInterpreter]);
+            this.fileInterpreter = new FileInterpreter(this.git, [JavascriptInterpreter]);
             this.mainWindow = launchMainWindow.call(this);
         });
 

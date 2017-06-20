@@ -115,6 +115,18 @@ class Git {
     }
 
     /**
+     * Obtains the hash of the current commit
+     */
+    getCurrentCommitHash () {
+        return new Promise((resolve, reject) => {
+            this.gitInterface.revparse(['HEAD'], (error, data) => {
+                if (error) reject(new Error(error));
+                else resolve(data);
+            });
+        });
+    }
+
+    /**
      * Obtains all the commits for the current repository.
      * @returns {Promise.<Object[], Error>} A promise to the repository commits.
      */

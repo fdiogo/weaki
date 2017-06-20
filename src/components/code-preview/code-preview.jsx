@@ -15,18 +15,18 @@ class CodePreview extends React.Component {
     }
 
     componentDidMount () {
-        this.updateCode(this.props.filename, this.props.section);
+        this.updateCode(this.props.filename, this.props.section, this.props.commit);
     }
 
     componentWillReceiveProps (nextProps) {
-        this.updateCode(nextProps.filename, nextProps.section);
+        this.updateCode(nextProps.filename, nextProps.section, nextProps.commit);
     }
 
-    updateCode (filename, sectionName) {
-        if (!filename || !sectionName)
+    updateCode (filename, sectionName = '', commitHash) {
+        if (!filename)
             return;
 
-        weaki.fileInterpreter.interpretFile(filename)
+        weaki.fileInterpreter.interpretFile(filename, null, commitHash)
             .then(file => {
                 const wantedSection = file.sections.find(section => section.name.indexOf(sectionName) === 0);
                 if (wantedSection)

@@ -8,7 +8,7 @@ const LATEST_COMMITS_COUNT = 5;
 class GitCommitSuggestor {
 
     static commitToSuggestion (commit) {
-        const smallHash = commit.hash.substring(commit.hash.length - 1 - 5);
+        const smallHash = commit.hash.substring(0, 5);
         return {
             icon: 'octicon-white octicon-git-branch',
             data: smallHash,
@@ -47,7 +47,7 @@ class GitCommitSuggestor {
         }
 
         for (let commit of this.commits.all) {
-            const smallHash = commit.hash.substring(commit.hash.length - 1 - 5);
+            const smallHash = commit.hash.substring(0, 5);
             if (smallHash === inputHash || smallHash.indexOf(inputHash) !== 0)
                 continue;
 

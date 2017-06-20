@@ -2,10 +2,11 @@ import path from 'path';
 
 class FileInterpreter {
 
-    constructor (fileManager, codeInterpreters = []) {
-        this.fileManager = fileManager;
+    constructor (git, codeInterpreters = []) {
+        this.git = git;
         this.codeInterpreters = codeInterpreters;
 
+        this.commits = {};
         this.interpretedFiles = {};
         this.interpretersByType = {};
         this.interpretersByExtension = {};
@@ -65,11 +66,11 @@ class FileInterpreter {
      * Interprets a file returning its type and relevant sections based on the language.
      * @returns {Promise.<FileSection[], Error>}
      */
-    interpretFile (filePath, fileType) {
+    interpretFile (filePath, fileType, commitHash) {
         if (!filePath)
             throw new Error('No file path was provided');
 
-        const cached = this.interpretedFiles[filePath];
+        const cached = this.commits[commitHash] ? this.commits[commitHash][filePath] : null;
         if (cached)
             return Promise.resolve(cached);
 
@@ -90,20 +91,27 @@ class FileInterpreter {
         if (!interpreter)
             throw new Error(`No interpreter was found for the file ${filePath}.`);
 
-        const promise = this.fileManager.readFile(filePath)
-            .then(text => {
-                const sections = interpreter.getSections(text);
-                const result = {
-                    text: text,
-                    sections: sections,
-                    type: fileType
-                };
+        const hashPromise = commitHash && commitHash.length >= 5
+            ? Promise.resolve(commitHash)
+            : this.git.getCurrentCommitHash().then(hash => hash.substring(0, 5));
 
-                this.interpretedFiles[filePath] = result;
-                return result;
-            });
+        return hashPromise.then(hash => {
+            return this.git.getFileVersion(filePath, hash)
+                .then(text => {
+                    const sections = interpreter.getSections(text);
+                    const result = {
+                        text: text,
+                        sections: sections,
+                        type: fileType
+                    };
 
-        return promise;
+                    if (!this.commits[hash])
+                        this.commits[hash] = {};
+
+                    this.commits[hash][filePath] = result;
+                    return result;
+                });
+        });
     }
 
 };

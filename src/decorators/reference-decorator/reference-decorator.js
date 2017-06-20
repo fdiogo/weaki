@@ -8,15 +8,6 @@ const weaki = remote.getGlobal('instance');
 
 class ReferenceDecorator extends Decorator {
 
-    static generatePopup (match) {
-        const filename = match[1];
-        const section = match[2];
-        if (!section)
-            return null;
-
-        return <CodePreview filename={filename} section={section} />;
-    }
-
     componentDidMount () {
         this.setState({
             containerProps: {
@@ -25,24 +16,28 @@ class ReferenceDecorator extends Decorator {
                 onMouseLeave: this.onMouseLeave.bind(this)
             },
             filename: this.props.match ? this.props.match[1] : null,
-            section: this.props.match ? this.props.match[2] : null
+            section: this.props.match ? this.props.match[2] : null,
+            commit: this.props.match ? this.props.match[3] : null
         });
     }
 
     componentWillUpdate (nextProps, nextState) {
         super.componentWillUpdate(nextProps, nextState);
-        nextState.popup = <CodePreview filename={nextState.filename} section={nextState.section} />;
+        nextState.popup = <CodePreview filename={nextState.filename}
+            section={nextState.section}
+            commit={nextState.commit} />;
     }
 
     componentWillReceiveProps (nextProps) {
         this.setState({
             filename: nextProps.match ? nextProps.match[1] : null,
-            section: nextProps.match ? nextProps.match[2] : null
+            section: nextProps.match ? nextProps.match[2] : null,
+            commit: nextProps.match ? nextProps.match[3] : null
         });
     }
 
     onClick (event) {
-        if (this.state.filename && event.ctrlKey)
+        if (this.state.filename && event.shiftKey)
             weaki.executeCommand('application:open-file', this.state.filename);
     }
 
@@ -68,7 +63,7 @@ class ReferenceDecorator extends Decorator {
 
 }
 
-ReferenceDecorator.regex = /\[([^\]@]*)(?:@([^\]#]*))?(?:#([A-Za-z0-9~^]*))?\]/g;
+ReferenceDecorator.regex = /\[([^\]@#]*)(?:@([^\]#]*))?(?:#([A-Za-z0-9~^]*))?\]/g;
 ReferenceDecorator.breakable = false;
 ReferenceDecorator.defaultProps = { className: 'reference' };
 export default ReferenceDecorator;
