@@ -1,6 +1,9 @@
-import { ipcRenderer } from 'electron';
+import { ipcRenderer, remote } from 'electron';
+import path from 'path';
 import React from 'react';
 import FileTree from '../../file-tree';
+
+const weaki = remote.getGlobal('instance');
 
 /**
  * A component which represents a clickable file tree.
@@ -11,17 +14,33 @@ class Explorer extends React.Component {
     constructor (props) {
         super(props);
         this.state = {
-            fileTree: new FileTree()
+            workspace: '',
+            fileTree: new FileTree(),
+            ignoredFiles: weaki.config.ignoredFiles || []
         };
 
         ipcRenderer.on('application:file-loaded', this.onFileLoaded.bind(this));
         ipcRenderer.on('application:file-created', this.onFileCreated.bind(this));
         ipcRenderer.on('application:directory-loaded', this.onDirectoryLoaded.bind(this));
-        ipcRenderer.on('application:workspace-changed', this.state.fileTree.clear.bind(this.state.fileTree));
+        ipcRenderer.on('application:workspace-changed', this.onWorkspaceChange.bind(this));
     }
 
     shouldComponentUpdate (nextProps, nextState) {
         return nextState !== this.state || nextProps.file.path !== this.props.file.path;
+    }
+
+    isPathIgnored (fullPath) {
+        for (const ignoredPath of this.state.ignoredFiles) {
+            try {
+                if (fullPath.match(ignoredPath))
+                    return true;
+            } catch (error) {
+                console.log(`Invalid ignore path: ${ignoredPath}`);
+                this.state.ignoredFiles.splice(this.state.ignoredFiles.indexOf(ignoredPath), 1);
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -32,22 +51,39 @@ class Explorer extends React.Component {
     * @listens application:file-loaded
     */
     onFileLoaded (event, filePath, content) {
-        this.state.fileTree.addFile(filePath);
+        const node = this.state.fileTree.addFile(filePath);
+        node.hidden = this.isPathIgnored(filePath);
     }
 
     onFileCreated (event, filePath) {
-        this.state.fileTree.addFile(filePath);
+        const node = this.state.fileTree.addFile(filePath);
+        node.hidden = this.isPathIgnored(filePath);
     }
 
     onDirectoryLoaded (event, directory, files) {
-        this.state.fileTree.addDirectory(directory);
+        const dirNode = this.state.fileTree.addDirectory(directory);
+        dirNode.hidden = this.isPathIgnored(directory);
+
         for (let file of files) {
+            if (this.isPathIgnored(file.path))
+                continue;
+
+            let node = null;
             if (file.isDirectory)
-                this.state.fileTree.addDirectory(file.path);
+                node = this.state.fileTree.addDirectory(file.path);
             else
-                this.state.fileTree.addFile(file.path);
+                node = this.state.fileTree.addFile(file.path);
+
+            node.hidden = dirNode.hidden || this.isPathIgnored(file.path);
         }
 
+        this.forceUpdate();
+    }
+
+    onWorkspaceChange (event, newWorkspace) {
+        this.state.workspace = newWorkspace;
+        this.state.fileTree.clear();
+        this.state.ignoredFiles = weaki.projectConfig.ignoredFiles || this.state.ignoredFiles;
         this.forceUpdate();
     }
 
@@ -111,7 +147,7 @@ class ExplorerDirectory extends ExplorerItem {
     render () {
         const children = [];
         if (!this.state.collapsed) {
-            const sorted = Object.values(this.props.children).sort((a, b) => {
+            const sorted = Object.values(this.props.children).filter(node => !node.hidden).sort((a, b) => {
                 if (a.isDirectory && !b.isDirectory)
                     return -1;
                 if (!a.isDirectory && b.isDirectory)

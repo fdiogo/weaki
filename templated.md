@@ -8,4 +8,4 @@ much good
 
 ### Contributors
 
-Diogo
+Diogo :D it freaking wo

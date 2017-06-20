@@ -277,7 +277,9 @@ class FileManager {
 
         const handle = { root: directory, callback: callback };
         this.addListeners.add(handle);
-        this.watcher.add(directory);
+        this.watcher.add(directory, {
+            ignoreInitial: true
+        });
 
         return handle;
     }
@@ -357,7 +359,6 @@ class FileManager {
 
     onFileAdd (filePath) {
         filePath = this.resolvePath(filePath);
-        console.log(filePath);
         if (!this.addListeners)
             return;
 

@@ -1,6 +1,7 @@
 import {app, BrowserWindow, Menu, ipcMain} from 'electron';
 import path from 'path';
 import url from 'url';
+import fs from 'fs';
 
 import Git from './src/git';
 import FileManager from './src/file-manager';
@@ -46,6 +47,8 @@ class Weaki {
             registerCommands.call(this);
             createMenu.call(this);
             registerChannelListeners.call(this);
+            this.config = loadConfigs.call(this);
+            this.projectConfig = {};
             this.git = new Git();
             this.fileManager = new FileManager();
             this.fileInterpreter = new FileInterpreter(this.fileManager, [JavascriptInterpreter]);
@@ -137,6 +140,18 @@ function registerCommands () {
     commandRegistry.register('editor:code', CodeCommand);
     commandRegistry.register('editor:horizontal-rule', HorizontalRuleCommand);
     commandRegistry.register('editor:image', ImageCommand);
+}
+
+function loadConfigs () {
+    const config = {};
+    try {
+        const ignoredFiles = fs.readFileSync('configs/.weakignore', 'utf8').split('\n').filter(s => s.length > 0);
+        config.ignoredFiles = ignoredFiles;
+    } catch (error) {
+        console.log(`Could not load configs/.weakignore. DETAILS: ${error}`);
+    }
+
+    return config;
 }
 
 /**

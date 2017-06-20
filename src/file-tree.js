@@ -171,6 +171,8 @@ class FileTree {
 class FileTreeNode {
 
     constructor (fullPath, isDirectory) {
+        /** @member {boolean} */
+        this.hidden = false;
         /** @member {string} */
         this.fullPath = fullPath;
         /** @member {boolean} */
