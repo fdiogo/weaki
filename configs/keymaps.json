@@ -1,5 +1,6 @@
 {
     "application:quit": "CmdOrCtrl+Q",
+    "application:new-file": "CmdOrCtrl+N",
     "application:open-file": "CmdOrCtrl+O",
     "application:open-repository": "CmdOrCtrl+Shift+O",
     "application:save-file": "CmdOrCtrl+S",

@@ -39,6 +39,7 @@ class Window extends React.Component {
         ];
 
         ipcRenderer.on('application:open-on-right-sidebar', this.onOpenOnRightSidebar.bind(this));
+        ipcRenderer.on('application:new-file', () => this.refs.editor.createNewFile());
     }
 
     /**

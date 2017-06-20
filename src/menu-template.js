@@ -21,6 +21,11 @@ class MenuTemplate {
                         click: function () { weaki.executeCommand('application:open-file'); }
                     },
                     {
+                        label: 'New File',
+                        accelerator: keymap['application:new-file'],
+                        click: function () { weaki.executeCommand('application:new-file'); }
+                    },
+                    {
                         label: 'Open Repository...',
                         accelerator: keymap['application:open-repository'],
                         click: function () { weaki.executeCommand('application:open-repository'); }

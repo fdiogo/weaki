@@ -144,6 +144,11 @@ class TextEditor extends React.Component {
     }
 
     shouldComponentUpdate (nextProps, nextState) {
+        if (this.props.disabled && nextProps.disabled) {
+            nextState = this.state;
+            return false;
+        }
+
         if (nextState !== this.state || nextState.suggestions !== this.state.suggestions)
             return true;
 

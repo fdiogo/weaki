@@ -25,9 +25,11 @@ class Editor extends React.Component {
 
     constructor (props) {
         super(props);
+        const startingFile = new File();
+
         this.state = {
-            openedFiles: [],
-            currentFile: new File()
+            openedFiles: [startingFile],
+            currentFile: startingFile
         };
 
         this.suggestors = [new GitCommitSuggestor(), new JavascriptSuggestor()];
@@ -51,23 +53,6 @@ class Editor extends React.Component {
         ipcRenderer.on('editor:code', () => this.refs.textEditor.code());
         ipcRenderer.on('editor:horizontal-rule', () => this.refs.textEditor.horizontalRule());
         ipcRenderer.on('editor:image', () => this.refs.textEditor.image());
-    }
-
-    applyTemplate (template, variables = {}) {
-        if (!template || !template.name || !template.content)
-            return;
-
-        const newText = template.content.replace(/{{([^}]+)}}/g, (match, name) => {
-            return variables[name] ? variables[name] : match;
-        });
-
-        const file = this.state.currentFile;
-        file.template = template;
-        file.templateVariables = variables;
-        file.currentContent = newText;
-        file.pendingChanges = true;
-
-        this.setState({ currentFile: file });
     }
 
     /**
@@ -172,25 +157,55 @@ class Editor extends React.Component {
         this.setState({ openedFiles: this.state.openedFiles }, this.fireOnChange.bind(this));
     }
 
+    applyTemplate (template, variables = {}) {
+        if (!template || !template.name || !template.content)
+            return;
+
+        const newText = template.content.replace(/{{([^}]+)}}/g, (match, name) => {
+            return variables[name] ? variables[name] : match;
+        });
+
+        const file = this.state.currentFile;
+        file.template = template;
+        file.templateVariables = variables;
+        file.currentContent = newText;
+        file.pendingChanges = true;
+
+        this.setState({ currentFile: file });
+    }
+
+    createNewFile () {
+        const newFile = new File();
+        this.state.openedFiles.push(newFile);
+        this.setState({
+            openedFiles: this.state.openedFiles,
+            currentFile: newFile
+        });
+    }
+
     render () {
         return <div className="editor">
             <Tabs data={this.state.openedFiles}
-                active={file => file.path === this.state.currentFile.path}
+                active={file => file === this.state.currentFile}
                 onClick={this.onTabClick.bind(this)}
                 getTabDisplay={file => <FileTab {...file}/> }/>
             <TextEditor ref="textEditor"
                 text={this.state.currentFile.currentContent}
                 onChange={this.onTextChange.bind(this)}
                 decorators={this.decorators}
-                suggestors={this.suggestors}/>
+                suggestors={this.suggestors}
+                disabled={this.state.openedFiles.length === 0}/>
         </div>;
     }
 }
 
 class FileTab extends React.Component {
+
     render () {
+        const name = this.props.path ? path.basename(this.props.path) : 'untitled';
+
         return <span className="editor-tab">
-            <span className="editor-tab-name">{path.basename(this.props.path)}</span>
+            <span className="editor-tab-name">{name}</span>
             { this.props.pendingChanges ? <span className="octicon-white octicon-primitive-dot"></span> : null }
         </span>;
     }

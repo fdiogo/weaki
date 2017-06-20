@@ -11,6 +11,7 @@ import MenuTemplate from './src/menu-template';
 import JavascriptInterpreter from './src/code-interpreters/javascript-interpreter';
 
 // Commands
+import NewFileCommand from './src/commands/new-file-command';
 import OpenFileCommand from './src/commands/open-file-command';
 import OpenRepositoryCommand from './src/commands/open-repository-command';
 import OpenOnRightSidebarCommand from './src/commands/open-on-right-sidebar-command';
@@ -109,6 +110,7 @@ class Weaki {
  * Registers, by selector, the commands known by the application.
  */
 function registerCommands () {
+    commandRegistry.register('application:new-file', NewFileCommand);
     commandRegistry.register('application:open-file', OpenFileCommand);
     commandRegistry.register('application:open-repository', OpenRepositoryCommand);
     commandRegistry.register('application:save-file', SaveFileCommand);
