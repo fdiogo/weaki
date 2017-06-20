@@ -53,12 +53,12 @@ class TextEditor extends React.Component {
     static highlightToNodes (text) {
         const nodes = [];
 
-        const highlighted = highlight.highlightAuto(text);
-        const openRegex = /<span class="([a-z\-]+)"/g; // eslint-disable-line
+        const highlighted = highlight.highlightAuto(text).value.replace(/&gt;/g, '>').replace(/&lt;/g, '<');
+        const openRegex = /<span class="([a-z\-]+)">/g; // eslint-disable-line
         const closeRegex = /<\/span>/g;
 
-        const openers = getMatches(openRegex, highlighted.value);
-        const closers = getMatches(closeRegex, highlighted.value);
+        const openers = getMatches(openRegex, highlighted);
+        const closers = getMatches(closeRegex, highlighted);
 
         const opened = [];
         let textOffset = 0;
@@ -74,17 +74,17 @@ class TextEditor extends React.Component {
             }
 
             opener.index -= textOffset;
-            textOffset += opener[0].length + 1;
+            textOffset += opener[0].length;
             opened.push(opener);
         }
 
         let nextCloser = closers[closerIndex];
         while (opened.length > 0) {
             nextCloser.index -= textOffset;
-            textOffset += nextCloser[0].length + 1;
+            textOffset += nextCloser[0].length;
             const tagStart = opened.pop();
             nodes.push(new TextEditorNode(tagStart.index, nextCloser.index, 'span', { className: tagStart[1] }));
-            nextCloser[++closerIndex];
+            nextCloser = closers[++closerIndex];
         }
 
         return nodes;
