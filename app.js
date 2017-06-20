@@ -58,7 +58,13 @@ class Weaki {
     openRepository (directory) {
         this.git.openRepository(directory)
             .then(() => {
+                if (this.addListener)
+                    this.fileManager.unwatchFileAdd(this.addListener);
+
                 this.fileManager.setWorkspace(directory);
+                this.addListener = this.fileManager.watchFileAdd(directory, filePath => {
+                    this.mainWindow.webContents.send('application:file-created', filePath);
+                });
                 return this.fileManager.createDirectory('.weaki', false)
                     .then(() => this.mainWindow.webContents.send('application:workspace-changed', directory));
             })

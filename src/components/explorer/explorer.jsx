@@ -111,10 +111,20 @@ class ExplorerDirectory extends ExplorerItem {
     render () {
         const children = [];
         if (!this.state.collapsed) {
-            for (let name in this.props.children) {
-                const childNode = this.props.children[name];
+            const sorted = Object.values(this.props.children).sort((a, b) => {
+                if (a.isDirectory && !b.isDirectory)
+                    return -1;
+                if (!a.isDirectory && b.isDirectory)
+                    return 1;
+
+                if (a.name.toLowerCase() <= b.name.toLowerCase())
+                    return -1;
+
+                return 1;
+            });
+
+            for (let childNode of sorted)
                 children.push(ExplorerItem.fromNode(childNode, this.props.openedFile));
-            }
         }
 
         const chevronClasses = ['octicon-white'];

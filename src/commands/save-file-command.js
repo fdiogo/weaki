@@ -28,9 +28,13 @@ class SaveFileCommand extends Command {
         if (!path || !content) {
             return SaveFileCommand.getCurrentFile()
                 .then(descriptor => {
-                    if (!descriptor.path)
-                        return SaveFileCommand.getSavePath().then(path => { descriptor.path = path; return descriptor; });
-                    else
+                    if (!descriptor.path) {
+                        return SaveFileCommand.getSavePath().then(path => {
+                            descriptor.path = path;
+                            weaki.fileManager.onFileAdd(path);
+                            return descriptor;
+                        });
+                    } else
                         return descriptor;
                 })
                 .then(descriptor => {

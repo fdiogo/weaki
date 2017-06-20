@@ -19,6 +19,12 @@ function File (filePath) {
     this.pendingChanges = false;
     this.template = {};
     this.templateVariables = {};
+    this.copy = () => {
+        const file = new File(filePath);
+        for (const propName in this)
+            file[propName] = this[propName];
+        return file;
+    };
 }
 
 class Editor extends React.Component {
@@ -113,9 +119,12 @@ class Editor extends React.Component {
         const path = file.path;
         const content = this.refs.textEditor.getCurrentText();
         ipcRenderer.once(responseChannel, (event, path) => {
-            file.path = path;
-            file.pendingChanges = false;
-            this.forceUpdate();
+            const newFile = file.copy();
+            newFile.path = path;
+            newFile.pendingChanges = false;
+            this.state.openedFiles.splice(this.state.openedFiles.indexOf(file), 1, newFile);
+            if (this.state.currentFile === file)
+                this.setState({ currentFile: newFile }, this.fireOnChange.bind(this));
         });
         event.sender.send(responseChannel, path, content);
     }

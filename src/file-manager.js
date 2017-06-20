@@ -33,6 +33,7 @@ class FileManager {
     }
 
     setWorkspace (directory) {
+        this.watcher.unwatch(this.workspace);
         this.workspace = directory;
     }
 
@@ -212,7 +213,7 @@ class FileManager {
     createFile (filePath, content = '') {
         filePath = this.resolvePath(filePath);
         return this.exists(filePath)
-            .then(exists => new Promise(function (resolve, reject) {
+            .then(exists => new Promise((resolve, reject) => {
                 if (exists)
                     reject(new Error('The file already exists!'));
                 else {
@@ -300,6 +301,21 @@ class FileManager {
         }
     }
 
+    unwatchFileAdd (handle) {
+        this.addListeners.delete(handle);
+        const directory = handle.root;
+        let remaining = false;
+        for (const handle of this.addListeners) {
+            if (handle.root === directory) {
+                remaining = true;
+                break;
+            }
+        }
+
+        if (!remaining)
+            this.watcher.unwatch(directory);
+    }
+
     /**
      * When a file's content is changed.
      *
@@ -341,6 +357,7 @@ class FileManager {
 
     onFileAdd (filePath) {
         filePath = this.resolvePath(filePath);
+        console.log(filePath);
         if (!this.addListeners)
             return;
 
