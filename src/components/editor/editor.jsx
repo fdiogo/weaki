@@ -17,6 +17,8 @@ function File (filePath) {
     this.lastSavedContent = '';
     this.currentContent = '';
     this.pendingChanges = false;
+    this.template = {};
+    this.templateVariables = {};
 }
 
 class Editor extends React.Component {
@@ -49,6 +51,23 @@ class Editor extends React.Component {
         ipcRenderer.on('editor:code', () => this.refs.textEditor.code());
         ipcRenderer.on('editor:horizontal-rule', () => this.refs.textEditor.horizontalRule());
         ipcRenderer.on('editor:image', () => this.refs.textEditor.image());
+    }
+
+    applyTemplate (template, variables = {}) {
+        if (!template || !template.name || !template.content)
+            return;
+
+        const newText = template.content.replace(/{{([^}]+)}}/g, (match, name) => {
+            return variables[name] ? variables[name] : match;
+        });
+
+        const file = this.state.currentFile;
+        file.template = template;
+        file.templateVariables = variables;
+        file.currentContent = newText;
+        file.pendingChanges = true;
+
+        this.setState({ currentFile: file });
     }
 
     /**

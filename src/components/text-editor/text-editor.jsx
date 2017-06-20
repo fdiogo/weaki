@@ -9,7 +9,7 @@ import SelectionDecorator from '../../decorators/selection-decorator/selection-d
 import CursorDecorator from '../../decorators/cursor-decorator/cursor-decorator';
 
 const DELIMITER_REGEX = /(?!^)\b/g;
-const SUGGESTIONS_TIMEOUT = 500;
+const SUGGESTIONS_TIMEOUT = 100;
 
 function getMatches (regex, string) {
     const matches = [];
@@ -163,25 +163,22 @@ class TextEditor extends React.Component {
                 currentWord: TextEditor.getCurrentWord(nextState),
                 allText: nextState.text,
                 selection: {
-                    start: this.state.selection.start,
-                    end: this.state.selection.end
+                    start: nextState.selection.start,
+                    end: nextState.selection.end
                 }
             };
 
             Promise.all(this.props.suggestors.map(suggestor => Promise.resolve(suggestor.getSuggestions(textDescriptor, this))))
                 .then(results => {
-                    if (this.state !== nextState)
-                        return;
-
-                    this.state.suggestions = [];
+                    const newSuggestions = [];
                     for (let suggestions of results) {
                         if (!suggestions || suggestions.length < 1)
                             continue;
 
-                        this.state.suggestions.push(...suggestions);
+                        newSuggestions.push(...suggestions);
                     }
 
-                    this.forceUpdate();
+                    this.setState({ suggestions: newSuggestions });
                 });
         }
 

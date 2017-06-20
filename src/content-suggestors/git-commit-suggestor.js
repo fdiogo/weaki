@@ -28,7 +28,7 @@ class GitCommitSuggestor {
         const suggestions = [];
         const match = regex.exec(textDescriptor.currentWord.text);
 
-        if (!match)
+        if (!match || textDescriptor.selection.end <= match.index + textDescriptor.currentWord.start)
             return suggestions;
 
         const inputHash = match[1];
