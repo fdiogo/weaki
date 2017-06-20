@@ -64,7 +64,7 @@ class Window extends React.Component {
             <div id="workspace">
                 <div id="left-sidebar">
                     <Resizable right>
-                        <Explorer />
+                        <Explorer file={this.state.currentFile}/>
                     </Resizable>
                 </div>
                 <div id="main-panel">

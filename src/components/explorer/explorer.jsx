@@ -20,7 +20,7 @@ class Explorer extends React.Component {
     }
 
     shouldComponentUpdate (nextProps, nextState) {
-        return nextState !== this.state;
+        return nextState !== this.state || nextProps.file.path !== this.props.file.path;
     }
 
     /**
@@ -55,7 +55,7 @@ class Explorer extends React.Component {
         const rootNode = this.state.fileTree.getWorkspaceNode();
 
         return <ul className='explorer-tree'>
-            {rootNode !== this.state.fileTree.root ? ExplorerItem.fromNode(rootNode) : []}
+            {rootNode !== this.state.fileTree.root ? ExplorerItem.fromNode(rootNode, this.props.file) : []}
         </ul>;
     }
 
@@ -63,11 +63,11 @@ class Explorer extends React.Component {
 
 class ExplorerItem extends React.Component {
 
-    static fromNode (node) {
+    static fromNode (node, openedFile = {}) {
         if (node.isDirectory)
-            return <ExplorerDirectory key={node.fullPath} {...node} />;
+            return <ExplorerDirectory key={node.fullPath} {...node} openedFile={openedFile}/>;
         else
-            return <ExplorerFile key={node.fullPath} {...node} />;
+            return <ExplorerFile key={node.fullPath} {...node} selected={node.fullPath === openedFile.path} />;
     }
 }
 
@@ -78,7 +78,13 @@ class ExplorerFile extends ExplorerItem {
     }
 
     render () {
-        return <div className="explorer-item explorer-item-file">
+        const classes = ['explorer-item'];
+        if (this.props.selected)
+            classes.push('explorer-item-file-selected');
+        else
+            classes.push('explorer-item-file');
+
+        return <div className={classes.join(' ')}>
             <div className="explorer-item-title" onClick={this.onClick.bind(this)}>
                 <span className="octicon-white octicon-file"></span>
                 {this.props.name}
@@ -106,7 +112,7 @@ class ExplorerDirectory extends ExplorerItem {
         if (!this.state.collapsed) {
             for (let name in this.props.children) {
                 const childNode = this.props.children[name];
-                children.push(ExplorerItem.fromNode(childNode));
+                children.push(ExplorerItem.fromNode(childNode, this.props.openedFile));
             }
         }
 

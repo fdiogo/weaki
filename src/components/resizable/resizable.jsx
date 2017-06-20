@@ -68,7 +68,6 @@ class ResizeBar extends React.Component {
 
         const widthOffset = (event.screenX - this.originalX) * this.props.horizontalDirection;
         const heightOffset = (event.screenY - this.originalY) * this.props.verticalDirection;
-        console.log(widthOffset);
         if (this.props.horizontal && this.props.onNewWidth)
             this.props.onNewWidth(widthOffset);
         else if (this.props.vertical && this.props.onNewHeight)

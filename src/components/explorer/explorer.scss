@@ -41,7 +41,14 @@
     }
 }
 
-.explorer-item-file {
+.explorer-item-file-selected {
+
+
+    .explorer-item-title {
+        @extend .explorer-item-title;
+        background-color: $primary-highlight-color;
+    }
+
 }
 
 .explorer-item-directory {
@@ -50,7 +57,7 @@
         padding-left: 40px;
     }
 
-    > .explorer-item-file {
+    > .explorer-item-file, > .explorer-item-file-selected {
         padding-left: 80px;
     }
 }

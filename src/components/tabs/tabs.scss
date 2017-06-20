@@ -1,6 +1,7 @@
 @import '../../styles/theme';
 
 .tabs {
+    user-select: none;
     display: flex;
     height: 35px;
     flex-direction: row;
