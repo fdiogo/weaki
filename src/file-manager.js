@@ -32,11 +32,19 @@ class FileManager {
         this.watcher.on('change', this.onFileChange.bind(this));
     }
 
+    /**
+     * Sets the workspace path for all the operations.
+     * @param {string} directory - The new workspace path.
+     */
     setWorkspace (directory) {
         this.watcher.unwatch(this.workspace);
         this.workspace = directory;
     }
 
+    /**
+     * Resolves a path by joining it with the current workspace if it's not absolute.
+     * @param {string} filename - The path to resolve.
+     */
     resolvePath (filename) {
         if (path.isAbsolute(filename) === false && this.workspace)
             return path.join(this.workspace, filename);
@@ -303,6 +311,10 @@ class FileManager {
         }
     }
 
+    /**
+     * Removes a listener for new files.
+     * @param {object} handle - The object returned by {@link FileManager.watchFileAdd}
+     */
     unwatchFileAdd (handle) {
         this.addListeners.delete(handle);
         const directory = handle.root;
@@ -357,6 +369,10 @@ class FileManager {
             });
     }
 
+    /**
+     * Calls the respective listeners for when a file is added to a watched directory.
+     * @param {string} filePath - The added file.
+     */
     onFileAdd (filePath) {
         filePath = this.resolvePath(filePath);
         if (!this.addListeners)

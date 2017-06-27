@@ -5,7 +5,7 @@ const regex = /#(\w*)/;
 
 const LATEST_COMMITS_COUNT = 5;
 
-class GitCommitSuggestor {
+class GitCommitSuggester {
 
     static commitToSuggestion (commit) {
         const smallHash = commit.hash.substring(0, 5);
@@ -34,7 +34,7 @@ class GitCommitSuggestor {
         const inputHash = match[1];
         if (inputHash.length === 0) {
             const latestCommits = this.commits.all.slice(0, LATEST_COMMITS_COUNT)
-                .map(GitCommitSuggestor.commitToSuggestion)
+                .map(GitCommitSuggester.commitToSuggestion)
                 .map(suggestion => {
                     const start = textDescriptor.currentWord.start + match.index + 1;
                     const end = start + inputHash.length;
@@ -51,7 +51,7 @@ class GitCommitSuggestor {
             if (smallHash === inputHash || smallHash.indexOf(inputHash) !== 0)
                 continue;
 
-            const suggestion = GitCommitSuggestor.commitToSuggestion(commit);
+            const suggestion = GitCommitSuggester.commitToSuggestion(commit);
             const start = textDescriptor.currentWord.start + match.index + 1;
             const end = start + inputHash.length;
             suggestion.action = () => editor.replaceRange(start, end, smallHash);
@@ -63,4 +63,4 @@ class GitCommitSuggestor {
 
 };
 
-export default GitCommitSuggestor;
+export default GitCommitSuggester;

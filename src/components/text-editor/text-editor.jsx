@@ -216,7 +216,7 @@ class TextEditor extends React.Component {
                 }
             };
 
-            Promise.all(this.props.suggestors.map(suggestor => Promise.resolve(suggestor.getSuggestions(textDescriptor, this))))
+            Promise.all(this.props.suggesters.map(suggestor => Promise.resolve(suggestor.getSuggestions(textDescriptor, this))))
                 .then(results => {
                     const newSuggestions = [];
                     for (let suggestions of results) {
@@ -735,7 +735,7 @@ TextEditor.propTypes = {
 TextEditor.defaultProps = {
     text: '',
     decorators: [],
-    suggestors: [],
+    suggesters: [],
     historyTimeout: 300
 };
 

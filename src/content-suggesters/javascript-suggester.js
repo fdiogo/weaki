@@ -3,7 +3,7 @@ import { remote } from 'electron';
 const weaki = remote.getGlobal('instance');
 const regex = /([\w\.]+)@([\w\.]*)(?!#([\w\.]*))?]/; //eslint-disable-line
 
-class JavascriptSuggestor {
+class JavascriptSuggester {
 
     getSuggestions (textDescriptor, editor) {
         const match = regex.exec(textDescriptor.currentWord.text);
@@ -37,4 +37,4 @@ class JavascriptSuggestor {
 
 };
 
-export default JavascriptSuggestor;
+export default JavascriptSuggester;

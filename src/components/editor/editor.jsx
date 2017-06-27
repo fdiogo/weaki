@@ -6,10 +6,24 @@ import Tabs from '../tabs/tabs';
 
 import ImageDecorator from '../../decorators/image-decorator/image-decorator';
 import ReferenceDecorator from '../../decorators/reference-decorator/reference-decorator';
-import GitCommitSuggestor from '../../content-suggestors/git-commit-suggestor';
-import JavascriptSuggestor from '../../content-suggestors/javascript-suggestor';
+import GitCommitSuggester from '../../content-suggesters/git-commit-suggester';
+import JavascriptSuggester from '../../content-suggesters/javascript-suggester';
 
 const weaki = remote.getGlobal('instance');
+
+const MAXIMUM_HEADER_LEVEL = 6;
+const MINIMUM_HEADER_LEVEL = 1;
+const LINK_REGEX = new RegExp('^(https?|ftp|file)://[-A-Z0-9+&@#/%?=~_|!:,.;]*[-A-Z0-9+&@#/%=~_|]$', 'i');
+const TABLE_TEMPLATE = `
+<table>
+    <tr>
+        <th> Column Title </th>
+    </tr>
+    <tr>
+        <td> *DATA* </td>
+    </tr>
+</table>
+`;
 
 function File (filePath) {
     this.path = filePath;
@@ -38,7 +52,7 @@ class Editor extends React.Component {
             currentFile: startingFile
         };
 
-        this.suggestors = [new GitCommitSuggestor(), new JavascriptSuggestor()];
+        this.suggesters = [new GitCommitSuggester(), new JavascriptSuggester()];
         this.decorators = [ReferenceDecorator, ImageDecorator];
 
         // Events
@@ -47,18 +61,126 @@ class Editor extends React.Component {
 
         // Commands
         ipcRenderer.on('editor:close-file', this.onCloseFile.bind(this));
-        ipcRenderer.on('editor:bold', () => this.refs.textEditor.bold());
-        ipcRenderer.on('editor:italic', () => this.refs.textEditor.italic());
-        ipcRenderer.on('editor:strike-through', () => this.refs.textEditor.strikeThrough());
-        ipcRenderer.on('editor:header', (event, level) => this.refs.textEditor.header(level));
-        ipcRenderer.on('editor:link', () => this.refs.textEditor.link());
-        ipcRenderer.on('editor:unordered-list', () => this.refs.textEditor.unorderedList());
-        ipcRenderer.on('editor:ordered-list', () => this.refs.textEditor.orderedList());
-        ipcRenderer.on('editor:blockquote', () => this.refs.textEditor.blockquote());
-        ipcRenderer.on('editor:table', () => this.refs.textEditor.table());
-        ipcRenderer.on('editor:code', () => this.refs.textEditor.code());
-        ipcRenderer.on('editor:horizontal-rule', () => this.refs.textEditor.horizontalRule());
-        ipcRenderer.on('editor:image', () => this.refs.textEditor.image());
+        ipcRenderer.on('editor:bold', this.bold.bind(this));
+        ipcRenderer.on('editor:italic', this.italic.bind(this));
+        ipcRenderer.on('editor:strike-through', this.strikeThrough.bind(this));
+        ipcRenderer.on('editor:header', (event, level) => this.header(level));
+        ipcRenderer.on('editor:link', this.link.bind(this));
+        ipcRenderer.on('editor:unordered-list', this.unorderedList.bind(this));
+        ipcRenderer.on('editor:ordered-list', this.orderedList.bind(this));
+        ipcRenderer.on('editor:blockquote', this.blockquote.bind(this));
+        ipcRenderer.on('editor:table', this.table.bind(this));
+        ipcRenderer.on('editor:code', this.code.bind(this));
+        ipcRenderer.on('editor:horizontal-rule', this.horizontalRule.bind(this));
+        ipcRenderer.on('editor:image', this.image.bind(this));
+    }
+
+    /**
+     * Turns the text bold.
+     */
+    bold () {
+        this.refs.textEditor.insertText('**', '**');
+    }
+
+    /**
+     * Turns the text italic.
+     */
+    italic () {
+        this.refs.textEditor.insertText('_', '_');
+    }
+
+    /**
+     * Underlines the text.
+     */
+    underline () {
+        this.refs.textEditor.insertText('__', '__');
+    }
+
+    /**
+     * Strikes through the text.
+     */
+    strikeThrough () {
+        this.refs.textEditor.insertText('<s>', '</s>');
+    }
+
+    /**
+     * Creats a link.
+     */
+    link () {
+        if (this.refs.textEditor.isTextSelected()) {
+            const selectedText = this.refs.textEditor.getSelectedText();
+            if (LINK_REGEX.test(selectedText))
+                this.refs.textEditor.insertText('[Link Name](', ')');
+            else
+                this.refs.textEditor.insertText('[', '](URI)');
+        } else
+            this.refs.textEditor.insertText('[Link Name]', '(URI)');
+    }
+
+    /**
+     * Creats an image.
+     */
+    image () {
+        if (this.refs.textEditor.isTextSelected()) {
+            const selectedText = this.refs.textEditor.getSelectedText();
+            if (LINK_REGEX.test(selectedText))
+                this.refs.textEditor.insertText('![Image Name](', ' "Title")');
+            else
+                this.refs.textEditor.insertText('![', '](URI "Title")');
+        } else
+            this.refs.textEditor.insertText('![Image Name]', '(URI "Title")');
+    }
+
+    /**
+     * Creates a header.
+     * @param {number} [level=1] - The header level (between 1 and 6).
+     */
+    header (level = MINIMUM_HEADER_LEVEL) {
+        if (level < MINIMUM_HEADER_LEVEL) level = MINIMUM_HEADER_LEVEL;
+        else if (level > MAXIMUM_HEADER_LEVEL) level = MAXIMUM_HEADER_LEVEL;
+
+        const headerWrapper = '#'.repeat(level);
+        this.refs.textEditor.insertText(`${headerWrapper} `);
+    }
+
+    /**
+     * Creates an unordered list.
+     */
+    unorderedList () {
+        this.refs.textEditor.insertText('* ');
+    }
+
+    /**
+     * Creates an ordered list.
+     */
+    orderedList () {
+        this.refs.textEditor.insertText('1. ');
+    }
+
+    /**
+     * Creates a blockquote.
+     */
+    blockquote () {
+        this.refs.textEditor.insertText('> ');
+    }
+
+    /**
+     * Creates a span of code.
+     */
+    code () {
+        this.refs.textEditor.insertText('`', '`');
+    }
+
+    /**
+     * Creates a horizontal rule.
+     */
+    horizontalRule () {
+        this.refs.textEditor.insertText('', '\n***\n');
+    }
+
+    table () {
+        const tableParts = TABLE_TEMPLATE.split('*DATA*');
+        this.refs.textEditor.insertText(tableParts[0], tableParts[1]);
     }
 
     /**
@@ -208,7 +330,7 @@ class Editor extends React.Component {
                 text={this.state.currentFile.currentContent}
                 onChange={this.onTextChange.bind(this)}
                 decorators={this.decorators}
-                suggestors={this.suggestors}
+                suggesters={this.suggesters}
                 disabled={this.state.openedFiles.length === 0}/>
         </div>;
     }
